@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lastcall
+    username: root
+    password: 1234
+
+server:
+  port: 8080
+
+emergency:
+  api:
+    service-key: b82959989fe0a51f8b1a1ea2756b57be5bd5540e1af02f56c601aa120fdaf6cd
