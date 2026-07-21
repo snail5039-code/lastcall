@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Update;
 
 import com.lastcall.dto.CommunityCommentDto;
 import com.lastcall.dto.CommunityPostDto;
+import com.lastcall.dto.CommunityReportDto;
 
 @Mapper
 public interface CommunityDao {
@@ -178,4 +179,49 @@ public interface CommunityDao {
 			    WHERE id = #{id}
 			""")
 	int deleteComment(Long id);
+
+	@Insert("""
+			INSERT INTO communityReport (targetType, targetId, reason)
+			VALUES (#{targetType}, #{targetId}, #{reason})
+			""")
+	@Options(useGeneratedKeys = true, keyProperty = "id")
+	int insertReport(CommunityReportDto report);
+
+	@Update("""
+			CREATE TABLE IF NOT EXISTS communityReport (
+			    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+			    targetType VARCHAR(20) NOT NULL,
+			    targetId BIGINT NOT NULL,
+			    reason VARCHAR(300) NOT NULL,
+			    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+			    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			    INDEX idx_community_report_status (status, createdAt)
+			)
+			""")
+	void ensureReportTable();
+
+	@Select("""
+			SELECT r.id, r.targetType, r.targetId, r.reason, r.status, r.createdAt,
+			       CASE WHEN r.targetType = 'POST' THEN p.title ELSE CONCAT('댓글 #', r.targetId) END AS targetTitle,
+			       CASE WHEN r.targetType = 'POST' THEN p.content ELSE c.content END AS targetContent,
+			       CASE WHEN r.targetType = 'POST' THEN p.nickname ELSE c.nickname END AS targetNickname
+			FROM communityReport r
+			LEFT JOIN communityPost p ON r.targetType = 'POST' AND p.id = r.targetId
+			LEFT JOIN communityComment c ON r.targetType = 'COMMENT' AND c.id = r.targetId
+			WHERE (#{status} IS NULL OR #{status} = '' OR r.status = #{status})
+			ORDER BY r.createdAt DESC
+			""")
+	List<CommunityReportDto> selectReports(String status);
+
+	@Update("UPDATE communityReport SET status = 'RESOLVED' WHERE id = #{id}")
+	int resolveReport(Long id);
+
+	@Select("SELECT * FROM communityReport WHERE id = #{id}")
+	CommunityReportDto selectReportById(Long id);
+
+	@Delete("DELETE FROM communityPost WHERE id = #{id}")
+	int adminDeletePost(Long id);
+
+	@Delete("DELETE FROM communityComment WHERE id = #{id}")
+	int adminDeleteComment(Long id);
 }

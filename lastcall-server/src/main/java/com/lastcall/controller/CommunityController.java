@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lastcall.dto.CommunityCommentDto;
 import com.lastcall.dto.CommunityPostDto;
 import com.lastcall.dto.CommunityPostPageDto;
+import com.lastcall.dto.CommunityReportDto;
+import com.lastcall.dto.AdminLoginDto;
+import com.lastcall.dto.AdminSessionDto;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestHeader;
 import com.lastcall.service.CommunityService;
 
 import lombok.RequiredArgsConstructor;
@@ -90,5 +95,50 @@ public class CommunityController {
 	@DeleteMapping("/comment/{id}")
 	public int deleteComment(@PathVariable Long id, @RequestParam String password) {
 		return communityService.deleteComment(id, password);
+	}
+
+	@PostMapping("/report")
+	public int reportContent(@RequestBody CommunityReportDto reportDto) {
+		return communityService.insertReport(reportDto);
+	}
+
+	@PostMapping("/admin/login")
+	public AdminSessionDto loginAdmin(@RequestBody AdminLoginDto loginDto, HttpServletRequest request) {
+		return communityService.loginAdmin(loginDto.getUsername(), loginDto.getPassword(), request.getRemoteAddr());
+	}
+
+	@GetMapping("/admin/reports")
+	public List<CommunityReportDto> selectAdminReports(
+			@RequestHeader(value = "Authorization", required = false) String authorization,
+			@RequestParam(defaultValue = "PENDING") String status) {
+		communityService.requireAdmin(authorization);
+		return communityService.selectAdminReports(status);
+	}
+
+	@PutMapping("/admin/reports/{id}/resolve")
+	public int resolveAdminReport(@PathVariable Long id,
+			@RequestHeader(value = "Authorization", required = false) String authorization) {
+		communityService.requireAdmin(authorization);
+		return communityService.resolveAdminReport(id);
+	}
+
+	@DeleteMapping("/admin/reports/{id}/content")
+	public int deleteReportedContent(@PathVariable Long id,
+			@RequestHeader(value = "Authorization", required = false) String authorization) {
+		communityService.requireAdmin(authorization);
+		return communityService.deleteReportedContent(id);
+	}
+
+	@DeleteMapping("/admin/posts/{id}")
+	public int deletePostAsAdmin(@PathVariable Long id,
+			@RequestHeader(value = "Authorization", required = false) String authorization) {
+		communityService.requireAdmin(authorization);
+		return communityService.deletePostAsAdmin(id);
+	}
+
+	@PostMapping("/admin/logout")
+	public void logoutAdmin(@RequestHeader(value = "Authorization", required = false) String authorization) {
+		communityService.requireAdmin(authorization);
+		communityService.logoutAdmin(authorization);
 	}
 }

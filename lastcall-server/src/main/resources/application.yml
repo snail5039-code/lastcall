@@ -14,3 +14,7 @@ server:
 emergency:
   api:
     service-key: ${EMERGENCY_API_KEY}
+
+admin:
+  username: ${ADMIN_USERNAME:admin}
+  password: ${ADMIN_PASSWORD:}

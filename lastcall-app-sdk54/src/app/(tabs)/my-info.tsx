@@ -1,10 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
+  Linking,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
 
 type PersonInfo = {
   relation: string;
@@ -65,37 +67,11 @@ export default function MyInfoScreen() {
 
   const loadPersonList = async () => {
     try {
-      const savedList = await AsyncStorage.getItem("myInfoList");
+      const savedList = await loadMedicalInfo();
 
       if (savedList) {
         const parsedList: PersonInfo[] = JSON.parse(savedList);
         setPersonList(parsedList);
-        setSelectedIndex(0);
-        setIsEditMode(false);
-        return;
-      }
-
-      const oldMyInfo = await AsyncStorage.getItem("myInfo");
-
-      if (oldMyInfo) {
-        const oldInfo = JSON.parse(oldMyInfo);
-
-        const migratedInfo: PersonInfo = {
-          relation: "본인",
-          name: oldInfo.name || "",
-          birth: oldInfo.birth || "",
-          gender: oldInfo.gender || "",
-          bloodType: oldInfo.bloodType || "",
-          disease: oldInfo.disease || "",
-          medicine: oldInfo.medicine || "",
-          allergy: oldInfo.allergy || "",
-          guardianName: oldInfo.guardianName || "",
-          guardianPhone: oldInfo.guardianPhone || "",
-          memo: oldInfo.memo || "",
-        };
-
-        await AsyncStorage.setItem("myInfoList", JSON.stringify([migratedInfo]));
-        setPersonList([migratedInfo]);
         setSelectedIndex(0);
         setIsEditMode(false);
         return;
@@ -224,7 +200,7 @@ export default function MyInfoScreen() {
         setSelectedIndex(editingIndex);
       }
 
-      await AsyncStorage.setItem("myInfoList", JSON.stringify(newList));
+      await saveMedicalInfo(JSON.stringify(newList));
 
       setPersonList(newList);
       setIsEditMode(false);
@@ -256,7 +232,7 @@ export default function MyInfoScreen() {
               (_, index) => index !== selectedIndex
             );
 
-            await AsyncStorage.setItem("myInfoList", JSON.stringify(newList));
+            await saveMedicalInfo(JSON.stringify(newList));
 
             setPersonList(newList);
             setSelectedIndex(0);
@@ -274,6 +250,26 @@ export default function MyInfoScreen() {
   };
 
   const selectedPerson = personList[selectedIndex];
+  const medicalSummary = selectedPerson ? [
+    `[살려줌 응급 의료정보]`,
+    `이름: ${selectedPerson.name} (${selectedPerson.relation})`,
+    `생년월일: ${selectedPerson.birth || "미입력"}`,
+    `성별/혈액형: ${selectedPerson.gender || "미입력"} / ${selectedPerson.bloodType || "미입력"}`,
+    `기저질환: ${selectedPerson.disease || "없음/미입력"}`,
+    `복용약: ${selectedPerson.medicine || "없음/미입력"}`,
+    `알레르기: ${selectedPerson.allergy || "없음/미입력"}`,
+    `응급 메모: ${selectedPerson.memo || "없음"}`,
+    `보호자: ${selectedPerson.guardianName || "미입력"} ${selectedPerson.guardianPhone || ""}`,
+  ].join("\n") : "";
+
+  const shareMedicalInfo = () => Share.share({ message: medicalSummary });
+  const messageGuardian = () => {
+    if (!selectedPerson?.guardianPhone) {
+      Alert.alert("보호자 연락처 없음", "보호자 연락처를 먼저 입력해주세요.");
+      return;
+    }
+    Linking.openURL(`sms:${selectedPerson.guardianPhone}?body=${encodeURIComponent(medicalSummary)}`);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -337,6 +333,9 @@ export default function MyInfoScreen() {
             onAddPerson={startAddPerson}
             onEditPerson={startEditPerson}
             onDeletePerson={deleteSelectedPerson}
+            onShare={shareMedicalInfo}
+            onMessageGuardian={messageGuardian}
+            onCall119={() => Linking.openURL("tel:119")}
           />
         )}
       </ScrollView>
@@ -505,6 +504,9 @@ type DetailViewProps = {
   onAddPerson: () => void;
   onEditPerson: () => void;
   onDeletePerson: () => void;
+  onShare: () => void;
+  onMessageGuardian: () => void;
+  onCall119: () => void;
 };
 
 function DetailView({
@@ -515,6 +517,9 @@ function DetailView({
   onAddPerson,
   onEditPerson,
   onDeletePerson,
+  onShare,
+  onMessageGuardian,
+  onCall119,
 }: DetailViewProps) {
   if (!selectedPerson) {
     return (
@@ -572,6 +577,14 @@ function DetailView({
         <InfoRow label="생년월일" value={selectedPerson.birth} />
         <InfoRow label="성별" value={selectedPerson.gender} />
         <InfoRow label="혈액형" value={selectedPerson.bloodType} />
+      </View>
+
+      <View style={styles.shareSection}>
+        <Text style={styles.sectionTitle}>응급 시 전달</Text>
+        <Text style={styles.shareDescription}>민감한 의료정보가 포함됩니다. 필요한 상대에게만 공유해주세요.</Text>
+        <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119}><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian}><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.generalShareButton} onPress={onShare}><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -697,6 +710,14 @@ function InfoRow({ label, value }: InfoRowProps) {
 }
 
 const styles = StyleSheet.create({
+  shareSection: { backgroundColor: "#FFF7ED", borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#FED7AA" },
+  shareDescription: { fontSize: 12, lineHeight: 18, color: "#9A3412", marginBottom: 12 },
+  emergencyShareButton: { backgroundColor: "#DC2626", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  emergencyShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
+  guardianShareButton: { backgroundColor: "#061A44", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
+  generalShareButton: { backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1" },
+  generalShareText: { color: "#334155", fontWeight: "900", fontSize: 15 },
   header: {
     height: 56,
     paddingHorizontal: 20,

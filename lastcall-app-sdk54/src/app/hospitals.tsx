@@ -17,18 +17,35 @@ import { apiUrl } from "../config/api";
 import { getCurrentLocationFast } from "../services/location";
 import { Hospital, toHospitalDetailParams } from "../types/hospital";
 
+const formatUpdatedAt = (value?: string) => {
+  if (!value) return "갱신 시각 확인 필요";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length >= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
+  return value.replace("T", " ").slice(0, 16);
+};
+
+const isUpdatedAtStale = (value?: string) => {
+  if (!value) return true;
+  const digits = value.replace(/\D/g, "");
+  if (digits.length < 12) return false;
+  const updatedAt = new Date(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)) - 1, Number(digits.slice(6, 8)), Number(digits.slice(8, 10)), Number(digits.slice(10, 12)));
+  return Date.now() - updatedAt.getTime() > 15 * 60 * 1000;
+};
+
 
 export default function HospitalsScreen() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [requestVersion, setRequestVersion] = useState(0);
 
-  const { stage1, stage2, lat, lon, symptom, sort, department, bedTypes, facilities, severeTypes } = useLocalSearchParams<{
+  const { stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes } = useLocalSearchParams<{
     stage1: string;
     stage2?: string;
     lat?: string;
     lon?: string;
     symptom?: string;
+    keyword?: string;
     sort?: string;
     department?: string;
     bedTypes?: string;
@@ -42,7 +59,7 @@ export default function HospitalsScreen() {
         setLoading(true);
         setErrorMessage("");
 
-        if (!stage1) {
+        if (!stage1 && !keyword) {
           console.log("시/도 정보가 없습니다.");
           return;
         }
@@ -55,11 +72,11 @@ export default function HospitalsScreen() {
           longitude = location.longitude;
         }
 
-        let url = apiUrl(`/emergency/nearby?stage1=${encodeURIComponent(
-          stage1
-        )}&lat=${latitude}&lon=${longitude}`);
+        let url = keyword
+          ? apiUrl(`/emergency/search?keyword=${encodeURIComponent(String(keyword))}&lat=${latitude}&lon=${longitude}`)
+          : apiUrl(`/emergency/nearby?stage1=${encodeURIComponent(stage1)}&lat=${latitude}&lon=${longitude}`);
 
-        if (stage2) {
+        if (!keyword && stage2) {
           url += `&stage2=${encodeURIComponent(stage2)}`;
         }
 
@@ -86,7 +103,7 @@ export default function HospitalsScreen() {
     };
 
     fetchHospital();
-  }, [stage1, stage2, lat, lon, symptom, sort, department, bedTypes, facilities, severeTypes]);
+  }, [stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, requestVersion]);
 
   const handleCall = (phone?: string) => {
     if (!phone) {
@@ -166,13 +183,13 @@ export default function HospitalsScreen() {
 
           <Text style={styles.headerTitle}>추천 응급실</Text>
 
-          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(keyword && { keyword }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })}>
             <FontAwesome6 name="sliders" size={20} color="#111827" />
           </TouchableOpacity>
         </View>
 
         <View style={styles.noticeBox}>
-          <Text style={styles.noticeText}>증상 관련 진료과, 가용 병상, 거리를 기준으로 추천합니다.</Text>
+          <Text style={styles.noticeText}>{keyword ? `“${keyword}” 검색 결과입니다.` : "증상 관련 진료과, 가용 병상, 거리를 기준으로 추천합니다."}</Text>
         </View>
 
         <ScrollView
@@ -180,7 +197,7 @@ export default function HospitalsScreen() {
           contentContainerStyle={styles.listContent}
         >
           {loading && <View style={styles.stateBox}><ActivityIndicator size="large" color="#EF4444" /><Text style={styles.stateText}>가까운 응급실을 찾고 있습니다</Text></View>}
-          {!loading && errorMessage ? <View style={styles.stateBox}><FontAwesome6 name="triangle-exclamation" size={28} color="#EF4444" /><Text style={styles.stateText}>{errorMessage}</Text></View> : null}
+          {!loading && errorMessage ? <View style={styles.stateBox}><FontAwesome6 name="triangle-exclamation" size={28} color="#EF4444" /><Text style={styles.stateText}>{errorMessage}</Text><TouchableOpacity style={styles.retryButton} onPress={() => setRequestVersion((value) => value + 1)}><FontAwesome6 name="rotate-right" size={13} color="#FFFFFF" /><Text style={styles.retryButtonText}>다시 시도</Text></TouchableOpacity></View> : null}
           {!loading && !errorMessage && hospitals.length === 0 ? <View style={styles.stateBox}><FontAwesome6 name="hospital" size={28} color="#94A3B8" /><Text style={styles.stateText}>선택한 조건에 맞는 응급실이 없습니다</Text></View> : null}
           {hospitals.map((hospital, index) => (
             <View key={hospital.hpid} style={styles.card}>
@@ -212,6 +229,10 @@ export default function HospitalsScreen() {
               </View>
 
               <View style={styles.infoArea}>
+                <View style={styles.updateRow}>
+                  <FontAwesome6 name="clock-rotate-left" size={12} color={isUpdatedAtStale(hospital.dataUpdatedAt) ? "#DC2626" : "#64748B"} />
+                  <Text style={[styles.updateText, isUpdatedAtStale(hospital.dataUpdatedAt) && styles.staleUpdateText]}>병상정보 {formatUpdatedAt(hospital.dataUpdatedAt)}{isUpdatedAtStale(hospital.dataUpdatedAt) ? " · 오래된 정보" : ""}</Text>
+                </View>
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>응급실 가용 병상</Text>
                   <Text style={styles.bedText}>
@@ -230,6 +251,11 @@ export default function HospitalsScreen() {
                       : "관련 진료과 확인 필요"}
                   </Text>
                 </View>
+              </View>
+
+              <View style={styles.callNotice}>
+                <FontAwesome6 name="phone" size={12} color="#B45309" />
+                <Text style={styles.callNoticeText}>운영·수용 여부는 출발 전 응급실에 전화로 확인해주세요.</Text>
               </View>
 
               <View style={styles.buttonRow}>
@@ -318,6 +344,8 @@ const styles = StyleSheet.create({
   },
   stateBox: { minHeight: 220, alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 24 },
   stateText: { textAlign: "center", color: "#64748B", fontSize: 14, fontWeight: "700" },
+  retryButton: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: "#061A44", borderRadius: 12, paddingHorizontal: 18, paddingVertical: 11 },
+  retryButtonText: { color: "#FFFFFF", fontSize: 13, fontWeight: "900" },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
@@ -385,6 +413,11 @@ const styles = StyleSheet.create({
   infoArea: {
     marginBottom: 14,
   },
+  updateRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 10 },
+  updateText: { fontSize: 12, color: "#64748B", fontWeight: "700" },
+  staleUpdateText: { color: "#DC2626" },
+  callNotice: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: "#FFFBEB", borderRadius: 10, padding: 10, marginBottom: 12 },
+  callNoticeText: { flex: 1, fontSize: 12, lineHeight: 17, color: "#92400E", fontWeight: "700" },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",

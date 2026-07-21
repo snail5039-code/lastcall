@@ -8,6 +8,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="hospitals" />
         <Stack.Screen name="hospital-detail" />
+        <Stack.Screen name="admin-reports" />
         <Stack.Screen name="filter" />
         <Stack.Screen name="emergency-help" />
         <Stack.Screen name="community-board" />

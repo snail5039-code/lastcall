@@ -2,8 +2,14 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -40,6 +46,7 @@ export default function HomeScreen() {
   const [stage1, setStage1] = useState("");
   const [stage2, setStage2] = useState("");
   const [selectedSymptom, setSelectedSymptom] = useState<string | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const loadNotifications = useCallback(async () => {
     try {
@@ -79,19 +86,24 @@ export default function HomeScreen() {
       setStage1(location.stage1);
       setStage2(location.stage2);
       setAddressText(location.addressText);
+      void fetch(apiUrl("/emergency/warmup/search"), { method: "POST" })
+        .catch((error) => console.log("전국 병원 검색 사전 로딩 실패:", error));
+      void fetch(apiUrl(`/emergency/warmup?stage1=${encodeURIComponent(location.stage1)}`), {
+        method: "POST",
+      }).catch((error) => console.log("지역 응급실 사전 로딩 실패:", error));
     } catch (error) {
       console.log("현재 위치 조회 실패:", error);
       setAddressText("위치 조회 실패");
     }
   };
   const handleSearchEmergency = () => {
-    if (currentLat === null || currentLon === null) {
-      console.log("현재 위치 좌표가 없습니다.");
+    if ((currentLat === null || currentLon === null) && !searchKeyword.trim()) {
+      Alert.alert("위치 확인 필요", "응급실을 검색하려면 현재 위치를 먼저 확인해주세요.");
       return;
     }
 
-    if (!stage1) {
-      console.log("시/도 정보가 없습니다.");
+    if (!stage1 && !searchKeyword.trim()) {
+      Alert.alert("지역 확인 필요", "현재 지역을 확인하지 못했습니다. 세부검색에서 지역을 선택해주세요.");
       return;
     }
 
@@ -101,20 +113,23 @@ export default function HomeScreen() {
       pathname: "/hospitals",
       params: {
         stage1: stage1,
-        lat: String(currentLat),
-        lon: String(currentLon),
+        lat: String(currentLat ?? 37.5665),
+        lon: String(currentLon ?? 126.978),
         symptom: selectedSymptom ?? "",
+        ...(searchKeyword.trim() && { keyword: searchKeyword.trim() }),
       },
     });
   };
 
   const openDetailedSearch = () => {
+    Keyboard.dismiss();
     router.push({
       pathname: "/filter",
       params: {
         ...(stage1 && { stage1 }),
         ...(stage2 && { stage2 }),
         ...(selectedSymptom && { symptom: selectedSymptom }),
+        ...(searchKeyword.trim() && { keyword: searchKeyword.trim() }),
         ...(currentLat !== null && { lat: String(currentLat) }),
         ...(currentLon !== null && { lon: String(currentLon) }),
       },
@@ -135,7 +150,14 @@ export default function HomeScreen() {
   };
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.screen}>
+      <KeyboardAvoidingView style={styles.keyboardArea} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.screen}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴">
             <FontAwesome6 name="bars" size={21} color="#111827" />
@@ -232,6 +254,10 @@ export default function HomeScreen() {
             >
               <FontAwesome6 name="circle-question" size={15} color="#334155" /><Text style={styles.menuItemText}>Q&A 게시판</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.menuItem, styles.adminMenuItem]} onPress={() => { setIsMenuOpen(false); router.push("/admin-reports"); }}>
+              <FontAwesome6 name="user-shield" size={15} color="#64748B" /><Text style={styles.adminMenuText}>관리자 로그인</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -266,7 +292,7 @@ export default function HomeScreen() {
                   styles.symptomItem,
                   selectedSymptom === symptom.name && styles.selectedSymptom,
                 ]}
-                onPress={() => setSelectedSymptom(symptom.name)}
+                onPress={() => setSelectedSymptom((current) => current === symptom.name ? null : symptom.name)}
               >
                 <FontAwesome6 name={symptom.icon} size={23} color={selectedSymptom === symptom.name ? "#EF4444" : "#475569"} />
                 <Text
@@ -280,6 +306,26 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        <View style={styles.keywordSearchBox}>
+          <FontAwesome6 name="magnifying-glass" size={16} color="#64748B" />
+          <TextInput
+            style={styles.keywordInput}
+            value={searchKeyword}
+            onChangeText={setSearchKeyword}
+            placeholder="병원명 또는 주소를 입력하세요"
+            placeholderTextColor="#94A3B8"
+            returnKeyType="search"
+            onSubmitEditing={handleSearchEmergency}
+            autoCorrect={false}
+            accessibilityLabel="응급실 검색어"
+          />
+          {searchKeyword.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchKeyword("")} accessibilityLabel="검색어 지우기">
+              <FontAwesome6 name="circle-xmark" size={17} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <TouchableOpacity
@@ -297,7 +343,8 @@ export default function HomeScreen() {
         >
           <View style={styles.buttonLabel}><FontAwesome6 name="triangle-exclamation" size={16} color="#DC2626" /><Text style={styles.helpButtonText}>응급 대처 안내</Text></View>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -308,11 +355,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F6FB",
   },
   screen: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 22,
     paddingTop: 10,
-    paddingBottom: 6,
+    paddingBottom: 28,
   },
+  keyboardArea: { flex: 1 },
+  scrollView: { flex: 1 },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -453,19 +502,38 @@ const styles = StyleSheet.create({
   selectedSymptomText: {
     color: "#E53935",
   },
+  keywordSearchBox: {
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    marginTop: 8,
+    marginBottom: 10,
+  },
+  keywordInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: "#111827",
+  },
   searchButton: {
     backgroundColor: "#061A44",
     borderRadius: 15,
     paddingVertical: 13,
     alignItems: "center",
-    marginBottom: 7,
+    marginBottom: 9,
   },
   searchButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "900",
   },
-  detailSearchButton: { backgroundColor: "#FFFFFF", borderRadius: 15, paddingVertical: 11, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1", marginBottom: 7 },
+  detailSearchButton: { backgroundColor: "#FFFFFF", borderRadius: 15, paddingVertical: 11, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1", marginBottom: 9 },
   detailSearchButtonText: { color: "#061A44", fontSize: 15, fontWeight: "900" },
 
   helpButton: {
@@ -518,4 +586,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1F2937",
   },
+  adminMenuItem: { borderTopWidth: 1, borderTopColor: "#E2E8F0", borderBottomWidth: 0 },
+  adminMenuText: { fontSize: 13, fontWeight: "700", color: "#64748B" },
 });

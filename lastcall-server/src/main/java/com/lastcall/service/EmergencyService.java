@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,10 +31,16 @@ public class EmergencyService {
 	private final Map<String, DepartmentCacheEntry> departmentCache = new ConcurrentHashMap<>();
 	private final Map<String, ApiResponseCacheEntry> apiResponseCache = new ConcurrentHashMap<>();
 	private final Map<String, Object> apiRequestLocks = new ConcurrentHashMap<>();
+	private final Map<String, CompletableFuture<Void>> warmupTasks = new ConcurrentHashMap<>();
+	private volatile CompletableFuture<Void> searchWarmupTask;
 	private static final long DEPARTMENT_CACHE_MILLIS = 6 * 60 * 60 * 1000L;
 	private static final long REALTIME_CACHE_MILLIS = 15 * 1000L;
 	private static final long HOSPITAL_INFO_CACHE_MILLIS = 6 * 60 * 60 * 1000L;
 	private static final long SEVERE_CACHE_MILLIS = 60 * 1000L;
+	private static final List<String> PROVINCES = List.of(
+			"서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시", "대전광역시", "울산광역시",
+			"세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "전북특별자치도", "전라남도",
+			"경상북도", "경상남도", "제주특별자치도");
 	
 	@Value("${emergency.api.service-key}")
 	private String serviceKey;
@@ -65,6 +73,33 @@ public class EmergencyService {
 		return getEmergencyApiList(stage1, stage2, true);
 	}
 
+	public void warmupRegion(String stage1) {
+		if (stage1 == null || stage1.isBlank()) return;
+		String region = stage1.trim();
+		warmupTasks.computeIfAbsent(region, key -> {
+			CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
+				try {
+					getEmergencyApiList(key, null, true);
+				} catch (Exception error) {
+					System.err.println("지역 사전 캐시 실패, 일반 검색으로 계속 진행: " + key);
+				}
+			});
+			task.whenComplete((ignored, error) -> warmupTasks.remove(key, task));
+			return task;
+		});
+	}
+
+	public synchronized void warmupSearchIndex() {
+		if (searchWarmupTask != null && !searchWarmupTask.isDone()) return;
+		searchWarmupTask = CompletableFuture.runAsync(() -> PROVINCES.parallelStream().forEach(province -> {
+			try {
+				getHospitalInfoList(province, null);
+			} catch (RuntimeException error) {
+				System.err.println("전국 병원 검색 색인 사전 조회 실패: " + province);
+			}
+		}));
+	}
+
 	private List<EmergencyDto> getEmergencyApiList(String stage1, String stage2, boolean includeDepartments) {
 		CompletableFuture<List<EmergencyDto>> bedsFuture = CompletableFuture.supplyAsync(
 				() -> getEmergencyBedList(stage1, stage2));
@@ -91,7 +126,7 @@ public class EmergencyService {
 		return bedList;
 	}
 	// gps 기준 가까운 병원 거리 출력
-	public List<EmergencyDto> getNearbyEmergencyList(String stage1, String stage2, double lat, double lon, String symptom,
+	public List<EmergencyDto> getNearbyEmergencyList(String stage1, String stage2, double lat, double lon, String symptom, String keyword,
 			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails){
 		boolean needsDepartments = (symptom != null && !symptom.isBlank())
 				|| (department != null && !department.isBlank() && !"전체".equals(department));
@@ -128,11 +163,54 @@ public class EmergencyService {
 		    }
 		List<String> requestedBeds = splitFilter(bedTypes);
 		List<String> requestedFacilities = splitFilter(facilities);
-		list.removeIf(dto -> !matchesDepartment(dto, department)
+		list.removeIf(dto -> !matchesKeyword(dto, keyword)
+				|| !matchesDepartment(dto, department)
 				|| !requestedBeds.stream().allMatch(type -> hasAvailableBed(dto, type))
 				|| !requestedFacilities.stream().allMatch(type -> hasFacility(dto, type))
 				|| !dto.getSevereCapabilities().containsAll(requestedSevereTypes));
 
+		sortEmergencyList(list, symptom, sort);
+
+		return list;
+	}
+
+	/** 병원명/주소 직접 검색은 현재 위치의 시·도와 무관하게 전국을 대상으로 한다. */
+	public List<EmergencyDto> searchEmergencyList(double lat, double lon, String symptom, String keyword,
+			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails) {
+		if (keyword == null || keyword.isBlank()) return List.of();
+
+		Set<String> matchedProvinces = PROVINCES.parallelStream()
+				.filter(province -> {
+					try {
+						return getHospitalInfoList(province, null).stream().anyMatch(dto -> matchesKeyword(dto, keyword));
+					} catch (RuntimeException error) {
+						System.err.println("전국 병원 색인 조회 실패: " + province);
+						return false;
+					}
+				})
+				.collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+
+		List<EmergencyDto> results = matchedProvinces.parallelStream()
+				.flatMap(province -> {
+					try {
+						return getNearbyEmergencyList(province, null, lat, lon, symptom, keyword, sort,
+								department, bedTypes, facilities, severeTypes, includeDetails).stream();
+					} catch (RuntimeException error) {
+						System.err.println("전국 병원 실시간 정보 조회 실패: " + province);
+						return java.util.stream.Stream.empty();
+					}
+				})
+				.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+
+		Map<String, EmergencyDto> unique = new java.util.LinkedHashMap<>();
+		results.forEach(dto -> unique.putIfAbsent(dto.getHpid(), dto));
+		List<EmergencyDto> uniqueResults = new ArrayList<>(unique.values());
+		sortEmergencyList(uniqueResults, symptom, sort);
+		uniqueResults.sort(Comparator.comparingInt(dto -> keywordMatchScore(dto, keyword)));
+		return uniqueResults;
+	}
+
+	private void sortEmergencyList(List<EmergencyDto> list, String symptom, String sort) {
 		Comparator<EmergencyDto> comparator = switch (sort == null ? "distance" : sort) {
 			case "emergencyBeds" -> Comparator.comparingInt(EmergencyDto::getAvailableBeds).reversed()
 					.thenComparingDouble(EmergencyDto::getDistance);
@@ -146,8 +224,6 @@ public class EmergencyService {
 			comparator = Comparator.comparingInt(EmergencyDto::getRecommendScore).reversed().thenComparing(comparator);
 		}
 		list.sort(comparator);
-		
-		return list;
 	}
 	// 병상 정보
 	private List<EmergencyDto> getEmergencyBedList(String stage1, String stage2) {
@@ -211,6 +287,9 @@ public class EmergencyService {
 		dto.setHpid(item.path("hpid").asText(""));
 	    dto.setHospitalName(item.path("dutyName").asText(""));
 	    dto.setEmergencyPhone(item.path("dutyTel3").asText(""));
+	    dto.setDataUpdatedAt(item.path("hvidate").asText(""));
+	    dto.setDutyDoctor(item.path("hvdnm").asText(""));
+	    dto.setDutyDoctorPhone(item.path("hv1").asText(""));
 	    dto.setAvailableBeds(item.path("hvec").asInt(0));
 	    dto.setOperatingRooms(item.path("hvoc").asInt(0));
 	    dto.setNeuroIcuBeds(item.path("hvcc").asInt(0));
@@ -339,9 +418,8 @@ public class EmergencyService {
 	            .build(false)
 	            .toUriString();
 
-	    String response = restTemplate.getForObject(url, String.class);
-
 	    try {
+	        String response = getCachedApiResponse(url, DEPARTMENT_CACHE_MILLIS);
 	        ObjectMapper objectMapper = new ObjectMapper();
 	        JsonNode root = objectMapper.readTree(response);
 
@@ -354,7 +432,7 @@ public class EmergencyService {
 	        return item.path("dgidIdName").asText("");
 
 	    } catch (Exception e) {
-	        e.printStackTrace();
+	        System.err.println("진료과 정보 조회 실패, 병원별 정보 없이 계속 진행: " + hpid);
 	    }
 
 	    return "";
@@ -381,9 +459,21 @@ public class EmergencyService {
 		synchronized (requestLock) {
 			cached = apiResponseCache.get(url);
 			if (cached != null && now - cached.createdAt() < ttlMillis) return cached.body();
-			String body = restTemplate.getForObject(url, String.class);
-			apiResponseCache.put(url, new ApiResponseCacheEntry(body, now));
-			return body;
+			RuntimeException lastError = null;
+			for (int attempt = 1; attempt <= 2; attempt++) {
+				try {
+					String body = restTemplate.getForObject(url, String.class);
+					apiResponseCache.put(url, new ApiResponseCacheEntry(body, System.currentTimeMillis()));
+					return body;
+				} catch (RuntimeException error) {
+					lastError = error;
+				}
+			}
+			if (cached != null) {
+				System.err.println("공공 API 재시도 실패, 이전 캐시 사용");
+				return cached.body();
+			}
+			throw lastError;
 		}
 	}
 
@@ -445,6 +535,58 @@ public class EmergencyService {
 	private boolean matchesDepartment(EmergencyDto dto, String department) {
 		return department == null || department.isBlank() || "전체".equals(department)
 				|| (dto.getDepartments() != null && dto.getDepartments().contains(department));
+	}
+
+	private boolean matchesKeyword(EmergencyDto dto, String keyword) {
+		if (keyword == null || keyword.isBlank()) return true;
+		String normalized = expandSearchQuery(normalizeSearchText(keyword));
+		String hospitalName = normalizeSearchText(dto.getHospitalName());
+		String address = normalizeSearchText(dto.getAddress());
+		return hospitalName.contains(normalized) || address.contains(normalized)
+				|| hasCloseWord(normalized, dto.getHospitalName()) || hasCloseWord(normalized, dto.getAddress());
+	}
+
+	private int keywordMatchScore(EmergencyDto dto, String keyword) {
+		String query = expandSearchQuery(normalizeSearchText(keyword));
+		String name = normalizeSearchText(dto.getHospitalName());
+		String address = normalizeSearchText(dto.getAddress());
+		if (name.equals(query)) return 0;
+		if (name.contains(query)) return 1;
+		if (address.contains(query)) return 2;
+		return 3;
+	}
+
+	private String expandSearchQuery(String query) {
+		return query.replace("대병원", "대학교병원");
+	}
+
+	private String normalizeSearchText(String value) {
+		if (value == null) return "";
+		return value.toLowerCase(java.util.Locale.ROOT).replaceAll("[^\\p{L}\\p{N}]", "");
+	}
+
+	private boolean hasCloseWord(String query, String value) {
+		if (query.length() < 3 || value == null) return false;
+		for (String word : value.split("[\\s,()\\[\\]·-]+")) {
+			String normalizedWord = normalizeSearchText(word);
+			if (!normalizedWord.isEmpty() && levenshteinDistance(query, normalizedWord) <= Math.max(1, query.length() / 5)) return true;
+		}
+		return false;
+	}
+
+	private int levenshteinDistance(String left, String right) {
+		int[] previous = new int[right.length() + 1];
+		for (int index = 0; index <= right.length(); index++) previous[index] = index;
+		for (int leftIndex = 1; leftIndex <= left.length(); leftIndex++) {
+			int[] current = new int[right.length() + 1];
+			current[0] = leftIndex;
+			for (int rightIndex = 1; rightIndex <= right.length(); rightIndex++) {
+				int cost = left.charAt(leftIndex - 1) == right.charAt(rightIndex - 1) ? 0 : 1;
+				current[rightIndex] = Math.min(Math.min(current[rightIndex - 1] + 1, previous[rightIndex] + 1), previous[rightIndex - 1] + cost);
+			}
+			previous = current;
+		}
+		return previous[right.length()];
 	}
 
 	private boolean hasAvailableBed(EmergencyDto dto, String type) {

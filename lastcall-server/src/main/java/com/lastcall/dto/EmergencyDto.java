@@ -38,6 +38,9 @@ public class EmergencyDto {
 	
 	private String hpid; // 공공 api 구분 id
 	private String emergencyPhone; // 응급실 전화번호
+	private String dataUpdatedAt; // 실시간 병상정보 입력일시(hvidate)
+	private String dutyDoctor; // 응급실 당직의
+	private String dutyDoctorPhone; // 응급실 당직의 직통연락처
 	
 	private double distance; // 내 주변 거리 계산
 	

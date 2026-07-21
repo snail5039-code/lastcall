@@ -3,6 +3,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,21 +11,25 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { apiUrl } from "../../config/api";
+import { getCurrentLocationFast } from "../../services/location";
+import { Hospital, toHospitalDetailParams } from "../../types/hospital";
 
-type FavoriteHospital = {
+type FavoriteHospital = Partial<Hospital> & {
   hpid: string;
   hospitalName: string;
   address: string;
   phone: string;
   emergencyPhone: string;
-  availableBeds: string;
-  distance: string;
-  latitude: string;
-  longitude: string;
+  availableBeds: number | string;
+  distance: number | string;
+  latitude: number | string;
+  longitude: number | string;
 };
 
 export default function FavoritesScreen() {
   const [favoriteList, setFavoriteList] = useState<FavoriteHospital[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const loadFavoriteHospitals = async () => {
     try {
       const savedFavorites = await AsyncStorage.getItem("favoriteHospitals");
@@ -37,8 +42,23 @@ export default function FavoritesScreen() {
       const parsedList: FavoriteHospital[] = JSON.parse(savedFavorites);
 
       setFavoriteList(parsedList);
+      setIsRefreshing(true);
+
+      const location = await getCurrentLocationFast();
+      const stage1List = [...new Set(parsedList.map((hospital) => hospital.address.split(" ")[0]).filter(Boolean))];
+      const responses = await Promise.all(stage1List.map(async (stage1) => {
+        const response = await fetch(apiUrl(`/emergency/nearby?stage1=${encodeURIComponent(stage1)}&lat=${location.latitude}&lon=${location.longitude}&includeDetails=true`));
+        if (!response.ok) return [] as Hospital[];
+        return response.json() as Promise<Hospital[]>;
+      }));
+      const latestById = new Map(responses.flat().map((hospital) => [hospital.hpid, hospital]));
+      const refreshed = parsedList.map((saved) => latestById.get(saved.hpid) ?? saved);
+      setFavoriteList(refreshed);
+      await AsyncStorage.setItem("favoriteHospitals", JSON.stringify(refreshed));
     } catch (error) {
       console.log("즐겨찾기 목록 불러오기 실패:", error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -46,15 +66,7 @@ export default function FavoritesScreen() {
     router.push({
       pathname: "/hospital-detail",
       params: {
-        hpid: hospital.hpid,
-        hospitalName: hospital.hospitalName,
-        address: hospital.address,
-        phone: hospital.phone,
-        emergencyPhone: hospital.emergencyPhone,
-        availableBeds: hospital.availableBeds,
-        distance: hospital.distance,
-        latitude: hospital.latitude,
-        longitude: hospital.longitude,
+        ...toHospitalDetailParams(hospital as Hospital),
       },
     });
   };
@@ -79,6 +91,8 @@ export default function FavoritesScreen() {
 
           <View style={{ width: 24 }} />
         </View>
+
+        {isRefreshing && <View style={styles.refreshRow}><ActivityIndicator size="small" color="#EF4444" /><Text style={styles.refreshText}>최신 병상정보 확인 중</Text></View>}
 
         {favoriteList.length === 0 ? (
           <View style={styles.emptyBox}>
@@ -108,7 +122,7 @@ export default function FavoritesScreen() {
                 <View style={styles.cardInfoRow}>
                   <Text style={styles.cardInfoLabel}>가용 병상</Text>
                   <Text style={styles.cardInfoValue}>
-                    {hospital.availableBeds ? `${hospital.availableBeds}개` : "확인 필요"}
+                    {Number(hospital.availableBeds) > 0 ? `${hospital.availableBeds}개` : "확인 필요"}
                   </Text>
                 </View>
 
@@ -179,6 +193,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingBottom: 36,
   },
+  refreshRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingBottom: 12 },
+  refreshText: { fontSize: 13, color: "#64748B", fontWeight: "700" },
 
   hospitalCard: {
     backgroundColor: "#FFFFFF",

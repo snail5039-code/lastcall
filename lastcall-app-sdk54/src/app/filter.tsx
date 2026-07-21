@@ -111,6 +111,7 @@ export default function FilterScreen() {
         stage1: selectedStage1,
         ...(selectedStage2 && { stage2: selectedStage2 }),
         ...(params.symptom && { symptom: params.symptom }),
+        ...(params.keyword && { keyword: params.keyword }),
         sort: selectedSort,
         ...(latitude && { lat: latitude }),
         ...(longitude && { lon: longitude }),

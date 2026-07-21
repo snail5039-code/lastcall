@@ -44,6 +44,21 @@ CREATE TABLE communityComment (
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS communityReport (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    targetType VARCHAR(20) NOT NULL,
+    targetId BIGINT NOT NULL,
+    reason VARCHAR(300) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_community_report_status (status, createdAt)
+);
+
+-- 관리자 계정은 SQL에 저장하지 않고 ADMIN_USERNAME / ADMIN_PASSWORD 환경변수로 관리한다.
+-- 신고 관리 화면의 대기 목록 조회 최적화
+CREATE INDEX idx_community_post_board_created ON communityPost (boardType, createdAt);
+CREATE INDEX idx_community_comment_post_created ON communityComment (postId, createdAt);
+
 SELECT * FROM communityPost;
 SELECT * FROM communityComment;
 

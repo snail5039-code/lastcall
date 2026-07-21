@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -14,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import { clearAdminToken, getAdminToken } from "../services/admin-auth";
 
 type CommunityPost = {
     id: number;
@@ -54,6 +56,7 @@ export default function CommunityDetailScreen() {
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [deletePassword, setDeletePassword] = useState("");
+    const [adminToken, setAdminToken] = useState("");
 
     const [commentNickname, setCommentNickname] = useState("");
     const [commentPassword, setCommentPassword] = useState("");
@@ -75,6 +78,30 @@ export default function CommunityDetailScreen() {
 
     const [deletingCommentPassword, setDeletingCommentPassword] =
         useState("");
+
+    const submitReport = async (targetType: "POST" | "COMMENT", targetId: number, reason: string) => {
+        try {
+            const response = await fetch(apiUrl("/community/report"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetType, targetId, reason }),
+            });
+            if (!response.ok) throw new Error(`신고 실패: ${response.status}`);
+            Alert.alert("신고 접수", "관리자 검토 목록에 전달되었습니다.");
+        } catch (error) {
+            console.error("신고 접수 실패:", error);
+            Alert.alert("신고 실패", "잠시 후 다시 시도해주세요.");
+        }
+    };
+
+    const openReport = (targetType: "POST" | "COMMENT", targetId: number) => {
+        Alert.alert("신고 사유 선택", "관리자에게만 전달됩니다.", [
+            { text: "욕설·비방", onPress: () => submitReport(targetType, targetId, "욕설·비방") },
+            { text: "광고·도배", onPress: () => submitReport(targetType, targetId, "광고·도배") },
+            { text: "부적절한 내용", onPress: () => submitReport(targetType, targetId, "부적절한 내용") },
+            { text: "취소", style: "cancel" },
+        ]);
+    };
 
     const fetchPostDetail = async () => {
         try {
@@ -101,6 +128,7 @@ export default function CommunityDetailScreen() {
     };
 
     useEffect(() => {
+        void getAdminToken().then((saved) => setAdminToken(saved ?? ""));
         if (id) {
             fetchPostDetail();
             fetchComments();
@@ -187,18 +215,28 @@ export default function CommunityDetailScreen() {
     };
 
     const deletePost = async () => {
-        if (!deletePassword.trim()) {
+        if (!adminToken && !deletePassword.trim()) {
             Alert.alert("알림", "게시글 비밀번호를 입력해주세요.");
             return;
         }
 
         try {
             const response = await fetch(
-                apiUrl(`/community/post/${id}?password=${encodeURIComponent(deletePassword)}`),
+                adminToken
+                    ? apiUrl(`/community/admin/posts/${id}`)
+                    : apiUrl(`/community/post/${id}?password=${encodeURIComponent(deletePassword)}`),
                 {
                     method: "DELETE",
+                    ...(adminToken && { headers: { Authorization: `Bearer ${adminToken}` } }),
                 }
             );
+
+            if (response.status === 401 && adminToken) {
+                await clearAdminToken();
+                setAdminToken("");
+                Alert.alert("관리자 로그인 만료", "다시 관리자 로그인을 해주세요.");
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error(`삭제 실패: ${response.status}`);
@@ -230,6 +268,18 @@ export default function CommunityDetailScreen() {
             console.error("게시글 삭제 실패:", error);
             Alert.alert("삭제 실패", "게시글 삭제 중 오류가 발생했습니다.");
         }
+    };
+
+    const requestPostDelete = () => {
+        if (!adminToken) {
+            setDeletePassword("");
+            setIsDeleting(true);
+            return;
+        }
+        Alert.alert("관리자 권한으로 삭제", "이 게시글을 비밀번호 없이 삭제할까요?", [
+            { text: "취소", style: "cancel" },
+            { text: "삭제", style: "destructive", onPress: () => void deletePost() },
+        ]);
     };
 
     const fetchComments = async () => {
@@ -476,9 +526,7 @@ export default function CommunityDetailScreen() {
                         style={styles.backButton}
                         onPress={() => router.back()}
                     >
-                        <Text style={styles.backButtonText}>
-                            ←
-                        </Text>
+                        <FontAwesome6 name="chevron-left" size={20} color="#111827" />
                     </TouchableOpacity>
 
                     <Text style={styles.headerTitle}>
@@ -585,20 +633,20 @@ export default function CommunityDetailScreen() {
 
                                     <TouchableOpacity
                                         style={styles.deleteButton}
-                                        onPress={() => {
-                                            setDeletePassword("");
-                                            setIsDeleting(true);
-                                        }}
+                                        onPress={requestPostDelete}
                                     >
                                         <Text style={styles.deleteButtonText}>
                                             삭제
                                         </Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => openReport("POST", Number(id))}>
+                                        <Text style={styles.reportText}>신고</Text>
+                                    </TouchableOpacity>
                                 </>
                             )}
                         </View>
 
-                        {isDeleting ? (
+                        {isDeleting && !adminToken ? (
                             <View style={styles.deleteConfirmBox}>
                                 <TextInput
                                     style={styles.deletePasswordInput}
@@ -738,6 +786,9 @@ export default function CommunityDetailScreen() {
                                                         삭제
                                                     </Text>
                                                 </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)}>
+                                                    <Text style={styles.reportText}>신고</Text>
+                                                </TouchableOpacity>
                                             </View>
                                         </>
                                     )}
@@ -825,6 +876,7 @@ export default function CommunityDetailScreen() {
     );
 }
 const styles = StyleSheet.create({
+    reportText: { color: "#DC2626", fontSize: 13, fontWeight: "700" },
     container: {
         flex: 1,
         backgroundColor: "#F5F7FA",

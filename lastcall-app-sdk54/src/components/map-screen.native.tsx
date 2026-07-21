@@ -69,7 +69,7 @@ export default function MapScreen() {
                 key={`${hospital.hpid}-${index}`}
                 coordinate={{ latitude: hospital.latitude, longitude: hospital.longitude }}
                 title={hospital.hospitalName}
-                description={`${hospital.distance}km · 응급실 ${hospital.availableBeds}병상`}
+                description={`${hospital.distance}km · 응급실 ${hospital.availableBeds > 0 ? `${hospital.availableBeds}병상` : "확인 필요"}`}
                 onCalloutPress={() => openDetail(hospital)}
               />
             ))}

@@ -4,6 +4,9 @@ export type Hospital = {
   address: string;
   phone: string;
   emergencyPhone: string;
+  dataUpdatedAt?: string;
+  dutyDoctor?: string;
+  dutyDoctorPhone?: string;
   latitude: number;
   longitude: number;
   availableBeds: number;
@@ -34,6 +37,9 @@ export function toHospitalDetailParams(hospital: Hospital) {
     address: hospital.address,
     phone: hospital.phone ?? "",
     emergencyPhone: hospital.emergencyPhone ?? "",
+    dataUpdatedAt: hospital.dataUpdatedAt ?? "",
+    dutyDoctor: hospital.dutyDoctor ?? "",
+    dutyDoctorPhone: hospital.dutyDoctorPhone ?? "",
     latitude: String(hospital.latitude),
     longitude: String(hospital.longitude),
     distance: String(hospital.distance),

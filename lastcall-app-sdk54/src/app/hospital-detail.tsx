@@ -39,6 +39,21 @@ const severeLabels: Record<string, string> = {
 const iconForDepartment = (department: string): IconName =>
   departmentIconRules.find(({ keyword }) => department.includes(keyword))?.icon ?? "user-doctor";
 
+const formatUpdatedAt = (value?: string) => {
+  if (!value) return "확인 필요";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length >= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
+  return value.replace("T", " ").slice(0, 16);
+};
+
+const isUpdatedAtStale = (value?: string) => {
+  if (!value) return true;
+  const digits = value.replace(/\D/g, "");
+  if (digits.length < 12) return false;
+  const updatedAt = new Date(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)) - 1, Number(digits.slice(6, 8)), Number(digits.slice(8, 10)), Number(digits.slice(10, 12)));
+  return Date.now() - updatedAt.getTime() > 15 * 60 * 1000;
+};
+
 type FavoriteHospital = {
   hpid: string;
   hospitalName: string;
@@ -65,6 +80,7 @@ export default function HospitalDetailScreen() {
     operatingRooms, neuroIcuBeds, neonatalIcuBeds, chestIcuBeds, generalIcuBeds, inpatientBeds,
     ctAvailable, mriAvailable, angiographyAvailable, ventilatorAvailable, ambulanceAvailable,
     pediatricVentilatorAvailable, incubatorAvailable, severeCapabilities, departments,
+    dataUpdatedAt, dutyDoctor, dutyDoctorPhone,
   } = params;
 
   const [isFavorite, setIsFavorite] = useState(false);
@@ -432,6 +448,14 @@ export default function HospitalDetailScreen() {
             </View>
           </View>
 
+          <View style={styles.realtimeNotice}>
+            <Text style={styles.realtimeTitle}>실시간 운영 정보</Text>
+            <Text style={[styles.realtimeText, isUpdatedAtStale(dataUpdatedAt) && styles.staleRealtimeText]}>병상정보 갱신: {formatUpdatedAt(dataUpdatedAt)}{isUpdatedAtStale(dataUpdatedAt) ? " · 오래된 정보" : ""}</Text>
+            {dutyDoctor ? <Text style={styles.realtimeText}>응급실 당직의: {dutyDoctor}</Text> : null}
+            {dutyDoctorPhone ? <Text style={styles.realtimeText}>당직의 연락처: {dutyDoctorPhone}</Text> : null}
+            <Text style={styles.realtimeWarning}>병상과 운영 상태는 변동될 수 있으니 출발 전 반드시 전화로 확인해주세요.</Text>
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>병상 현황</Text>
             <View style={styles.detailGrid}>
@@ -482,6 +506,11 @@ export default function HospitalDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  realtimeNotice: { marginTop: 12, marginBottom: 16, backgroundColor: "#FFFBEB", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "#FDE68A" },
+  realtimeTitle: { fontSize: 15, fontWeight: "900", color: "#92400E", marginBottom: 8 },
+  realtimeText: { fontSize: 13, color: "#475569", lineHeight: 20 },
+  staleRealtimeText: { color: "#DC2626", fontWeight: "800" },
+  realtimeWarning: { fontSize: 12, color: "#B45309", fontWeight: "800", lineHeight: 18, marginTop: 7 },
   container: {
     flex: 1,
     backgroundColor: "#F3F6FB",

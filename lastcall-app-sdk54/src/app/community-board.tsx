@@ -3,6 +3,7 @@ import {
   useFocusEffect,
   useLocalSearchParams,
 } from "expo-router";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -33,6 +34,45 @@ type CommunityPostPage = {
   totalElements: number;
   hasNext: boolean;
 };
+
+const APP_NOTICES: CommunityPost[] = [
+  {
+    id: 4,
+    boardType: "NOTICE",
+    nickname: "살려줌 운영팀",
+    title: "응급상황에는 즉시 119에 신고해주세요",
+    content: "의식 저하, 호흡곤란, 심한 흉통이나 대량 출혈처럼 위급한 증상이 있다면 앱 검색보다 119 신고를 우선해주세요.",
+    viewCount: 0,
+    createdAt: "2026-07-22",
+  },
+  {
+    id: 3,
+    boardType: "NOTICE",
+    nickname: "살려줌 운영팀",
+    title: "병원 방문 전 전화 확인을 권장합니다",
+    content: "표시된 병상 정보는 실시간으로 달라질 수 있습니다. 출발하기 전에 응급실에 전화해 진료 가능 여부를 확인해주세요.",
+    viewCount: 0,
+    createdAt: "2026-07-22",
+  },
+  {
+    id: 2,
+    boardType: "NOTICE",
+    nickname: "살려줌 운영팀",
+    title: "응급실 검색 기능 이용 안내",
+    content: "현재 위치와 증상으로 가까운 응급실을 찾거나, 병원명·주소를 직접 입력해 검색할 수 있습니다. 세부검색에서는 병상과 장비 조건도 선택할 수 있습니다.",
+    viewCount: 0,
+    createdAt: "2026-07-22",
+  },
+  {
+    id: 1,
+    boardType: "NOTICE",
+    nickname: "살려줌 운영팀",
+    title: "위치 정보 및 검색 결과 안내",
+    content: "위치 정보는 가까운 응급실과 거리를 계산하는 데 사용됩니다. 검색 결과는 의료진의 진단이나 119의 안내를 대신하지 않습니다.",
+    viewCount: 0,
+    createdAt: "2026-07-22",
+  },
+];
 
 export default function CommunityBoardScreen() {
   const params = useLocalSearchParams();
@@ -76,6 +116,13 @@ export default function CommunityBoardScreen() {
     try {
       setIsLoading(true);
       setErrorMessage("");
+
+      if (boardType === "NOTICE") {
+        setPosts(APP_NOTICES);
+        setCurrentPage(0);
+        setTotalPages(1);
+        return;
+      }
 
       console.time("게시글 API 시간");
 
@@ -147,7 +194,7 @@ export default function CommunityBoardScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <FontAwesome6 name="chevron-left" size={20} color="#111827" />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>
@@ -192,7 +239,16 @@ export default function CommunityBoardScreen() {
         <FlatList
           data={posts}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => boardType === "NOTICE" ? (
+            <View style={styles.noticeRow}>
+              <View style={styles.noticeIcon}><FontAwesome6 name="bullhorn" size={14} color="#DC2626" /></View>
+              <View style={styles.postInfo}>
+                <Text style={styles.postTitle}>{item.title}</Text>
+                <Text style={styles.noticeContent}>{item.content}</Text>
+                <Text style={styles.postMeta}>{item.nickname} · {item.createdAt}</Text>
+              </View>
+            </View>
+          ) : (
             <TouchableOpacity
               style={styles.postRow}
               onPress={() =>
@@ -370,6 +426,30 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 28,
     color: "#111827",
+  },
+  noticeRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  noticeIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF1F1",
+  },
+  noticeContent: {
+    marginTop: 8,
+    fontSize: 13,
+    lineHeight: 20,
+    color: "#4B5563",
   },
 
   writeButton: {
