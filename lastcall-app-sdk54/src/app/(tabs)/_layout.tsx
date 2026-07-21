@@ -1,5 +1,5 @@
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
-import { Text } from "react-native";
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
@@ -7,9 +7,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "홈",
-          tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 18 }}>{focused ? "🏠" : "⌂"}</Text>
-          ),
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="house" size={size} color={color} />,
         }}
       />
 
@@ -17,7 +15,7 @@ export default function TabLayout() {
         name="map"
         options={{
           title: "지도",
-          tabBarIcon: () => <Text style={{ fontSize: 18 }}>🗺️</Text>,
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="map-location-dot" size={size} color={color} />,
         }}
       />
 
@@ -25,7 +23,7 @@ export default function TabLayout() {
         name="favorites"
         options={{
           title: "즐겨찾기",
-          tabBarIcon: () => <Text style={{ fontSize: 18 }}>☆</Text>,
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="star" size={size} color={color} />,
         }}
       />
 
@@ -33,7 +31,7 @@ export default function TabLayout() {
         name="my-info"
         options={{
           title: "내정보",
-          tabBarIcon: () => <Text style={{ fontSize: 18 }}>👤</Text>,
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="user" size={size} color={color} />,
         }}
       />
     </Tabs>

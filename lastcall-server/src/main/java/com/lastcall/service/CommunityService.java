@@ -26,7 +26,6 @@ public class CommunityService {
 		System.out.println("=== 게시글 등록 요청 ===");
 		System.out.println("boardType: " + communityPostDto.getBoardType());
 		System.out.println("nickname: " + communityPostDto.getNickname());
-		System.out.println("password: " + communityPostDto.getPassword());
 		System.out.println("title: " + communityPostDto.getTitle());
 		System.out.println("content: " + communityPostDto.getContent());
 

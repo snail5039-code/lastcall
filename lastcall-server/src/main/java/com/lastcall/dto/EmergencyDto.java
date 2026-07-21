@@ -1,5 +1,8 @@
 package com.lastcall.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +20,21 @@ public class EmergencyDto {
 	private double longitude; // 경도
 	
 	private int availableBeds; // 가용 병상 수 
+	private int operatingRooms;
+	private int neuroIcuBeds;
+	private int neonatalIcuBeds;
+	private int chestIcuBeds;
+	private int generalIcuBeds;
+	private int inpatientBeds;
+
+	private boolean ctAvailable;
+	private boolean mriAvailable;
+	private boolean angiographyAvailable;
+	private boolean ventilatorAvailable;
+	private boolean ambulanceAvailable;
+	private boolean pediatricVentilatorAvailable;
+	private boolean incubatorAvailable;
+	private List<String> severeCapabilities = new ArrayList<>();
 	
 	private String hpid; // 공공 api 구분 id
 	private String emergencyPhone; // 응급실 전화번호

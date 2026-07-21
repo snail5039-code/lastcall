@@ -13,6 +13,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { apiUrl } from "../config/api";
 
 type CommunityPost = {
     id: number;
@@ -81,7 +82,7 @@ export default function CommunityDetailScreen() {
             setErrorMessage("");
 
             const response = await fetch(
-                `http://192.168.45.113:8080/community/post/${id}`
+                apiUrl(`/community/post/${id}`)
             );
 
             if (!response.ok) {
@@ -130,7 +131,7 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                `http://192.168.45.113:8080/community/post/${id}`,
+                apiUrl(`/community/post/${id}`),
                 {
                     method: "PUT",
                     headers: {
@@ -193,7 +194,7 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                `http://192.168.45.113:8080/community/post/${id}?password=${encodeURIComponent(deletePassword)}`,
+                apiUrl(`/community/post/${id}?password=${encodeURIComponent(deletePassword)}`),
                 {
                     method: "DELETE",
                 }
@@ -234,7 +235,7 @@ export default function CommunityDetailScreen() {
     const fetchComments = async () => {
         try {
             const response = await fetch(
-                `http://192.168.45.113:8080/community/post/${id}/comments`
+                apiUrl(`/community/post/${id}/comments`)
             );
 
             if (!response.ok) {
@@ -267,7 +268,7 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                "http://192.168.45.113:8080/community/comment",
+                apiUrl("/community/comment"),
                 {
                     method: "POST",
                     headers: {
@@ -323,7 +324,7 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                `http://192.168.45.113:8080/community/comment/${editingCommentId}`,
+                apiUrl(`/community/comment/${editingCommentId}`),
                 {
                     method: "PUT",
                     headers: {
@@ -393,7 +394,7 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                `http://192.168.45.113:8080/community/comment/${deletingCommentId}?password=${encodeURIComponent(deletingCommentPassword)}`,
+                apiUrl(`/community/comment/${deletingCommentId}?password=${encodeURIComponent(deletingCommentPassword)}`),
                 {
                     method: "DELETE",
                 }

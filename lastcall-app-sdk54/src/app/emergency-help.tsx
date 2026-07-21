@@ -1,3 +1,4 @@
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router } from "expo-router";
 import {
   Linking,
@@ -20,25 +21,25 @@ const guides = [
     id: 1,
     title: "심폐소생술",
     desc: "의식과 호흡이 없으면 즉시 119 신고 후 가슴 압박을 시작합니다.",
-    icon: "❤️",
+    icon: "heart-pulse" as const,
   },
   {
     id: 2,
     title: "출혈 압박",
     desc: "깨끗한 천이나 거즈로 출혈 부위를 강하게 눌러 지혈합니다.",
-    icon: "🩸",
+    icon: "droplet" as const,
   },
   {
     id: 3,
     title: "화상 응급처치",
     desc: "흐르는 시원한 물로 화상 부위를 식히고 물집은 터뜨리지 않습니다.",
-    icon: "🔥",
+    icon: "fire-flame-simple" as const,
   },
   {
     id: 4,
     title: "발작 대처",
     desc: "주변 위험 물건을 치우고 억지로 붙잡거나 입에 물건을 넣지 않습니다.",
-    icon: "⚡",
+    icon: "bolt" as const,
   },
 ];
 
@@ -50,8 +51,8 @@ export default function EmergencyHelpScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backIcon}>‹</Text>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>긴급 상황 도움</Text>
@@ -64,7 +65,7 @@ export default function EmergencyHelpScreen() {
           contentContainerStyle={styles.content}
         >
           <View style={styles.alertBox}>
-            <Text style={styles.alertIcon}>🚨</Text>
+            <FontAwesome6 name="triangle-exclamation" size={30} color="#DC2626" />
             <Text style={styles.alertTitle}>위급한 상황이면 즉시 119에 신고하세요</Text>
             <Text style={styles.alertText}>
               앱 정보보다 실제 응급 신고와 의료진 안내가 우선입니다.
@@ -90,7 +91,7 @@ export default function EmergencyHelpScreen() {
             {guides.map((guide) => (
               <View key={guide.id} style={styles.guideCard}>
                 <View style={styles.guideIconBox}>
-                  <Text style={styles.guideIcon}>{guide.icon}</Text>
+                  <FontAwesome6 name={guide.icon} size={22} color="#DC2626" />
                 </View>
 
                 <View style={styles.guideTextBox}>
@@ -130,10 +131,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  backIcon: {
-    fontSize: 36,
-    color: "#111827",
-  },
+  iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   headerTitle: {
     fontSize: 18,
     fontWeight: "900",

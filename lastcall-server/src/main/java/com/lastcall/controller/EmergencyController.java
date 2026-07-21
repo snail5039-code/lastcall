@@ -35,10 +35,21 @@ public class EmergencyController {
 	}
 	
 	@GetMapping("/nearby") // 근처 병원 
-	public List<EmergencyDto> getNearbyEmergencyList(@RequestParam String stage1, @RequestParam(required = false) String stage2, @RequestParam double lat, @RequestParam double lon, @RequestParam(required = false) String symptom){
+	public List<EmergencyDto> getNearbyEmergencyList(
+			@RequestParam String stage1,
+			@RequestParam(required = false) String stage2,
+			@RequestParam double lat,
+			@RequestParam double lon,
+			@RequestParam(required = false) String symptom,
+			@RequestParam(defaultValue = "distance") String sort,
+			@RequestParam(required = false) String department,
+			@RequestParam(required = false) String bedTypes,
+			@RequestParam(required = false) String facilities,
+			@RequestParam(required = false) String severeTypes,
+			@RequestParam(defaultValue = "true") boolean includeDetails){
 		System.out.println("선택 증상 = " + symptom);
 		
-		return emergencyService.getNearbyEmergencyList(stage1, stage2, lat, lon, symptom);
+		return emergencyService.getNearbyEmergencyList(stage1, stage2, lat, lon, symptom, sort, department, bedTypes, facilities, severeTypes, includeDetails);
 	}
 	
 	@GetMapping("/basic-info-test") // 진료 과목 받아오기 테스트 겸 실제 받아오기

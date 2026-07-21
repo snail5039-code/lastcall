@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -278,7 +279,7 @@ export default function MyInfoScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>‹</Text>
+          <FontAwesome6 name="chevron-left" size={20} color="#111827" />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>내 정보</Text>

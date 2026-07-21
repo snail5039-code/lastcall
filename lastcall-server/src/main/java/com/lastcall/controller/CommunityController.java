@@ -28,8 +28,9 @@ public class CommunityController {
 
 	// 게시글 등록
 	@PostMapping("/post")
-	public int insertPost(@RequestBody CommunityPostDto communityPostDto) {
-		return communityService.insertPost(communityPostDto);
+	public Long insertPost(@RequestBody CommunityPostDto communityPostDto) {
+		communityService.insertPost(communityPostDto);
+		return communityPostDto.getId();
 	}
 
 	// 게시판 종류별 게시글 목록 조회

@@ -12,6 +12,8 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { apiUrl } from "../config/api";
+import { saveAuthoredPost } from "../services/community-notifications";
 
 export default function CommunityWriteScreen() {
     const params = useLocalSearchParams();
@@ -64,7 +66,7 @@ export default function CommunityWriteScreen() {
 
         try {
             const response = await fetch(
-                "http://192.168.45.113:8080/community/post",
+                apiUrl("/community/post"),
                 {
                     method: "POST",
                     headers: {
@@ -94,6 +96,17 @@ export default function CommunityWriteScreen() {
             const result = Number(responseText);
 
             console.log("게시글 등록 결과:", result);
+
+            if (!Number.isInteger(result) || result <= 0) {
+                throw new Error("생성된 게시글 번호를 받지 못했습니다.");
+            }
+
+            await saveAuthoredPost({
+                id: result,
+                title: title.trim(),
+                boardType,
+                createdAt: new Date().toISOString(),
+            });
 
             Alert.alert("완료", "게시글이 등록되었습니다.", [
                 {

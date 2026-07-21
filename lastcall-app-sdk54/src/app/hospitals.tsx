@@ -1,7 +1,8 @@
-import * as Location from "expo-location";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Linking,
   ScrollView,
@@ -12,55 +13,51 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type Hospital = {
-  hpid: string;
-  hospitalName: string;
-  address: string;
-  phone: string;
-  emergencyPhone: string;
-  latitude: number;
-  longitude: number;
-  availableBeds: number;
-  distance: number;
-  recommendScore: number;
-  matchedDepartments: string;
-};
+import { apiUrl } from "../config/api";
+import { getCurrentLocationFast } from "../services/location";
+import { Hospital, toHospitalDetailParams } from "../types/hospital";
 
 
 export default function HospitalsScreen() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const { stage1, stage2, symptom } = useLocalSearchParams<{
+  const { stage1, stage2, lat, lon, symptom, sort, department, bedTypes, facilities, severeTypes } = useLocalSearchParams<{
     stage1: string;
     stage2?: string;
+    lat?: string;
+    lon?: string;
     symptom?: string;
+    sort?: string;
+    department?: string;
+    bedTypes?: string;
+    facilities?: string;
+    severeTypes?: string;
   }>();
 
   useEffect(() => {
     const fetchHospital = async () => {
       try {
-        console.log("stage1 =", stage1);
-        console.log("stage2 =", stage2);
-        console.log("symptom =", symptom);
+        setLoading(true);
+        setErrorMessage("");
 
         if (!stage1) {
           console.log("시/도 정보가 없습니다.");
           return;
         }
 
-        const location = await Location.getCurrentPositionAsync({});
+        let latitude = Number(lat);
+        let longitude = Number(lon);
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+          const location = await getCurrentLocationFast();
+          latitude = location.latitude;
+          longitude = location.longitude;
+        }
 
-        const latitude = location.coords.latitude;
-        const longitude = location.coords.longitude;
-
-        console.log("현재 위도 =", latitude);
-        console.log("현재 경도 =", longitude);
-
-        // 와이파이 바꾸면 ip주소 바꿔야함
-        let url = `http://192.168.45.113:8080/emergency/nearby?stage1=${encodeURIComponent(
+        let url = apiUrl(`/emergency/nearby?stage1=${encodeURIComponent(
           stage1
-        )}&lat=${latitude}&lon=${longitude}`;
+        )}&lat=${latitude}&lon=${longitude}`);
 
         if (stage2) {
           url += `&stage2=${encodeURIComponent(stage2)}`;
@@ -70,24 +67,26 @@ export default function HospitalsScreen() {
           url += `&symptom=${encodeURIComponent(String(symptom))}`;
         }
 
-        console.log("요청 URL =", url);
+        if (sort) url += `&sort=${encodeURIComponent(sort)}`;
+        if (department) url += `&department=${encodeURIComponent(department)}`;
+        if (bedTypes) url += `&bedTypes=${encodeURIComponent(bedTypes)}`;
+        if (facilities) url += `&facilities=${encodeURIComponent(facilities)}`;
+        if (severeTypes) url += `&severeTypes=${encodeURIComponent(severeTypes)}`;
 
         const response = await fetch(url);
-
-        console.log("응답 상태 =", response.status);
-
+        if (!response.ok) throw new Error(`서버 응답 오류: ${response.status}`);
         const data = await response.json();
-
-        console.log("받아온 데이터 =", data);
-
         setHospitals(data);
       } catch (error) {
-        console.log("응급실 목록 불러오기 실패:", error);
+        console.error("응급실 목록 불러오기 실패:", error);
+        setErrorMessage("응급실 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchHospital();
-  }, [stage1, stage2, symptom]);
+  }, [stage1, stage2, lat, lon, symptom, sort, department, bedTypes, facilities, severeTypes]);
 
   const handleCall = (phone?: string) => {
     if (!phone) {
@@ -142,10 +141,10 @@ export default function HospitalsScreen() {
     const kakaoMapUrl = `https://map.kakao.com/link/to/${name},${hospital.latitude},${hospital.longitude}`;
 
     const message =
-      `🏥 ${hospital.hospitalName}\n\n` +
-      `📍 주소: ${hospital.address}\n` +
-      `☎️ 응급실 전화: ${hospital.emergencyPhone || hospital.phone}\n` +
-      `🚑 거리: ${hospital.distance}km\n\n` +
+      `${hospital.hospitalName}\n\n` +
+      `주소: ${hospital.address}\n` +
+      `응급실 전화: ${hospital.emergencyPhone || hospital.phone}\n` +
+      `거리: ${hospital.distance}km\n\n` +
       `길찾기: ${kakaoMapUrl}\n\n` +
       `살려줌 추천 응급실`;
 
@@ -161,14 +160,14 @@ export default function HospitalsScreen() {
     >
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backIcon}>‹</Text>
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>추천 응급실</Text>
 
-          <TouchableOpacity onPress={() => router.push("/filter")}>
-            <Text style={styles.filterIcon}>⌕</Text>
+          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })}>
+            <FontAwesome6 name="sliders" size={20} color="#111827" />
           </TouchableOpacity>
         </View>
 
@@ -180,6 +179,9 @@ export default function HospitalsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
         >
+          {loading && <View style={styles.stateBox}><ActivityIndicator size="large" color="#EF4444" /><Text style={styles.stateText}>가까운 응급실을 찾고 있습니다</Text></View>}
+          {!loading && errorMessage ? <View style={styles.stateBox}><FontAwesome6 name="triangle-exclamation" size={28} color="#EF4444" /><Text style={styles.stateText}>{errorMessage}</Text></View> : null}
+          {!loading && !errorMessage && hospitals.length === 0 ? <View style={styles.stateBox}><FontAwesome6 name="hospital" size={28} color="#94A3B8" /><Text style={styles.stateText}>선택한 조건에 맞는 응급실이 없습니다</Text></View> : null}
           {hospitals.map((hospital, index) => (
             <View key={hospital.hpid} style={styles.card}>
               <View style={styles.cardTop}>
@@ -189,9 +191,7 @@ export default function HospitalsScreen() {
 
                 <View style={styles.titleBox}>
                   <Text style={styles.hospitalName}>{hospital.hospitalName}</Text>
-                  <Text style={styles.distanceText}>
-                    📍 {hospital.distance}km · {hospital.address}
-                  </Text>
+                  <View style={styles.distanceRow}><FontAwesome6 name="location-dot" size={12} color="#6B7280" /><Text style={styles.distanceText}>{hospital.distance}km · {hospital.address}</Text></View>
                 </View>
 
                 <View
@@ -252,17 +252,7 @@ export default function HospitalsScreen() {
                   onPress={() =>
                     router.push({
                       pathname: "/hospital-detail",
-                      params: {
-                        hpid: hospital.hpid,
-                        hospitalName: hospital.hospitalName,
-                        address: hospital.address,
-                        phone: hospital.phone,
-                        emergencyPhone: hospital.emergencyPhone,
-                        availableBeds: String(hospital.availableBeds),
-                        distance: String(hospital.distance),
-                        latitude: String(hospital.latitude),
-                        longitude: String(hospital.longitude),
-                      },
+                      params: toHospitalDetailParams(hospital),
                     })
                   }
                 >
@@ -300,11 +290,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  backIcon: {
-    fontSize: 34,
-    fontWeight: "500",
-    color: "#111827",
-  },
+  headerIconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   headerTitle: {
     fontSize: 18,
     fontWeight: "900",
@@ -330,6 +316,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 30,
   },
+  stateBox: { minHeight: 220, alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 24 },
+  stateText: { textAlign: "center", color: "#64748B", fontSize: 14, fontWeight: "700" },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
@@ -376,6 +364,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#6B7280",
   },
+  distanceRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   statusBadge: {
     backgroundColor: "#E8F8EF",
     borderRadius: 999,

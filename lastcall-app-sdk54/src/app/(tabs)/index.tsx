@@ -1,6 +1,6 @@
-import * as Location from "expo-location";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,17 +8,31 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { apiUrl } from "../../config/api";
+import { getAuthoredPosts, getReadCommentIds, markCommentsRead } from "../../services/community-notifications";
+import { getCurrentLocationFast } from "../../services/location";
+
+type CommentNotification = {
+  commentId: number;
+  postId: number;
+  postTitle: string;
+  nickname: string;
+  content: string;
+  createdAt?: string;
+};
 const symptoms = [
-  { id: 1, name: "고열", icon: "🌡️" },
-  { id: 2, name: "가슴통증", icon: "🫀" },
-  { id: 3, name: "호흡곤란", icon: "🫁" },
-  { id: 4, name: "복통", icon: "🔥" },
-  { id: 5, name: "외상", icon: "🩹" },
-  { id: 6, name: "소아응급", icon: "👶" },
+  { id: 1, name: "고열", icon: "temperature-high" as const },
+  { id: 2, name: "가슴통증", icon: "heart-pulse" as const },
+  { id: 3, name: "호흡곤란", icon: "lungs" as const },
+  { id: 4, name: "복통", icon: "person-dots-from-line" as const },
+  { id: 5, name: "외상", icon: "bandage" as const },
+  { id: 6, name: "소아응급", icon: "baby" as const },
 ];
 
 export default function HomeScreen() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState<CommentNotification[]>([]);
 
   const [addressText, setAddressText] = useState("현재 위치 확인 중...");
   const [currentLat, setCurrentLat] = useState<number | null>(null);
@@ -26,51 +40,45 @@ export default function HomeScreen() {
   const [stage1, setStage1] = useState("");
   const [stage2, setStage2] = useState("");
   const [selectedSymptom, setSelectedSymptom] = useState<string | null>(null);
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      const [posts, readIds] = await Promise.all([getAuthoredPosts(), getReadCommentIds()]);
+      const readSet = new Set(readIds);
+      const results = await Promise.all(posts.map(async (post) => {
+        const response = await fetch(apiUrl(`/community/post/${post.id}/comments`));
+        if (!response.ok) return [];
+        const comments: { id: number; nickname: string; content: string; createdAt?: string }[] = await response.json();
+        return comments.filter((comment) => !readSet.has(comment.id)).map((comment) => ({
+          commentId: comment.id,
+          postId: post.id,
+          postTitle: post.title,
+          nickname: comment.nickname,
+          content: comment.content,
+          createdAt: comment.createdAt,
+        }));
+      }));
+      setNotifications(results.flat().sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? "")));
+    } catch (error) {
+      console.error("댓글 알림 조회 실패", error);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadNotifications(); }, [loadNotifications]));
+
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
   const getCurrentLocation = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setAddressText("위치 권한이 필요합니다");
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-
-      const { latitude, longitude } = location.coords;
+      const location = await getCurrentLocationFast();
+      const { latitude, longitude } = location;
       setCurrentLat(latitude);
       setCurrentLon(longitude);
-
-      const addressList = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-
-      const address = addressList[0];
-
-      const region = address?.region ?? "";
-      const district = address?.district ?? "";
-      const street = address?.street ?? "";
-      const name = address?.name ?? "";
-      setStage1(region);
-      setStage2(district);
-      console.log("현재 위치 정보:", {
-        latitude,
-        longitude,
-        region,
-        district,
-        street,
-        name,
-      });
-      const fullAddress = [region, district, street, name]
-        .filter(Boolean)
-        .join(" ");
-
-      setAddressText(fullAddress || "현재 위치 확인됨");
+      setStage1(location.stage1);
+      setStage2(location.stage2);
+      setAddressText(location.addressText);
     } catch (error) {
       console.log("현재 위치 조회 실패:", error);
       setAddressText("위치 조회 실패");
@@ -99,15 +107,65 @@ export default function HomeScreen() {
       },
     });
   };
+
+  const openDetailedSearch = () => {
+    router.push({
+      pathname: "/filter",
+      params: {
+        ...(stage1 && { stage1 }),
+        ...(stage2 && { stage2 }),
+        ...(selectedSymptom && { symptom: selectedSymptom }),
+        ...(currentLat !== null && { lat: String(currentLat) }),
+        ...(currentLon !== null && { lon: String(currentLon) }),
+      },
+    });
+  };
+
+  const openNotification = async (notification: CommentNotification) => {
+    await markCommentsRead([notification.commentId]);
+    setNotifications((current) => current.filter((item) => item.commentId !== notification.commentId));
+    setIsNotificationOpen(false);
+    router.push({ pathname: "/community-detail", params: { id: String(notification.postId) } });
+  };
+
+  const readAllNotifications = async () => {
+    await markCommentsRead(notifications.map((notification) => notification.commentId));
+    setNotifications([]);
+    setIsNotificationOpen(false);
+  };
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => setIsMenuOpen(!isMenuOpen)}>
-            <Text style={styles.topIcon}>☰</Text>
+          <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴">
+            <FontAwesome6 name="bars" size={21} color="#111827" />
           </TouchableOpacity>
-          <Text style={styles.topIcon}>🔔</Text>
+          <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림">
+            <FontAwesome6 name="bell" size={20} color="#111827" />
+            {notifications.length > 0 && <View style={styles.notificationBadge}><Text style={styles.notificationBadgeText}>{notifications.length > 9 ? "9+" : notifications.length}</Text></View>}
+          </TouchableOpacity>
         </View>
+
+        {isNotificationOpen && (
+          <View style={styles.notificationBox}>
+            <View style={styles.notificationHeader}>
+              <Text style={styles.notificationTitle}>댓글 알림</Text>
+              {notifications.length > 0 && <TouchableOpacity onPress={readAllNotifications}><Text style={styles.readAllText}>모두 읽음</Text></TouchableOpacity>}
+            </View>
+            {notifications.length === 0 ? (
+              <View style={styles.emptyNotification}><FontAwesome6 name="bell-slash" size={22} color="#94A3B8" /><Text style={styles.emptyNotificationText}>새로운 댓글이 없습니다</Text></View>
+            ) : notifications.slice(0, 8).map((notification) => (
+              <TouchableOpacity key={notification.commentId} style={styles.notificationItem} onPress={() => openNotification(notification)}>
+                <View style={styles.notificationDot} />
+                <View style={styles.notificationTextBox}>
+                  <Text style={styles.notificationPostTitle} numberOfLines={1}>{notification.postTitle}</Text>
+                  <Text style={styles.notificationContent} numberOfLines={2}>{notification.nickname}: {notification.content}</Text>
+                </View>
+                <FontAwesome6 name="chevron-right" size={12} color="#94A3B8" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {isMenuOpen && (
           <View style={styles.menuBox}>
@@ -124,7 +182,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <Text style={styles.menuItemText}>📢 공지사항</Text>
+              <FontAwesome6 name="bullhorn" size={15} color="#334155" /><Text style={styles.menuItemText}>공지사항</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -140,7 +198,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <Text style={styles.menuItemText}>💬 자유게시판</Text>
+              <FontAwesome6 name="comments" size={15} color="#334155" /><Text style={styles.menuItemText}>자유게시판</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -156,7 +214,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <Text style={styles.menuItemText}>📝 건의사항</Text>
+              <FontAwesome6 name="pen-to-square" size={15} color="#334155" /><Text style={styles.menuItemText}>건의사항</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -172,7 +230,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <Text style={styles.menuItemText}>❓ Q&A 게시판</Text>
+              <FontAwesome6 name="circle-question" size={15} color="#334155" /><Text style={styles.menuItemText}>Q&A 게시판</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -187,13 +245,13 @@ export default function HomeScreen() {
 
         <View style={styles.locationCard}>
           <View style={styles.locationRow}>
-            <Text style={styles.locationIcon}>📍</Text>
+            <FontAwesome6 name="location-dot" size={20} color="#EF4444" />
             <View>
               <Text style={styles.locationLabel} numberOfLines={1}>현재 위치</Text>
               <Text style={styles.locationText}>{addressText}</Text>
             </View>
           </View>
-          <Text style={styles.settingIcon}>⚙️</Text>
+          <FontAwesome6 name="gear" size={19} color="#64748B" />
         </View>
 
         <View style={styles.symptomCard}>
@@ -210,7 +268,7 @@ export default function HomeScreen() {
                 ]}
                 onPress={() => setSelectedSymptom(symptom.name)}
               >
-                <Text style={styles.symptomIcon}>{symptom.icon}</Text>
+                <FontAwesome6 name={symptom.icon} size={23} color={selectedSymptom === symptom.name ? "#EF4444" : "#475569"} />
                 <Text
                   style={[
                     styles.symptomText,
@@ -228,13 +286,16 @@ export default function HomeScreen() {
           style={styles.searchButton}
           onPress={handleSearchEmergency}
         >
-          <Text style={styles.searchButtonText}>🔍 응급실 검색하기</Text>
+          <View style={styles.buttonLabel}><FontAwesome6 name="magnifying-glass" size={16} color="#FFFFFF" /><Text style={styles.searchButtonText}>응급실 검색하기</Text></View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.detailSearchButton} onPress={openDetailedSearch}>
+          <View style={styles.buttonLabel}><FontAwesome6 name="sliders" size={16} color="#061A44" /><Text style={styles.detailSearchButtonText}>세부검색</Text></View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.helpButton}
           onPress={() => router.push("/emergency-help")}
         >
-          <Text style={styles.helpButtonText}>🚨 응급 대처 안내</Text>
+          <View style={styles.buttonLabel}><FontAwesome6 name="triangle-exclamation" size={16} color="#DC2626" /><Text style={styles.helpButtonText}>응급 대처 안내</Text></View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -249,44 +310,55 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 22,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 6,
   },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 28,
+    marginBottom: 10,
   },
-  topIcon: {
-    fontSize: 22,
-    color: "#111827",
-  },
+  topIconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  notificationBadge: { position: "absolute", top: 1, right: 0, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: "#EF4444", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F3F6FB" },
+  notificationBadgeText: { color: "#FFFFFF", fontSize: 9, fontWeight: "900" },
+  notificationBox: { position: "absolute", top: 52, right: 22, width: 310, maxHeight: 420, backgroundColor: "#FFFFFF", borderRadius: 18, padding: 14, zIndex: 120, elevation: 10, shadowColor: "#000", shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } },
+  notificationHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, paddingBottom: 10 },
+  notificationTitle: { fontSize: 17, fontWeight: "900", color: "#111827" },
+  readAllText: { fontSize: 13, fontWeight: "800", color: "#EF4444" },
+  emptyNotification: { alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 26 },
+  emptyNotificationText: { fontSize: 14, color: "#64748B" },
+  notificationItem: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 10, borderTopWidth: 1, borderTopColor: "#F1F5F9", paddingVertical: 10 },
+  notificationDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
+  notificationTextBox: { flex: 1 },
+  notificationPostTitle: { fontSize: 14, fontWeight: "900", color: "#1F2937", marginBottom: 4 },
+  notificationContent: { fontSize: 13, lineHeight: 18, color: "#64748B" },
   logoArea: {
     alignItems: "center",
-    marginBottom: 26,
+    marginBottom: 13,
   },
   logo: {
-    fontSize: 38,
+    fontSize: 31,
     fontWeight: "900",
     color: "#111827",
-    marginBottom: 10,
+    marginBottom: 3,
   },
   logoRed: {
     color: "#E53935",
   },
   mainText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
     color: "#1F2937",
-    lineHeight: 24,
+    lineHeight: 19,
   },
 
   locationCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
-    padding: 18,
-    marginBottom: 14,
+    paddingHorizontal: 15,
+    paddingVertical: 11,
+    marginBottom: 9,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -302,6 +374,8 @@ const styles = StyleSheet.create({
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
+    gap: 10,
   },
   locationIcon: {
     fontSize: 22,
@@ -313,7 +387,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   locationText: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "800",
     color: "#111827",
   },
@@ -323,8 +397,9 @@ const styles = StyleSheet.create({
   symptomCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    padding: 18,
-    marginBottom: 14,
+    paddingHorizontal: 15,
+    paddingVertical: 11,
+    marginBottom: 9,
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 12,
@@ -335,7 +410,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "900",
     color: "#111827",
   },
@@ -343,19 +418,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#6B7280",
     marginTop: 4,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   symptomGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 12,
+    rowGap: 7,
   },
   symptomItem: {
     width: "31%",
-    height: 86,
+    height: 57,
     backgroundColor: "#F8FAFC",
-    borderRadius: 16,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -369,8 +444,9 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 8,
   },
+  buttonLabel: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   symptomText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#374151",
   },
@@ -380,20 +456,22 @@ const styles = StyleSheet.create({
   searchButton: {
     backgroundColor: "#061A44",
     borderRadius: 15,
-    paddingVertical: 17,
+    paddingVertical: 13,
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 7,
   },
   searchButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "900",
   },
+  detailSearchButton: { backgroundColor: "#FFFFFF", borderRadius: 15, paddingVertical: 11, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1", marginBottom: 7 },
+  detailSearchButtonText: { color: "#061A44", fontSize: 15, fontWeight: "900" },
 
   helpButton: {
     backgroundColor: "#FFF1F1",
     borderRadius: 15,
-    paddingVertical: 15,
+    paddingVertical: 11,
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#FECACA",
@@ -426,6 +504,9 @@ const styles = StyleSheet.create({
   },
 
   menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 1,

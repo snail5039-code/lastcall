@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { apiUrl } from "../config/api";
 
 type CommunityPost = {
   id: number;
@@ -79,7 +80,7 @@ export default function CommunityBoardScreen() {
       console.time("게시글 API 시간");
 
       const response = await fetch(
-        `http://192.168.45.113:8080/community/posts?boardType=${boardType}&page=${currentPage}&size=10`
+        apiUrl(`/community/posts?boardType=${boardType}&page=${currentPage}&size=10`)
       );
 
       console.timeEnd("게시글 API 시간");

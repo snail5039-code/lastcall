@@ -2,7 +2,11 @@ package com.lastcall.service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,13 @@ public class EmergencyService {
 	
 	private final EmergencyDao emergencyDao;
 	private final RestTemplate restTemplate = new RestTemplate();
+	private final Map<String, DepartmentCacheEntry> departmentCache = new ConcurrentHashMap<>();
+	private final Map<String, ApiResponseCacheEntry> apiResponseCache = new ConcurrentHashMap<>();
+	private final Map<String, Object> apiRequestLocks = new ConcurrentHashMap<>();
+	private static final long DEPARTMENT_CACHE_MILLIS = 6 * 60 * 60 * 1000L;
+	private static final long REALTIME_CACHE_MILLIS = 15 * 1000L;
+	private static final long HOSPITAL_INFO_CACHE_MILLIS = 6 * 60 * 60 * 1000L;
+	private static final long SEVERE_CACHE_MILLIS = 60 * 1000L;
 	
 	@Value("${emergency.api.service-key}")
 	private String serviceKey;
@@ -51,32 +62,46 @@ public class EmergencyService {
 	}
 	
 	public List<EmergencyDto> getEmergencyApiList(String stage1, String stage2) {
-		
-		List<EmergencyDto> bedList = getEmergencyBedList(stage1, stage2);
-		
-		List<EmergencyDto> hospitalInfoList = getHospitalInfoList(stage1, stage2);
-	    
-		for(EmergencyDto bedDto : bedList) {
-			for(EmergencyDto infoDto : hospitalInfoList) {
-				if(bedDto.getHpid().equals(infoDto.getHpid())) {
-					bedDto.setAddress(infoDto.getAddress());
-					bedDto.setPhone(infoDto.getPhone());
-					bedDto.setLatitude(infoDto.getLatitude());
-					bedDto.setLongitude(infoDto.getLongitude());
-					
-					String departments = getDepartmentInfo(bedDto.getHpid());
-				    bedDto.setDepartments(departments);
-					break;
-				}
+		return getEmergencyApiList(stage1, stage2, true);
+	}
+
+	private List<EmergencyDto> getEmergencyApiList(String stage1, String stage2, boolean includeDepartments) {
+		CompletableFuture<List<EmergencyDto>> bedsFuture = CompletableFuture.supplyAsync(
+				() -> getEmergencyBedList(stage1, stage2));
+		CompletableFuture<List<EmergencyDto>> infoFuture = CompletableFuture.supplyAsync(
+				() -> getHospitalInfoList(stage1, stage2));
+
+		List<EmergencyDto> bedList = bedsFuture.join();
+		Map<String, EmergencyDto> infoByHpid = new HashMap<>();
+		infoFuture.join().forEach(info -> infoByHpid.put(info.getHpid(), info));
+
+		bedList.forEach(bed -> {
+			EmergencyDto info = infoByHpid.get(bed.getHpid());
+			if (info != null) {
+				bed.setAddress(info.getAddress());
+				bed.setPhone(info.getPhone());
+				bed.setLatitude(info.getLatitude());
+				bed.setLongitude(info.getLongitude());
 			}
+		});
+
+		if (includeDepartments) {
+			bedList.parallelStream().forEach(dto -> dto.setDepartments(getCachedDepartmentInfo(dto.getHpid())));
 		}
-		
 		return bedList;
 	}
 	// gps 기준 가까운 병원 거리 출력
-	public List<EmergencyDto> getNearbyEmergencyList(String stage1, String stage2, double lat, double lon, String symptom){
-		List<EmergencyDto> list = getEmergencyApiList(stage1, stage2);
+	public List<EmergencyDto> getNearbyEmergencyList(String stage1, String stage2, double lat, double lon, String symptom,
+			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails){
+		boolean needsDepartments = (symptom != null && !symptom.isBlank())
+				|| (department != null && !department.isBlank() && !"전체".equals(department));
+		List<EmergencyDto> list = getEmergencyApiList(stage1, stage2, needsDepartments);
 		List<DepartmentScore> departmentScores = getDepartmentScoresBySymptom(symptom);
+		List<String> requestedSevereTypes = splitFilter(severeTypes);
+		if (includeDetails || !requestedSevereTypes.isEmpty()) {
+			Map<String, List<String>> severeByHospital = getSevereCapabilities(stage1, stage2);
+			list.forEach(dto -> dto.setSevereCapabilities(severeByHospital.getOrDefault(dto.getHpid(), List.of())));
+		}
 		
 		for(EmergencyDto dto : list) {
 			double distance = calculateDistance(
@@ -101,13 +126,26 @@ public class EmergencyService {
 
 		        dto.setMatchedDepartments(matchedDepartments);
 		    }
-		// 정렬 순서, 증상 관련, 가용병상, 가까운 병원
-		list.sort(
-		        Comparator
-		                .comparingInt(EmergencyDto::getRecommendScore).reversed()
-		                .thenComparing(Comparator.comparingInt(EmergencyDto::getAvailableBeds).reversed())
-		                .thenComparingDouble(EmergencyDto::getDistance)
-		);
+		List<String> requestedBeds = splitFilter(bedTypes);
+		List<String> requestedFacilities = splitFilter(facilities);
+		list.removeIf(dto -> !matchesDepartment(dto, department)
+				|| !requestedBeds.stream().allMatch(type -> hasAvailableBed(dto, type))
+				|| !requestedFacilities.stream().allMatch(type -> hasFacility(dto, type))
+				|| !dto.getSevereCapabilities().containsAll(requestedSevereTypes));
+
+		Comparator<EmergencyDto> comparator = switch (sort == null ? "distance" : sort) {
+			case "emergencyBeds" -> Comparator.comparingInt(EmergencyDto::getAvailableBeds).reversed()
+					.thenComparingDouble(EmergencyDto::getDistance);
+			case "icuBeds" -> Comparator.comparingInt(this::totalIcuBeds).reversed()
+					.thenComparingDouble(EmergencyDto::getDistance);
+			case "operatingRooms" -> Comparator.comparingInt(EmergencyDto::getOperatingRooms).reversed()
+					.thenComparingDouble(EmergencyDto::getDistance);
+			default -> Comparator.comparingDouble(EmergencyDto::getDistance);
+		};
+		if (symptom != null && !symptom.isBlank()) {
+			comparator = Comparator.comparingInt(EmergencyDto::getRecommendScore).reversed().thenComparing(comparator);
+		}
+		list.sort(comparator);
 		
 		return list;
 	}
@@ -129,7 +167,7 @@ public class EmergencyService {
 		String url = builder
 		        .build(false)
 		        .toUriString();
-		String response = restTemplate.getForObject(url, String.class);
+		String response = getCachedApiResponse(url, REALTIME_CACHE_MILLIS);
 		
 	    return parseEmergencyApiResponse(response);
 	}
@@ -174,6 +212,19 @@ public class EmergencyService {
 	    dto.setHospitalName(item.path("dutyName").asText(""));
 	    dto.setEmergencyPhone(item.path("dutyTel3").asText(""));
 	    dto.setAvailableBeds(item.path("hvec").asInt(0));
+	    dto.setOperatingRooms(item.path("hvoc").asInt(0));
+	    dto.setNeuroIcuBeds(item.path("hvcc").asInt(0));
+	    dto.setNeonatalIcuBeds(item.path("hvncc").asInt(0));
+	    dto.setChestIcuBeds(item.path("hvccc").asInt(0));
+	    dto.setGeneralIcuBeds(item.path("hvicc").asInt(0));
+	    dto.setInpatientBeds(item.path("hvgc").asInt(0));
+	    dto.setCtAvailable(isAvailable(item.path("hvctayn").asText("")));
+	    dto.setMriAvailable(isAvailable(item.path("hvmriayn").asText("")));
+	    dto.setAngiographyAvailable(isAvailable(item.path("hvangioayn").asText("")));
+	    dto.setVentilatorAvailable(isAvailable(item.path("hvventiayn").asText("")));
+	    dto.setAmbulanceAvailable(isAvailable(item.path("hvamyn").asText("")));
+	    dto.setPediatricVentilatorAvailable(isAvailable(item.path("hv10").asText("")));
+	    dto.setIncubatorAvailable(isAvailable(item.path("hv11").asText("")));
 
 	    return dto;
 	}
@@ -196,7 +247,7 @@ public class EmergencyService {
 		        .build(false)
 		        .toUriString();
 
-	    String response = restTemplate.getForObject(url, String.class);
+	    String response = getCachedApiResponse(url, HOSPITAL_INFO_CACHE_MILLIS);
 
 	    return parseHospitalInfoResponse(response);
 	}
@@ -307,6 +358,123 @@ public class EmergencyService {
 	    }
 
 	    return "";
+	}
+
+	private String getCachedDepartmentInfo(String hpid) {
+		long now = System.currentTimeMillis();
+		DepartmentCacheEntry cached = departmentCache.get(hpid);
+		if (cached != null && now - cached.createdAt() < DEPARTMENT_CACHE_MILLIS) {
+			return cached.departments();
+		}
+		String departments = getDepartmentInfo(hpid);
+		departmentCache.put(hpid, new DepartmentCacheEntry(departments, now));
+		return departments;
+	}
+
+	private record DepartmentCacheEntry(String departments, long createdAt) {}
+
+	private String getCachedApiResponse(String url, long ttlMillis) {
+		long now = System.currentTimeMillis();
+		ApiResponseCacheEntry cached = apiResponseCache.get(url);
+		if (cached != null && now - cached.createdAt() < ttlMillis) return cached.body();
+		Object requestLock = apiRequestLocks.computeIfAbsent(url, ignored -> new Object());
+		synchronized (requestLock) {
+			cached = apiResponseCache.get(url);
+			if (cached != null && now - cached.createdAt() < ttlMillis) return cached.body();
+			String body = restTemplate.getForObject(url, String.class);
+			apiResponseCache.put(url, new ApiResponseCacheEntry(body, now));
+			return body;
+		}
+	}
+
+	private record ApiResponseCacheEntry(String body, long createdAt) {}
+
+	private Map<String, List<String>> getSevereCapabilities(String stage1, String stage2) {
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire")
+				.queryParam("serviceKey", serviceKey)
+				.queryParam("STAGE1", stage1)
+				.queryParam("pageNo", 1)
+				.queryParam("numOfRows", 100)
+				.queryParam("_type", "json");
+		if (stage2 != null && !stage2.isBlank()) {
+			builder.queryParam("STAGE2", stage2);
+		}
+
+		Map<String, List<String>> result = new HashMap<>();
+		try {
+			String response = getCachedApiResponse(builder.build(false).toUriString(), SEVERE_CACHE_MILLIS);
+			JsonNode itemNode = new ObjectMapper().readTree(response)
+					.path("response").path("body").path("items").path("item");
+			if (itemNode.isArray()) {
+				itemNode.forEach(item -> result.put(item.path("hpid").asText(""), parseSevereCapabilities(item)));
+			} else if (!itemNode.isMissingNode() && !itemNode.isNull()) {
+				result.put(itemNode.path("hpid").asText(""), parseSevereCapabilities(itemNode));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	private List<String> parseSevereCapabilities(JsonNode item) {
+		String[] keys = { "brainHemorrhage", "cerebralInfarction", "myocardialInfarction", "abdominalInjury",
+				"limbReattachment", "emergencyEndoscopy", "emergencyDialysis", "prematureLabor",
+				"mentalEmergency", "newborn", "severeBurn" };
+		List<String> capabilities = new ArrayList<>();
+		for (int index = 0; index < keys.length; index++) {
+			String fieldNumber = String.valueOf(index + 1);
+			String value = item.path("MKioskTy" + fieldNumber).asText("");
+			if (value.isBlank()) value = item.path("mkioskTy" + fieldNumber).asText("");
+			if (isAvailable(value)) capabilities.add(keys[index]);
+		}
+		return capabilities;
+	}
+
+	private boolean isAvailable(String value) {
+		if (value == null) return false;
+		String normalized = value.trim().toUpperCase();
+		return normalized.equals("Y") || normalized.equals("가능") || normalized.startsWith("Y(");
+	}
+
+	private List<String> splitFilter(String value) {
+		if (value == null || value.isBlank()) return List.of();
+		return List.of(value.split(",")).stream().map(String::trim).filter(item -> !item.isBlank()).toList();
+	}
+
+	private boolean matchesDepartment(EmergencyDto dto, String department) {
+		return department == null || department.isBlank() || "전체".equals(department)
+				|| (dto.getDepartments() != null && dto.getDepartments().contains(department));
+	}
+
+	private boolean hasAvailableBed(EmergencyDto dto, String type) {
+		return switch (type) {
+			case "emergency" -> dto.getAvailableBeds() > 0;
+			case "generalIcu" -> dto.getGeneralIcuBeds() > 0;
+			case "neuroIcu" -> dto.getNeuroIcuBeds() > 0;
+			case "neonatalIcu" -> dto.getNeonatalIcuBeds() > 0;
+			case "chestIcu" -> dto.getChestIcuBeds() > 0;
+			case "inpatient" -> dto.getInpatientBeds() > 0;
+			case "operatingRoom" -> dto.getOperatingRooms() > 0;
+			default -> true;
+		};
+	}
+
+	private boolean hasFacility(EmergencyDto dto, String type) {
+		return switch (type) {
+			case "ct" -> dto.isCtAvailable();
+			case "mri" -> dto.isMriAvailable();
+			case "angiography" -> dto.isAngiographyAvailable();
+			case "ventilator" -> dto.isVentilatorAvailable();
+			case "pediatricVentilator" -> dto.isPediatricVentilatorAvailable();
+			case "incubator" -> dto.isIncubatorAvailable();
+			case "ambulance" -> dto.isAmbulanceAvailable();
+			default -> true;
+		};
+	}
+
+	private int totalIcuBeds(EmergencyDto dto) {
+		return dto.getGeneralIcuBeds() + dto.getNeuroIcuBeds() + dto.getNeonatalIcuBeds() + dto.getChestIcuBeds();
 	}
 	
 	// 점수제 

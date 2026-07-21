@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -71,7 +72,7 @@ export default function FavoritesScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backIcon}>‹</Text>
+            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>즐겨찾기 병원</Text>

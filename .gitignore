@@ -34,3 +34,5 @@ Thumbs.db
 *.log
 
 lastcall-server/src/main/resources/application-local.yml
+# Local test tools
+.tools/
