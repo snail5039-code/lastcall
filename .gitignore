@@ -1,0 +1,36 @@
+# STS / Eclipse 작업공간
+.metadata/
+
+# 사용하지 않는 예전 프론트 프로젝트
+lastcall-app/
+
+# Frontend
+lastcall-app-sdk54/node_modules/
+lastcall-app-sdk54/.expo/
+lastcall-app-sdk54/dist/
+lastcall-app-sdk54/web-build/
+lastcall-app-sdk54/.vscode/
+
+# Backend
+lastcall-server/target/
+lastcall-server/.settings/
+lastcall-server/.classpath
+lastcall-server/.project
+lastcall-server/.factorypath
+
+# 환경변수 및 비밀정보
+.env
+.env.*
+!.env.example
+
+# IDE / 운영체제
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
+
+lastcall-server/src/main/resources/application-local.yml

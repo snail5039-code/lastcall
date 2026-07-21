@@ -1,0 +1,72 @@
+USE lastcall;
+
+CREATE TABLE emergencyHospital(
+	hospitalName VARCHAR(100)
+	, address VARCHAR(255)
+	, phone VARCHAR(30)
+);
+
+INSERT INTO emergencyHospital(hospitalName, address, phone)
+VALUES('충남대학교병원', '대전광역시 중구 문화로 282', '042-280-7114')
+		,('건양대학교병원', '대전광역시 서구 관저동로 158', '1577-3330')
+		,('대전선병원', '대전광역시 중구 목중로 29', '1588-7011');
+
+SELECT * FROM emergencyHospital;
+
+ALTER TABLE emergencyHospital ADD latitude DOUBLE
+						     ,ADD longitude DOUBLE;
+ CREATE TABLE communityPost (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    boardType VARCHAR(20) NOT NULL,
+    nickname VARCHAR(30) NOT NULL,
+    passwordHash VARCHAR(255) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    viewCount INT NOT NULL DEFAULT 0,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE communityComment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    postId BIGINT NOT NULL,
+    nickname VARCHAR(30) NOT NULL,
+    passwordHash VARCHAR(255),
+    content TEXT NOT NULL,
+    isAdmin BOOLEAN NOT NULL DEFAULT FALSE,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (postId)
+        REFERENCES communityPost(id)
+        ON DELETE CASCADE
+);
+
+SELECT * FROM communityPost;
+SELECT * FROM communityComment;
+
+INSERT INTO communityPost (
+    boardType,
+    nickname,
+    passwordHash,
+    title,
+    content
+)
+VALUES
+('FREE', '테스터1', 'test-password-hash', '자유게시판 테스트 글 1', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터2', 'test-password-hash', '자유게시판 테스트 글 2', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터3', 'test-password-hash', '자유게시판 테스트 글 3', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터4', 'test-password-hash', '자유게시판 테스트 글 4', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터5', 'test-password-hash', '자유게시판 테스트 글 5', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터6', 'test-password-hash', '자유게시판 테스트 글 6', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터7', 'test-password-hash', '자유게시판 테스트 글 7', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터8', 'test-password-hash', '자유게시판 테스트 글 8', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터9', 'test-password-hash', '자유게시판 테스트 글 9', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터10', 'test-password-hash', '자유게시판 테스트 글 10', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터11', 'test-password-hash', '자유게시판 테스트 글 11', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터12', 'test-password-hash', '자유게시판 테스트 글 12', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터13', 'test-password-hash', '자유게시판 테스트 글 13', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터14', 'test-password-hash', '자유게시판 테스트 글 14', '페이지네이션 테스트 내용입니다.'),
+('FREE', '테스터15', 'test-password-hash', '자유게시판 테스트 글 15', '페이지네이션 테스트 내용입니다.');

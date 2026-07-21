@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: local
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+server:
+  port: 8080
+
+emergency:
+  api:
+    service-key: ${EMERGENCY_API_KEY}
