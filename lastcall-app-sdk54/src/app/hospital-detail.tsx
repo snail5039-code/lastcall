@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Linking,
@@ -96,7 +96,7 @@ export default function HospitalDetailScreen() {
     longitude: String(longitude || ""),
   };
 
-  const checkFavoriteStatus = async () => {
+  const checkFavoriteStatus = useCallback(async () => {
     try {
       const savedFavorites = await AsyncStorage.getItem("favoriteHospitals");
 
@@ -115,7 +115,7 @@ export default function HospitalDetailScreen() {
     } catch (error) {
       console.log("즐겨찾기 확인 실패:", error);
     }
-  };
+  }, [currentHospital.hpid]);
 
   const toggleFavorite = async () => {
     try {
@@ -163,7 +163,7 @@ export default function HospitalDetailScreen() {
 
   useEffect(() => {
     checkFavoriteStatus();
-  }, [hpid]);
+  }, [checkFavoriteStatus]);
 
   const bedCount = Number(availableBeds);
   const [departmentList, setDepartmentList] = useState<string[]>(() => (departments ?? "").split(",").map((item) => item.trim()).filter(Boolean));

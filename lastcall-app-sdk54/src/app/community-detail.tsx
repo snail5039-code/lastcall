@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -103,7 +103,7 @@ export default function CommunityDetailScreen() {
         ]);
     };
 
-    const fetchPostDetail = async () => {
+    const fetchPostDetail = useCallback(async () => {
         try {
             setIsLoading(true);
             setErrorMessage("");
@@ -124,14 +124,6 @@ export default function CommunityDetailScreen() {
             setErrorMessage("게시글을 불러오지 못했습니다.");
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        void getAdminToken().then((saved) => setAdminToken(saved ?? ""));
-        if (id) {
-            fetchPostDetail();
-            fetchComments();
         }
     }, [id]);
     const startEditing = () => {
@@ -282,7 +274,7 @@ export default function CommunityDetailScreen() {
         ]);
     };
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         try {
             const response = await fetch(
                 apiUrl(`/community/post/${id}/comments`)
@@ -298,7 +290,15 @@ export default function CommunityDetailScreen() {
         } catch (error) {
             console.error("댓글 목록 조회 실패:", error);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        void getAdminToken().then((saved) => setAdminToken(saved ?? ""));
+        if (id) {
+            void fetchPostDetail();
+            void fetchComments();
+        }
+    }, [fetchComments, fetchPostDetail, id]);
 
     const insertComment = async () => {
         if (!commentNickname.trim()) {

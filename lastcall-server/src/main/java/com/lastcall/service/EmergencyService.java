@@ -27,7 +27,7 @@ import tools.jackson.databind.ObjectMapper;
 public class EmergencyService {
 	
 	private final EmergencyDao emergencyDao;
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
 	private final Map<String, DepartmentCacheEntry> departmentCache = new ConcurrentHashMap<>();
 	private final Map<String, ApiResponseCacheEntry> apiResponseCache = new ConcurrentHashMap<>();
 	private final Map<String, Object> apiRequestLocks = new ConcurrentHashMap<>();
@@ -63,8 +63,6 @@ public class EmergencyService {
 	            .toUriString();
 
 	    System.out.println("공공 API 요청 URL = " + url);
-
-	    RestTemplate restTemplate = new RestTemplate();
 
 	    return restTemplate.getForObject(url, String.class);
 	}

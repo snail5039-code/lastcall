@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "현재 위치를 기준으로 가까운 응급실과 거리를 안내하기 위해 위치를 사용합니다."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +42,13 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "현재 위치를 기준으로 가까운 응급실과 거리를 안내하기 위해 위치를 사용합니다."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

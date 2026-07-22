@@ -63,6 +63,8 @@ export default function MyInfoScreen() {
 
   useEffect(() => {
     loadPersonList();
+    // 의료정보는 화면 최초 진입 시 한 번만 보안 저장소에서 불러온다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPersonList = async () => {

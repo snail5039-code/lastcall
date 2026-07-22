@@ -16,6 +16,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+3. 출시 전 `.env.example`을 참고해 실제 위치정보 운영자명과 문의 이메일 또는 전화번호를 설정합니다.
+
+   ```text
+   EXPO_PUBLIC_OPERATOR_NAME=실제 운영 주체명
+   EXPO_PUBLIC_LOCATION_CONTACT=실제 문의 이메일 또는 전화번호
+   ```
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

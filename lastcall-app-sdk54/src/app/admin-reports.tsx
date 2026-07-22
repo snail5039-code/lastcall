@@ -1,7 +1,7 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
@@ -34,11 +34,7 @@ export default function AdminReportsScreen() {
     });
   }, []);
 
-  useEffect(() => {
-    if (token) void loadReports(token, status);
-  }, [token, status]);
-
-  const loadReports = async (adminToken = token, nextStatus = status) => {
+  const loadReports = useCallback(async (adminToken: string, nextStatus: string) => {
     try {
       setLoading(true);
       const response = await fetch(apiUrl(`/community/admin/reports?status=${nextStatus === "ALL" ? "" : nextStatus}`), {
@@ -58,7 +54,11 @@ export default function AdminReportsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (token) void loadReports(token, status);
+  }, [loadReports, token, status]);
 
   const login = async () => {
     if (!password.trim()) return;
@@ -91,7 +91,7 @@ export default function AdminReportsScreen() {
   const adminRequest = async (path: string, method: "PUT" | "DELETE") => {
     const response = await fetch(apiUrl(path), { method, headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error(`관리 작업 실패: ${response.status}`);
-    await loadReports();
+    await loadReports(token, status);
   };
 
   const resolveReport = (report: AdminReport) => {

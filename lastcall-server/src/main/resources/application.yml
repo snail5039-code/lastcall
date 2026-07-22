@@ -14,6 +14,15 @@ server:
 emergency:
   api:
     service-key: ${EMERGENCY_API_KEY}
+    connect-timeout: ${EMERGENCY_API_CONNECT_TIMEOUT:3s}
+    read-timeout: ${EMERGENCY_API_READ_TIMEOUT:8s}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081,http://127.0.0.1:8081,http://192.168.0.9:8081}
+  rate-limit:
+    emergency-per-minute: ${EMERGENCY_RATE_LIMIT_PER_MINUTE:120}
+    warmup-per-minute: ${WARMUP_RATE_LIMIT_PER_MINUTE:20}
 
 admin:
   username: ${ADMIN_USERNAME:admin}

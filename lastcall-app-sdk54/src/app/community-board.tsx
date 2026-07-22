@@ -112,7 +112,7 @@ export default function CommunityBoardScreen() {
     }
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setIsLoading(true);
       setErrorMessage("");
@@ -149,11 +149,11 @@ export default function CommunityBoardScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [boardType, currentPage]);
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
-    }, [boardType, currentPage])
+    }, [fetchPosts])
   );
 
   if (isLoading) {
