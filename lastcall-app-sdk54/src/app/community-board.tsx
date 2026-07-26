@@ -37,6 +37,15 @@ type CommunityPostPage = {
 
 const APP_NOTICES: CommunityPost[] = [
   {
+    id: 5,
+    boardType: "NOTICE",
+    nickname: "살려줌 운영팀",
+    title: "내 의료정보는 기기의 보안 저장소에 보관됩니다",
+    content: "내 정보에 입력한 질환, 복용약, 알레르기와 보호자 연락처는 서버로 전송하지 않고 현재 기기의 보안 저장소에만 저장됩니다.",
+    viewCount: 0,
+    createdAt: "2026-07-26",
+  },
+  {
     id: 4,
     boardType: "NOTICE",
     nickname: "살려줌 운영팀",

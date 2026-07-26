@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,14 @@ public class CommunityService {
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	private final Map<String, Long> adminSessions = new ConcurrentHashMap<>();
 	private final Map<String, LoginAttempt> loginAttempts = new ConcurrentHashMap<>();
-	private static final long ADMIN_SESSION_MILLIS = 8 * 60 * 60 * 1000L;
 	private static final long LOGIN_LOCK_MILLIS = 10 * 60 * 1000L;
 
-	@Value("${admin.password:}")
-	private String adminPassword;
-	@Value("${admin.username:admin}")
+	@Value("${admin.password-hash:}")
+	private String adminPasswordHash;
+	@Value("${admin.username:}")
 	private String adminUsername;
+	@Value("${admin.session-duration:1h}")
+	private Duration adminSessionDuration;
 
 	// 게시글 등록
 	public int insertPost(CommunityPostDto communityPostDto) {
@@ -255,13 +257,13 @@ public class CommunityService {
 		if (attempt != null && attempt.failures() >= 5 && now < attempt.lockedUntil()) {
 			throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.");
 		}
-		if (adminPassword == null || adminPassword.isBlank()) {
-			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "관리자 비밀번호가 설정되지 않았습니다.");
+		if (!isAdminConfigurationValid()) {
+			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "관리자 인증이 설정되지 않았습니다.");
 		}
 		boolean usernameMatches = username != null && MessageDigest.isEqual(
 				username.getBytes(StandardCharsets.UTF_8), adminUsername.getBytes(StandardCharsets.UTF_8));
-		boolean matches = usernameMatches && password != null && MessageDigest.isEqual(
-				password.getBytes(StandardCharsets.UTF_8), adminPassword.getBytes(StandardCharsets.UTF_8));
+		boolean passwordMatches = password != null && passwordEncoder.matches(password, adminPasswordHash);
+		boolean matches = usernameMatches & passwordMatches;
 		if (!matches) {
 			int failures = attempt == null || now - attempt.windowStartedAt() >= LOGIN_LOCK_MILLIS ? 1 : attempt.failures() + 1;
 			long windowStartedAt = failures == 1 ? now : attempt.windowStartedAt();
@@ -271,9 +273,23 @@ public class CommunityService {
 		}
 		loginAttempts.remove(clientKey);
 		String token = UUID.randomUUID().toString() + UUID.randomUUID();
-		long expiresAt = now + ADMIN_SESSION_MILLIS;
+		long expiresAt = now + adminSessionDuration.toMillis();
 		adminSessions.put(token, expiresAt);
 		return new AdminSessionDto(token, expiresAt);
+	}
+
+	private boolean isAdminConfigurationValid() {
+		if (adminUsername == null || adminUsername.isBlank()
+				|| adminPasswordHash == null
+				|| !adminPasswordHash.matches("^\\$2[aby]\\$\\d{2}\\$.{53}$")
+				|| adminSessionDuration == null
+				|| adminSessionDuration.isNegative()
+				|| adminSessionDuration.isZero()
+				|| adminSessionDuration.compareTo(Duration.ofHours(24)) > 0) {
+			return false;
+		}
+		int bcryptCost = Integer.parseInt(adminPasswordHash.substring(4, 6));
+		return bcryptCost >= 12;
 	}
 
 	public void requireAdmin(String authorization) {

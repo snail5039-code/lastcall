@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: local
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -19,11 +16,12 @@ emergency:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081,http://127.0.0.1:8081,http://192.168.0.9:8081}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081,http://127.0.0.1:8081}
   rate-limit:
     emergency-per-minute: ${EMERGENCY_RATE_LIMIT_PER_MINUTE:120}
     warmup-per-minute: ${WARMUP_RATE_LIMIT_PER_MINUTE:20}
 
 admin:
-  username: ${ADMIN_USERNAME:admin}
-  password: ${ADMIN_PASSWORD:}
+  username: ${ADMIN_USERNAME:}
+  password-hash: ${ADMIN_PASSWORD_HASH:}
+  session-duration: ${ADMIN_SESSION_DURATION:1h}

@@ -21,7 +21,7 @@ type AdminReport = {
 
 export default function AdminReportsScreen() {
   const [token, setToken] = useState("");
-  const [username, setUsername] = useState("admin");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [reports, setReports] = useState<AdminReport[]>([]);
   const [status, setStatus] = useState("PENDING");
@@ -61,7 +61,7 @@ export default function AdminReportsScreen() {
   }, [loadReports, token, status]);
 
   const login = async () => {
-    if (!password.trim()) return;
+    if (!username.trim() || !password) return;
     try {
       setLoading(true);
       const response = await fetch(apiUrl("/community/admin/login"), {

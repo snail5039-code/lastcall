@@ -55,11 +55,20 @@ $env:EMERGENCY_API_KEY="본인의_국립중앙의료원_API_키"
 .\mvnw.cmd spring-boot:run
 ```
 
-관리자 로그인을 확인해야 한다면 실행 전에 관리자 환경변수도 설정합니다.
+관리자 로그인을 확인해야 한다면 BCrypt 해시를 먼저 생성합니다. 아래 명령은 비밀번호를
+대화형으로 입력받으므로 명령 기록에 평문 비밀번호가 남지 않습니다.
 
 ```powershell
-$env:ADMIN_USERNAME="admin"
-$env:ADMIN_PASSWORD="사용할_관리자_비밀번호"
+docker run --rm -it httpd:2.4-alpine htpasswd -nBC 12 lastcall-operator
+```
+
+출력에서 `lastcall-operator:` 뒤의 `$2y$...` 부분만 비밀 저장소에 보관한 뒤 서버 실행 전에
+설정합니다. 실제 배포 아이디는 예시와 다르게 추측하기 어려운 값으로 정하세요.
+
+```powershell
+$env:ADMIN_USERNAME="추측하기_어려운_관리자_아이디"
+$env:ADMIN_PASSWORD_HASH='$2y$12$생성된_BCrypt_해시'
+$env:ADMIN_SESSION_DURATION="1h"
 ```
 
 콘솔에 Spring 애플리케이션이 시작되었다는 로그가 표시되면 백엔드는 `8080` 포트에서 실행 중입니다. 브라우저에서 다음 주소를 열어 서버 응답 여부를 간단히 확인할 수 있습니다.

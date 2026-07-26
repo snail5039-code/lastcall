@@ -74,6 +74,8 @@ $env:DB_URL="jdbc:mysql://localhost:3306/lastcall"
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="본인의_MYSQL_비밀번호"
 $env:EMERGENCY_API_KEY="본인의_공공데이터_API_키"
+$env:ADMIN_USERNAME="추측하기_어려운_관리자_아이디"
+$env:ADMIN_PASSWORD_HASH='$2y$12$생성된_BCrypt_해시'
 
 .\mvnw.cmd spring-boot:run
 ```
