@@ -290,3 +290,6 @@
 - 임시 systemd 유닛으로 JAR을 실행해 `127.0.0.1:8080` 로컬 바인딩, Hikari MySQL 연결과 `/community/posts` HTTP 200을 확인한 뒤 시험 유닛을 중지했습니다.
 - `/etc/systemd/system/lastcall.service`를 등록해 부팅 자동 시작과 실패 시 재시작을 활성화하고 JVM 최대 힙 384MiB·systemd 메모리 상한 650MiB 및 보안 강화 옵션을 적용했습니다.
 - 검증: `lastcall.service`는 `enabled`·`active`, Java 메모리 약 150MiB, `127.0.0.1:8080` 바인딩 및 게시판 DB API HTTP 200을 확인했습니다.
+- Nginx에서 퍼블릭 80 포트를 `127.0.0.1:8080`으로 프록시하고 실제 클라이언트 전달 헤더, 1MiB 요청 제한, 보안 헤더와 버전 숨김을 적용했습니다.
+- 검증: Nginx 설정 검사 통과, 내부·퍼블릭 IP 게시판 API HTTP 200, Nginx/LastCall 서비스 `active`, Spring Boot 8080 로컬 바인딩을 확인했습니다.
+- UFW를 활성화해 기본 인바운드를 차단하고 OpenSSH 22 및 Nginx HTTP/HTTPS 80·443만 허용했습니다.
