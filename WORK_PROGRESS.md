@@ -282,3 +282,4 @@
 - 실제 기능으로 사용하는 `/emergency/basic-info-test`를 `/emergency/basic-info`로 변경하고 앱 호출부를 함께 수정했습니다.
 - 검증: 서버 테스트 13개 통과, 앱 `npx.cmd tsc --noEmit` 통과, 변경 앱 파일 ESLint 통과, `git diff --check` 공백 오류 없음.
 - 운영 환경에서 Spring Boot 8080 포트를 로컬호스트에만 바인딩할 수 있도록 `SERVER_ADDRESS` 환경변수 설정을 추가했습니다.
+- 테스트 데이터가 포함된 기존 `sql` 파일 대신 재실행 가능하고 `likeCount`를 포함한 운영 전용 `lastcall-server/schema-production.sql`을 추가했습니다.
