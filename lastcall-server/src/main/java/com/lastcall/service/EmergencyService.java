@@ -49,24 +49,6 @@ public class EmergencyService {
 		return emergencyDao.getEmergencyList();
 	}
 	
-	// api 연결 테스트 
-	public String getEmergencyApiTest() {
-
-	    String url = UriComponentsBuilder
-	            .fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
-	            .queryParam("serviceKey", serviceKey)
-	            .queryParam("STAGE1", "대전광역시")
-	            .queryParam("STAGE2", "중구")
-	            .queryParam("pageNo", "1")
-	            .queryParam("numOfRows", "100")
-	            .build(false)
-	            .toUriString();
-
-	    System.out.println("공공 API 요청 URL = " + url);
-
-	    return restTemplate.getForObject(url, String.class);
-	}
-	
 	public List<EmergencyDto> getEmergencyApiList(String stage1, String stage2) {
 		return getEmergencyApiList(stage1, stage2, true);
 	}
@@ -227,7 +209,7 @@ public class EmergencyService {
 	private List<EmergencyDto> getEmergencyBedList(String stage1, String stage2) {
 
 		UriComponentsBuilder builder = UriComponentsBuilder
-		        .fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
+		        .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
 		        .queryParam("serviceKey", serviceKey)
 		        .queryParam("STAGE1", stage1)
 		        .queryParam("pageNo", 1)
@@ -309,7 +291,7 @@ public class EmergencyService {
 	private List<EmergencyDto> getHospitalInfoList(String stage1, String stage2) {
 
 		UriComponentsBuilder builder = UriComponentsBuilder
-		        .fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire")
+		        .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire")
 		        .queryParam("serviceKey", serviceKey)
 		        .queryParam("Q0", stage1)
 		        .queryParam("pageNo", 1)
@@ -394,14 +376,12 @@ public class EmergencyService {
 	public String getHospitalBasicInfoTest(String hpid) {
 
 	    String url = UriComponentsBuilder
-	            .fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire")
+	            .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire")
 	            .queryParam("serviceKey", serviceKey)
 	            .queryParam("HPID", hpid)
 	            .queryParam("_type", "json")
 	            .build(false)
 	            .toUriString();
-
-	    System.out.println("응급의료기관 기본정보 요청 URL = " + url);
 
 	    return restTemplate.getForObject(url, String.class);
 	}
@@ -409,7 +389,7 @@ public class EmergencyService {
 	private String getDepartmentInfo(String hpid) {
 
 	    String url = UriComponentsBuilder
-	            .fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire")
+	            .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire")
 	            .queryParam("serviceKey", serviceKey)
 	            .queryParam("HPID", hpid)
 	            .queryParam("_type", "json")
@@ -479,7 +459,7 @@ public class EmergencyService {
 
 	private Map<String, List<String>> getSevereCapabilities(String stage1, String stage2) {
 		UriComponentsBuilder builder = UriComponentsBuilder
-				.fromUriString("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire")
+				.fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire")
 				.queryParam("serviceKey", serviceKey)
 				.queryParam("STAGE1", stage1)
 				.queryParam("pageNo", 1)

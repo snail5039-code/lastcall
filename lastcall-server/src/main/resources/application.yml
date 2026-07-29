@@ -7,6 +7,7 @@ spring:
 
 server:
   port: 8080
+  forward-headers-strategy: native
 
 emergency:
   api:
@@ -20,6 +21,7 @@ app:
   rate-limit:
     emergency-per-minute: ${EMERGENCY_RATE_LIMIT_PER_MINUTE:120}
     warmup-per-minute: ${WARMUP_RATE_LIMIT_PER_MINUTE:20}
+    community-write-per-minute: ${COMMUNITY_WRITE_RATE_LIMIT_PER_MINUTE:30}
 
 admin:
   username: ${ADMIN_USERNAME:}

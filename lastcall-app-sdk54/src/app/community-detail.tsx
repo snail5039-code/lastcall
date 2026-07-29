@@ -216,10 +216,15 @@ export default function CommunityDetailScreen() {
             const response = await fetch(
                 adminToken
                     ? apiUrl(`/community/admin/posts/${id}`)
-                    : apiUrl(`/community/post/${id}?password=${encodeURIComponent(deletePassword)}`),
+                    : apiUrl(`/community/post/${id}`),
                 {
                     method: "DELETE",
-                    ...(adminToken && { headers: { Authorization: `Bearer ${adminToken}` } }),
+                    headers: adminToken
+                        ? { Authorization: `Bearer ${adminToken}` }
+                        : { "Content-Type": "application/json" },
+                    ...(!adminToken && {
+                        body: JSON.stringify({ password: deletePassword }),
+                    }),
                 }
             );
 
@@ -329,7 +334,6 @@ export default function CommunityDetailScreen() {
                         nickname: commentNickname,
                         password: commentPassword,
                         content: commentContent,
-                        isAdmin: false,
                     }),
                 }
             );
@@ -444,9 +448,13 @@ export default function CommunityDetailScreen() {
 
         try {
             const response = await fetch(
-                apiUrl(`/community/comment/${deletingCommentId}?password=${encodeURIComponent(deletingCommentPassword)}`),
+                apiUrl(`/community/comment/${deletingCommentId}`),
                 {
                     method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ password: deletingCommentPassword }),
                 }
             );
 

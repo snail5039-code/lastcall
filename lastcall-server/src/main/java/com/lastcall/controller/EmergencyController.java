@@ -26,11 +26,6 @@ public class EmergencyController {
 		return emergencyService.getEmergencyList();
 	}
 	
-	@GetMapping("/api-test") // 공공 API 호출 테스트
-	public String emergencyApiTest() {
-		return emergencyService.getEmergencyApiTest();
-	}
-	
 	@GetMapping("/api-list") // 병원 리스트
 	public List<EmergencyDto> getEmergencyApiList(@RequestParam String stage1, @RequestParam String stage2){
 		return emergencyService.getEmergencyApiList(stage1, stage2);
@@ -50,8 +45,6 @@ public class EmergencyController {
 			@RequestParam(required = false) String facilities,
 			@RequestParam(required = false) String severeTypes,
 			@RequestParam(defaultValue = "true") boolean includeDetails){
-		System.out.println("선택 증상 = " + symptom);
-		
 		return emergencyService.getNearbyEmergencyList(stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, includeDetails);
 	}
 
@@ -83,8 +76,8 @@ public class EmergencyController {
 		return ResponseEntity.accepted().build();
 	}
 	
-	@GetMapping("/basic-info-test") // 진료 과목 받아오기 테스트 겸 실제 받아오기
-	public String basicInfoTest(@RequestParam String hpid) {
+	@GetMapping("/basic-info")
+	public String basicInfo(@RequestParam String hpid) {
 	    return emergencyService.getHospitalBasicInfoTest(hpid);
 	}
 }

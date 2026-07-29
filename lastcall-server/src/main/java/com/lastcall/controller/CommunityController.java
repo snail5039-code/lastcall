@@ -18,6 +18,7 @@ import com.lastcall.dto.CommunityPostPageDto;
 import com.lastcall.dto.CommunityReportDto;
 import com.lastcall.dto.AdminLoginDto;
 import com.lastcall.dto.AdminSessionDto;
+import com.lastcall.dto.PasswordRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.lastcall.service.CommunityService;
@@ -61,8 +62,8 @@ public class CommunityController {
 
 	// 게시글 삭제
 	@DeleteMapping("/post/{id}")
-	public int deletePost(@PathVariable Long id, @RequestParam String password) {
-		return communityService.deletePost(id, password);
+	public int deletePost(@PathVariable Long id, @RequestBody PasswordRequestDto passwordRequest) {
+		return communityService.deletePost(id, passwordRequest.getPassword());
 	}
 
 	// 좋아요 증가
@@ -93,8 +94,8 @@ public class CommunityController {
 
 	// 댓글 삭제
 	@DeleteMapping("/comment/{id}")
-	public int deleteComment(@PathVariable Long id, @RequestParam String password) {
-		return communityService.deleteComment(id, password);
+	public int deleteComment(@PathVariable Long id, @RequestBody PasswordRequestDto passwordRequest) {
+		return communityService.deleteComment(id, passwordRequest.getPassword());
 	}
 
 	@PostMapping("/report")

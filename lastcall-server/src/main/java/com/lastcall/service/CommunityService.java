@@ -29,6 +29,11 @@ import lombok.RequiredArgsConstructor;
 public class CommunityService {
 	private static final List<String> PROHIBITED_WORDS = List.of(
 			"시발", "씨발", "병신", "개새끼", "좆", "fuck", "sex");
+	private static final int MAX_NICKNAME_LENGTH = 30;
+	private static final int MAX_PASSWORD_LENGTH = 100;
+	private static final int MAX_TITLE_LENGTH = 150;
+	private static final int MAX_CONTENT_LENGTH = 5000;
+	private static final int MAX_PAGE_SIZE = 50;
 
 	private final CommunityDao communityDao;
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -46,32 +51,16 @@ public class CommunityService {
 	// 게시글 등록
 	public int insertPost(CommunityPostDto communityPostDto) {
 
-		System.out.println("=== 게시글 등록 요청 ===");
-		System.out.println("boardType: " + communityPostDto.getBoardType());
-		System.out.println("nickname: " + communityPostDto.getNickname());
-		System.out.println("title: " + communityPostDto.getTitle());
-
 		String boardType = communityPostDto.getBoardType();
 
 		if (!"FREE".equals(boardType) && !"SUGGESTION".equals(boardType) && !"QNA".equals(boardType)) {
 			throw new IllegalArgumentException("등록할 수 없는 게시판 종류입니다.");
 		}
 
-		if (communityPostDto.getNickname() == null || communityPostDto.getNickname().isBlank()) {
-			throw new IllegalArgumentException("닉네임을 입력해주세요.");
-		}
-
-		if (communityPostDto.getPassword() == null || communityPostDto.getPassword().isBlank()) {
-			throw new IllegalArgumentException("비밀번호를 입력해주세요.");
-		}
-
-		if (communityPostDto.getTitle() == null || communityPostDto.getTitle().isBlank()) {
-			throw new IllegalArgumentException("제목을 입력해주세요.");
-		}
-
-		if (communityPostDto.getContent() == null || communityPostDto.getContent().isBlank()) {
-			throw new IllegalArgumentException("내용을 입력해주세요.");
-		}
+		validateRequiredLength(communityPostDto.getNickname(), MAX_NICKNAME_LENGTH, "닉네임");
+		validatePassword(communityPostDto.getPassword());
+		validateRequiredLength(communityPostDto.getTitle(), MAX_TITLE_LENGTH, "제목");
+		validateRequiredLength(communityPostDto.getContent(), MAX_CONTENT_LENGTH, "내용");
 		validateCleanText(communityPostDto.getNickname(), communityPostDto.getTitle(), communityPostDto.getContent());
 
 		String passwordHash = passwordEncoder.encode(communityPostDto.getPassword());
@@ -83,6 +72,12 @@ public class CommunityService {
 
 	// 게시판 종류별 목록 조회
 	public CommunityPostPageDto selectPostList(String boardType, int page, int size) {
+		if (!"FREE".equals(boardType) && !"SUGGESTION".equals(boardType) && !"QNA".equals(boardType)) {
+			throw new IllegalArgumentException("조회할 수 없는 게시판 종류입니다.");
+		}
+		if (page < 0 || size < 1 || size > MAX_PAGE_SIZE) {
+			throw new IllegalArgumentException("페이지 범위를 확인해주세요.");
+		}
 		// 건너뛸 페이지 계산 
 		int offset = page * size;
 		// 보여줄 게시글 size : 몇개, offest : 건너뛸지 
@@ -108,6 +103,9 @@ public class CommunityService {
 
 	// 게시글 수정
 	public int updatePost(CommunityPostDto communityPostDto) {
+		validatePassword(communityPostDto.getPassword());
+		validateRequiredLength(communityPostDto.getTitle(), MAX_TITLE_LENGTH, "제목");
+		validateRequiredLength(communityPostDto.getContent(), MAX_CONTENT_LENGTH, "내용");
 		validateCleanText(communityPostDto.getTitle(), communityPostDto.getContent());
 
 		CommunityPostDto savedCommunityPostDto = communityDao.selectPostById(communityPostDto.getId());
@@ -128,6 +126,7 @@ public class CommunityService {
 
 	// 게시글 삭제
 	public int deletePost(Long id, String password) {
+		validatePassword(password);
 
 		CommunityPostDto savedCommunityPostDto = communityDao.selectPostById(id);
 
@@ -157,26 +156,16 @@ public class CommunityService {
 			throw new IllegalArgumentException("게시글 번호가 없습니다.");
 		}
 
-		if (communityCommentDto.getNickname() == null || communityCommentDto.getNickname().isBlank()) {
-			throw new IllegalArgumentException("닉네임을 입력해주세요.");
-		}
-
-		if (communityCommentDto.getPassword() == null || communityCommentDto.getPassword().isBlank()) {
-			throw new IllegalArgumentException("비밀번호를 입력해주세요.");
-		}
-
-		if (communityCommentDto.getContent() == null || communityCommentDto.getContent().isBlank()) {
-			throw new IllegalArgumentException("댓글 내용을 입력해주세요.");
-		}
+		validateRequiredLength(communityCommentDto.getNickname(), MAX_NICKNAME_LENGTH, "닉네임");
+		validatePassword(communityCommentDto.getPassword());
+		validateRequiredLength(communityCommentDto.getContent(), MAX_CONTENT_LENGTH, "댓글");
 		validateCleanText(communityCommentDto.getNickname(), communityCommentDto.getContent());
 
 		String passwordHash = passwordEncoder.encode(communityCommentDto.getPassword());
 
 		communityCommentDto.setPasswordHash(passwordHash);
 
-		if (communityCommentDto.getIsAdmin() == null) {
-			communityCommentDto.setIsAdmin(false);
-		}
+		communityCommentDto.setIsAdmin(false);
 
 		return communityDao.insertComment(communityCommentDto);
 	}
@@ -189,6 +178,8 @@ public class CommunityService {
 
 	// 댓글 수정
 	public int updateComment(CommunityCommentDto communityCommentDto) {
+		validatePassword(communityCommentDto.getPassword());
+		validateRequiredLength(communityCommentDto.getContent(), MAX_CONTENT_LENGTH, "댓글");
 		validateCleanText(communityCommentDto.getContent());
 
 		CommunityCommentDto savedComment = communityDao.selectCommentById(communityCommentDto.getId());
@@ -204,15 +195,12 @@ public class CommunityService {
 			return -1;
 		}
 
-		if (communityCommentDto.getContent() == null || communityCommentDto.getContent().isBlank()) {
-			throw new IllegalArgumentException("댓글 내용을 입력해주세요.");
-		}
-
 		return communityDao.updateComment(communityCommentDto);
 	}
 
 	// 댓글 삭제
 	public int deleteComment(Long id, String password) {
+		validatePassword(password);
 
 		CommunityCommentDto savedComment = communityDao.selectCommentById(id);
 
@@ -251,8 +239,24 @@ public class CommunityService {
 		}
 	}
 
+	private void validatePassword(String password) {
+		validateRequiredLength(password, MAX_PASSWORD_LENGTH, "비밀번호");
+	}
+
+	private void validateRequiredLength(String value, int maxLength, String fieldName) {
+		if (value == null || value.isBlank() || value.length() > maxLength) {
+			throw new IllegalArgumentException(fieldName + " 값을 확인해주세요.");
+		}
+	}
+
 	public AdminSessionDto loginAdmin(String username, String password, String clientKey) {
 		long now = System.currentTimeMillis();
+		if (loginAttempts.size() > 10_000) {
+			loginAttempts.entrySet().removeIf(entry -> now - entry.getValue().windowStartedAt() >= LOGIN_LOCK_MILLIS);
+		}
+		if (adminSessions.size() > 10_000) {
+			adminSessions.entrySet().removeIf(entry -> now >= entry.getValue());
+		}
 		LoginAttempt attempt = loginAttempts.get(clientKey);
 		if (attempt != null && attempt.failures() >= 5 && now < attempt.lockedUntil()) {
 			throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.");

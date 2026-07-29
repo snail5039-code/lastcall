@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class WebConfig implements WebMvcConfigurer {
 
 	private final EmergencyRateLimitInterceptor emergencyRateLimitInterceptor;
+	private final CommunityRateLimitInterceptor communityRateLimitInterceptor;
 
 	@Value("${app.cors.allowed-origins:http://localhost:8081,http://127.0.0.1:8081}")
 	private String allowedOrigins;
@@ -35,5 +36,6 @@ public class WebConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(emergencyRateLimitInterceptor).addPathPatterns("/emergency/**");
+		registry.addInterceptor(communityRateLimitInterceptor).addPathPatterns("/community/**");
 	}
 }
