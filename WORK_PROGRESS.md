@@ -288,3 +288,5 @@
 - MySQL `lastcall` DB, `lastcall_app@localhost` 전용 계정과 운영 테이블 4개를 생성했으며 DB 비밀번호는 서버에서 무작위로 생성했습니다.
 - EC2에서 `mvnw clean package`를 실행해 테스트 13개 통과 후 25MiB 운영 JAR을 생성했습니다.
 - 임시 systemd 유닛으로 JAR을 실행해 `127.0.0.1:8080` 로컬 바인딩, Hikari MySQL 연결과 `/community/posts` HTTP 200을 확인한 뒤 시험 유닛을 중지했습니다.
+- `/etc/systemd/system/lastcall.service`를 등록해 부팅 자동 시작과 실패 시 재시작을 활성화하고 JVM 최대 힙 384MiB·systemd 메모리 상한 650MiB 및 보안 강화 옵션을 적용했습니다.
+- 검증: `lastcall.service`는 `enabled`·`active`, Java 메모리 약 150MiB, `127.0.0.1:8080` 바인딩 및 게시판 DB API HTTP 200을 확인했습니다.
