@@ -293,3 +293,5 @@
 - Nginx에서 퍼블릭 80 포트를 `127.0.0.1:8080`으로 프록시하고 실제 클라이언트 전달 헤더, 1MiB 요청 제한, 보안 헤더와 버전 숨김을 적용했습니다.
 - 검증: Nginx 설정 검사 통과, 내부·퍼블릭 IP 게시판 API HTTP 200, Nginx/LastCall 서비스 `active`, Spring Boot 8080 로컬 바인딩을 확인했습니다.
 - UFW를 활성화해 기본 인바운드를 차단하고 OpenSSH 22 및 Nginx HTTP/HTTPS 80·443만 허용했습니다.
+- 퍼블릭 IP의 `/emergency/nearby`를 대전광역시 좌표로 실제 호출해 HTTP 200, 응급실 10건, 약 8KiB JSON 응답을 확인했습니다.
+- 실제 호출 후 LastCall/Nginx 서비스는 `active`, journal 오류 없음, API 키 또는 공공 API 전체 URL 로그 노출 없음으로 확인했습니다.
