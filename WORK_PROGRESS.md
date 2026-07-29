@@ -283,3 +283,6 @@
 - 검증: 서버 테스트 13개 통과, 앱 `npx.cmd tsc --noEmit` 통과, 변경 앱 파일 ESLint 통과, `git diff --check` 공백 오류 없음.
 - 운영 환경에서 Spring Boot 8080 포트를 로컬호스트에만 바인딩할 수 있도록 `SERVER_ADDRESS` 환경변수 설정을 추가했습니다.
 - 테스트 데이터가 포함된 기존 `sql` 파일 대신 재실행 가능하고 `likeCount`를 포함한 운영 전용 `lastcall-server/schema-production.sql`을 추가했습니다.
+- EC2에 `/etc/lastcall/lastcall.env`를 root 소유 디렉터리 700·파일 600 권한으로 생성하고 DB/API/관리자 설정을 저장했습니다.
+- 관리자 평문 비밀번호는 BCrypt cost 12 해시로 변환해 저장하고 원격 임시 비밀 파일과 프로비저닝 스크립트를 삭제했습니다.
+- MySQL `lastcall` DB, `lastcall_app@localhost` 전용 계정과 운영 테이블 4개를 생성했으며 DB 비밀번호는 서버에서 무작위로 생성했습니다.
