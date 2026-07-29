@@ -281,3 +281,4 @@
 - Nginx 뒤에서 클라이언트 IP 기반 제한이 동작하도록 전달 헤더 처리 설정을 추가하고 관리자 인증 상태 맵의 만료 데이터 정리를 보강했습니다.
 - 실제 기능으로 사용하는 `/emergency/basic-info-test`를 `/emergency/basic-info`로 변경하고 앱 호출부를 함께 수정했습니다.
 - 검증: 서버 테스트 13개 통과, 앱 `npx.cmd tsc --noEmit` 통과, 변경 앱 파일 ESLint 통과, `git diff --check` 공백 오류 없음.
+- 운영 환경에서 Spring Boot 8080 포트를 로컬호스트에만 바인딩할 수 있도록 `SERVER_ADDRESS` 환경변수 설정을 추가했습니다.
