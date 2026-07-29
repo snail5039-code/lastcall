@@ -295,3 +295,6 @@
 - UFW를 활성화해 기본 인바운드를 차단하고 OpenSSH 22 및 Nginx HTTP/HTTPS 80·443만 허용했습니다.
 - 퍼블릭 IP의 `/emergency/nearby`를 대전광역시 좌표로 실제 호출해 HTTP 200, 응급실 10건, 약 8KiB JSON 응답을 확인했습니다.
 - 실제 호출 후 LastCall/Nginx 서비스는 `active`, journal 오류 없음, API 키 또는 공공 API 전체 URL 로그 노출 없음으로 확인했습니다.
+- EC2에 Elastic IP `13.124.37.179`를 연결하고 `api.lastcall.kro.kr` A 레코드가 로컬·Cloudflare·Google DNS에서 새 IP로 해석되는 것을 확인했습니다.
+- Let's Encrypt 인증서를 발급해 HTTP를 HTTPS로 리디렉션하고 외부 HTTPS 게시판 API 200, TLS 검증 성공, Certbot 자동 갱신 모의 시험 성공을 확인했습니다.
+- 모바일 앱의 중앙 API 설정을 `https://api.lastcall.kro.kr`로 변경했습니다.
