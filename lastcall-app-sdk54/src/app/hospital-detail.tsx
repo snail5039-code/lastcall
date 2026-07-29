@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   Linking,
   ScrollView,
   Share,
@@ -14,6 +15,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import {
+  findOpenHospitalImage,
+  HospitalImage,
+} from "../services/hospital-image";
 
 type IconName = ComponentProps<typeof FontAwesome6>["name"];
 
@@ -34,6 +39,56 @@ const severeLabels: Record<string, string> = {
   abdominalInjury: "복부손상 수술", limbReattachment: "사지접합", emergencyEndoscopy: "응급내시경",
   emergencyDialysis: "응급투석", prematureLabor: "조산 산모", mentalEmergency: "정신질환자",
   newborn: "신생아", severeBurn: "중증화상",
+};
+
+type HospitalFallbackTheme = {
+  label: string;
+  icon: IconName;
+  backgroundColor: string;
+  accentColor: string;
+  iconColor: string;
+};
+
+const getHospitalFallbackTheme = (name: string): HospitalFallbackTheme => {
+  if (/소아|어린이/.test(name)) {
+    return {
+      label: "어린이·소아 전문 의료기관",
+      icon: "baby",
+      backgroundColor: "#FFF1F2",
+      accentColor: "#FDA4AF",
+      iconColor: "#E11D48",
+    };
+  }
+  if (/산부인과|여성|모자/.test(name)) {
+    return {
+      label: "여성 전문 의료기관",
+      icon: "person-pregnant",
+      backgroundColor: "#FAF5FF",
+      accentColor: "#D8B4FE",
+      iconColor: "#9333EA",
+    };
+  }
+  if (/대학교|대학병원/.test(name)) {
+    return {
+      label: "대학병원",
+      icon: "building-columns",
+      backgroundColor: "#EFF6FF",
+      accentColor: "#93C5FD",
+      iconColor: "#1D4ED8",
+    };
+  }
+  return {
+    label: "응급의료기관",
+    icon: "hospital",
+    backgroundColor: "#ECFDF5",
+    accentColor: "#6EE7B7",
+    iconColor: "#047857",
+  };
+};
+
+const getRegionLabel = (value: string) => {
+  const [stage1 = "", stage2 = ""] = value.trim().split(/\s+/);
+  return [stage1, stage2].filter(Boolean).join(" ");
 };
 
 const iconForDepartment = (department: string): IconName =>
@@ -84,6 +139,10 @@ export default function HospitalDetailScreen() {
   } = params;
 
   const [isFavorite, setIsFavorite] = useState(false);
+  const [hospitalImage, setHospitalImage] = useState<HospitalImage | null>(null);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const fallbackTheme = getHospitalFallbackTheme(String(hospitalName || ""));
+  const regionLabel = getRegionLabel(String(address || ""));
   const currentHospital: FavoriteHospital = {
     hpid: String(hpid || ""),
     hospitalName: String(hospitalName || ""),
@@ -165,6 +224,27 @@ export default function HospitalDetailScreen() {
     checkFavoriteStatus();
   }, [checkFavoriteStatus]);
 
+  useEffect(() => {
+    let active = true;
+    setHospitalImage(null);
+    setImageLoadFailed(false);
+
+    void findOpenHospitalImage({
+      hospitalName: String(hospitalName || ""),
+      address: String(address || ""),
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+    }).then((image) => {
+      if (active) {
+        setHospitalImage(image);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [address, hospitalName, latitude, longitude]);
+
   const bedCount = Number(availableBeds);
   const [departmentList, setDepartmentList] = useState<string[]>(() => (departments ?? "").split(",").map((item) => item.trim()).filter(Boolean));
   const [showAllDepartments, setShowAllDepartments] = useState(false);
@@ -178,7 +258,7 @@ export default function HospitalDetailScreen() {
         if (!hpid) {
           return;
         }
-        const url = apiUrl(`/emergency/basic-info-test?hpid=${hpid}`);
+        const url = apiUrl(`/emergency/basic-info?hpid=${hpid}`);
 
         console.log("진료과목 요청 URL =", url);
 
@@ -304,8 +384,85 @@ export default function HospitalDetailScreen() {
         </View>
 
         <View style={styles.imageBox}>
-          <FontAwesome6 name="hospital" size={42} color="#94A3B8" />
-          <Text style={styles.imageText}>병원 이미지 영역</Text>
+          {hospitalImage && !imageLoadFailed ? (
+            <>
+              <Image
+                source={{ uri: hospitalImage.imageUrl }}
+                style={styles.hospitalImage}
+                resizeMode="cover"
+                accessibilityLabel={`${hospitalName} 병원 사진`}
+                onError={() => setImageLoadFailed(true)}
+              />
+              <TouchableOpacity
+                style={styles.imageAttribution}
+                onPress={() => Linking.openURL(hospitalImage.sourceUrl)}
+                accessibilityLabel="병원 사진 출처 열기"
+              >
+                <Text style={styles.imageAttributionText} numberOfLines={1}>
+                  {hospitalImage.author} · {hospitalImage.license} · Wikimedia Commons
+                </Text>
+                <FontAwesome6 name="arrow-up-right-from-square" size={10} color="#FFFFFF" />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <View
+              style={[
+                styles.fallbackImage,
+                { backgroundColor: fallbackTheme.backgroundColor },
+              ]}
+              accessibilityLabel={`${hospitalName} ${fallbackTheme.label} 기본 이미지`}
+            >
+              <View
+                style={[
+                  styles.fallbackDecorLarge,
+                  { backgroundColor: fallbackTheme.accentColor },
+                ]}
+              />
+              <View
+                style={[
+                  styles.fallbackDecorSmall,
+                  { backgroundColor: fallbackTheme.accentColor },
+                ]}
+              />
+              <View style={styles.fallbackContent}>
+                <View
+                  style={[
+                    styles.fallbackIconBox,
+                    { borderColor: fallbackTheme.accentColor },
+                  ]}
+                >
+                  <FontAwesome6
+                    name={fallbackTheme.icon}
+                    size={34}
+                    color={fallbackTheme.iconColor}
+                  />
+                </View>
+                <View style={styles.fallbackTextBox}>
+                  <Text
+                    style={[styles.fallbackType, { color: fallbackTheme.iconColor }]}
+                  >
+                    {fallbackTheme.label}
+                  </Text>
+                  <Text style={styles.fallbackHospitalName} numberOfLines={2}>
+                    {hospitalName}
+                  </Text>
+                  {regionLabel ? (
+                    <View style={styles.fallbackRegionRow}>
+                      <FontAwesome6
+                        name="location-dot"
+                        size={11}
+                        color="#64748B"
+                      />
+                      <Text style={styles.fallbackRegion}>{regionLabel}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+              <Text style={styles.fallbackNotice}>
+                등록된 공개 라이선스 사진이 없어 기본 이미지로 표시됩니다
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.content}>
@@ -537,18 +694,105 @@ const styles = StyleSheet.create({
     marginHorizontal: 18,
     borderRadius: 22,
     backgroundColor: "#DDE6F2",
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 18,
   },
-  imageIcon: {
-    fontSize: 42,
-    marginBottom: 8,
+  hospitalImage: {
+    width: "100%",
+    height: "100%",
   },
-  imageText: {
-    fontSize: 15,
-    fontWeight: "700",
+  fallbackImage: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 22,
+  },
+  fallbackDecorLarge: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    top: -70,
+    right: -35,
+    opacity: 0.3,
+  },
+  fallbackDecorSmall: {
+    position: "absolute",
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    bottom: -30,
+    left: -18,
+    opacity: 0.25,
+  },
+  fallbackContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  fallbackIconBox: {
+    width: 68,
+    height: 68,
+    borderRadius: 22,
+    borderWidth: 1,
+    backgroundColor: "rgba(255,255,255,0.82)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fallbackTextBox: {
+    flex: 1,
+  },
+  fallbackType: {
+    fontSize: 12,
+    fontWeight: "900",
+    marginBottom: 5,
+  },
+  fallbackHospitalName: {
+    color: "#0F172A",
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: "900",
+  },
+  fallbackRegionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 7,
+  },
+  fallbackRegion: {
     color: "#64748B",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  fallbackNotice: {
+    position: "absolute",
+    left: 22,
+    right: 22,
+    bottom: 12,
+    color: "#64748B",
+    fontSize: 9,
+    fontWeight: "600",
+  },
+  imageAttribution: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    bottom: 10,
+    minHeight: 28,
+    borderRadius: 8,
+    paddingHorizontal: 9,
+    backgroundColor: "rgba(15, 23, 42, 0.78)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  imageAttributionText: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "700",
   },
   content: {
     paddingHorizontal: 18,
