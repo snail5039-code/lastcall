@@ -1,25 +1,28 @@
 {
   "expo": {
-    "name": "lastcall-app-sdk54",
-    "slug": "lastcall-app-sdk54",
+    "name": "살려줌",
+    "slug": "lastcall",
     "version": "1.0.0",
+    "description": "현재 위치와 증상을 바탕으로 가까운 응급실 정보를 안내하는 앱",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "lastcallappsdk54",
+    "icon": "./assets/images/app-icon-v2.png",
+    "scheme": "lastcall",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.snail5039.lastcall",
+      "buildNumber": "1",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "현재 위치를 기준으로 가까운 응급실과 거리를 안내하기 위해 위치를 사용합니다."
       }
     },
     "android": {
+      "package": "com.snail5039.lastcall",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/app-icon-v2.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

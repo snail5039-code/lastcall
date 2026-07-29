@@ -298,3 +298,12 @@
 - EC2에 Elastic IP `13.124.37.179`를 연결하고 `api.lastcall.kro.kr` A 레코드가 로컬·Cloudflare·Google DNS에서 새 IP로 해석되는 것을 확인했습니다.
 - Let's Encrypt 인증서를 발급해 HTTP를 HTTPS로 리디렉션하고 외부 HTTPS 게시판 API 200, TLS 검증 성공, Certbot 자동 갱신 모의 시험 성공을 확인했습니다.
 - 모바일 앱의 중앙 API 설정을 `https://api.lastcall.kro.kr`로 변경했습니다.
+
+# Android APK 빌드 준비 (2026-07-29)
+
+- 앱 표시 이름을 `살려줌`, 스킴을 `lastcall`, Android/iOS 식별자를 `com.snail5039.lastcall`로 설정했습니다.
+- 위치 핀과 심박 하트를 결합한 전용 1024px 앱 아이콘을 생성해 기존 Expo 기본 아이콘 대신 적용했습니다.
+- `eas.json`에 휴대폰 직접 설치용 `preview` APK와 Play Store용 `production` AAB 프로필을 추가했습니다.
+- Expo를 SDK 54 권장 패치 `54.0.36`으로 업데이트했습니다.
+- 검증: Expo Doctor 18/18 통과, TypeScript·Expo lint·`git diff --check` 통과.
+- EAS CLI 21.4.0을 확인했으며 APK 빌드 시작 전 사용자 Expo 계정 로그인이 필요합니다.
