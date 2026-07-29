@@ -22,6 +22,7 @@ lastcall-server/.factorypath
 .env
 .env.*
 !.env.example
+*.pem
 
 # IDE / 운영체제
 .vscode/
@@ -34,5 +35,6 @@ Thumbs.db
 *.log
 
 lastcall-server/src/main/resources/application-local.yml
+lastcall-server/src/main/resources/KakaoTalk_20260723_164026692.mp4
 # Local test tools
 .tools/
