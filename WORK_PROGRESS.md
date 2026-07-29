@@ -286,3 +286,5 @@
 - EC2에 `/etc/lastcall/lastcall.env`를 root 소유 디렉터리 700·파일 600 권한으로 생성하고 DB/API/관리자 설정을 저장했습니다.
 - 관리자 평문 비밀번호는 BCrypt cost 12 해시로 변환해 저장하고 원격 임시 비밀 파일과 프로비저닝 스크립트를 삭제했습니다.
 - MySQL `lastcall` DB, `lastcall_app@localhost` 전용 계정과 운영 테이블 4개를 생성했으며 DB 비밀번호는 서버에서 무작위로 생성했습니다.
+- EC2에서 `mvnw clean package`를 실행해 테스트 13개 통과 후 25MiB 운영 JAR을 생성했습니다.
+- 임시 systemd 유닛으로 JAR을 실행해 `127.0.0.1:8080` 로컬 바인딩, Hikari MySQL 연결과 `/community/posts` HTTP 200을 확인한 뒤 시험 유닛을 중지했습니다.
