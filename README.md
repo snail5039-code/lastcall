@@ -16,6 +16,21 @@ LastCall은 현재 위치와 검색 조건을 바탕으로 주변 응급실 정�
 
 응급실 정보는 국립중앙의료원 공공데이터 API를 백엔드에서 조회해 앱으로 전달합니다.
 
+## Android 테스트 APK 다운로드
+
+현재 테스트용 Android APK는 GitHub Release에서 받을 수 있습니다.
+
+1. 저장소 오른쪽의 **Releases**를 선택합니다.
+2. **살려줌 Android 테스트 빌드 v1.0.0-rc4**를 선택합니다.
+3. 페이지 아래의 **Assets**를 펼칩니다.
+4. `application-6bc07518-1327-488d-98f6-3962503c107c.apk`를 선택해 다운로드합니다.
+5. Android 휴대폰에서 다운로드한 APK를 열어 설치합니다. 브라우저의 앱 설치 권한을 묻는 경우 해당 브라우저에만 일시적으로 허용하고, 설치 후 다시 해제하는 것을 권장합니다.
+
+- [v1.0.0-rc4 Release 페이지](https://github.com/snail5039-code/lastcall/releases/tag/v1.0.0-rc4)
+- [APK 바로 다운로드](https://github.com/snail5039-code/lastcall/releases/download/v1.0.0-rc4/application-6bc07518-1327-488d-98f6-3962503c107c.apk)
+
+> 이 파일은 휴대폰 직접 설치 및 기능 확인을 위한 테스트 APK입니다. Google Play 제출용 AAB 또는 정식 출시 버전이 아닙니다.
+
 ## 프로젝트 구성
 
 ```text

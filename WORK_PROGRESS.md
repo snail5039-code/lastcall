@@ -574,3 +574,9 @@
   - Maven 테스트 14개 통과
   - 실패 0, 오류 0, 건너뜀 0
 - `git diff --check` 공백 오류 없음.
+
+# README APK 다운로드 안내 추가 (2026-07-31)
+
+- 루트 `README.md`에 GitHub Release에서 Android 테스트 APK를 내려받고 설치하는 순서를 추가했습니다.
+- `v1.0.0-rc4` Release 페이지와 APK 직접 다운로드 링크를 함께 제공했습니다.
+- 해당 APK가 Google Play 제출용 AAB 또는 정식 출시 버전이 아닌 테스트 파일임을 명시했습니다.
