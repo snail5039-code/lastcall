@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -25,6 +26,17 @@ public class ApiExceptionHandler {
 	public ResponseEntity<ApiError> handleExternalApi(RestClientException error, HttpServletRequest request) {
 		return response(HttpStatus.SERVICE_UNAVAILABLE, "EXTERNAL_API_UNAVAILABLE",
 				"공공데이터 응답이 지연되거나 일시적으로 사용할 수 없습니다.", request);
+	}
+
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<ApiError> handleResponseStatus(ResponseStatusException error,
+			HttpServletRequest request) {
+		String message = error.getReason() == null || error.getReason().isBlank()
+				? "요청을 처리할 수 없습니다."
+				: error.getReason();
+		return ResponseEntity.status(error.getStatusCode())
+				.body(new ApiError(Instant.now().toString(), error.getStatusCode().value(),
+						"REQUEST_REJECTED", message, request.getRequestURI()));
 	}
 
 	@ExceptionHandler(Exception.class)

@@ -223,7 +223,7 @@ export default function HospitalsScreen() {
                       hospital.availableBeds <= 0 && styles.warningText,
                     ]}
                   >
-                    {hospital.availableBeds > 0 ? "수용 가능" : "확인 필요"}
+                    {hospital.availableBeds > 0 ? "병상 있음" : "확인 필요"}
                   </Text>
                 </View>
               </View>

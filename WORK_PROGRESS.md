@@ -307,3 +307,270 @@
 - Expo를 SDK 54 권장 패치 `54.0.36`으로 업데이트했습니다.
 - 검증: Expo Doctor 18/18 통과, TypeScript·Expo lint·`git diff --check` 통과.
 - EAS CLI 21.4.0을 확인했으며 APK 빌드 시작 전 사용자 Expo 계정 로그인이 필요합니다.
+
+# 다음 세션 인계 사항 (2026-07-29)
+
+## 현재 운영 환경
+
+- EC2: Ubuntu 24.04 / t3.micro / Elastic IP `13.124.37.179`
+- SSH: `ubuntu@13.124.37.179`, 로컬 키 `lastcall-key.pem` 사용
+- API 도메인: `https://api.lastcall.kro.kr`
+- 백엔드: Java 17, MySQL, Nginx, systemd `lastcall.service`
+- 방화벽: SSH 22, HTTP 80, HTTPS 443만 허용
+- HTTPS: Let's Encrypt 적용, HTTP는 HTTPS로 리디렉션, Certbot 자동 갱신 시험 통과
+- 환경변수 파일: 서버 `/etc/lastcall/lastcall.env` (root 전용 권한)
+- 운영 API 검증: `/community/posts`, `/emergency/nearby` HTTPS 호출 HTTP 200 확인
+
+## 저장소 및 앱 상태
+
+- GitHub: `https://github.com/snail5039-code/lastcall.git`
+- 백엔드: `lastcall-server`
+- 모바일 앱: `lastcall-app-sdk54`
+- 앱 API 주소는 `lastcall-app-sdk54/src/config/api.ts`의 `https://api.lastcall.kro.kr`
+- 앱 이름: `살려줌`
+- Android 패키지: `com.snail5039.lastcall`
+- Expo SDK: 54.0.36
+- 기존 앱 아이콘 `assets/images/app-icon-v2.png`를 계속 사용합니다.
+- 새 v3 아이콘 시안은 사용하지 않으며 프로젝트에 남기지 않습니다.
+- EAS `preview` 프로필은 설치 가능한 Android APK, `production` 프로필은 Play Store용 AAB입니다.
+- 최근 앱 빌드 준비 커밋: `10b05d3 feat: prepare Android EAS builds`
+
+## 검증 완료
+
+- Expo Doctor 18/18 통과
+- `npx tsc --noEmit` 통과
+- `npx expo lint` 통과
+- `git diff --check` 통과
+- EAS CLI 21.4.0 확인
+
+## 다음 세션에서 진행할 작업
+
+1. 사용자가 만든 무료 Expo 계정으로 로컬 CLI 로그인:
+   `cd C:\project\lastcall\lastcall-app-sdk54`
+   `npx.cmd eas-cli@latest login`
+2. `npx.cmd eas-cli@latest whoami`로 로그인 확인
+3. EAS 프로젝트를 생성하거나 현재 Expo 프로젝트와 연결하고 생성된 `projectId`를 확인
+4. `preview` 프로필로 Android APK 무료 빌드 시작
+5. 빌드 완료까지 상태를 확인하고 APK 다운로드 주소 또는 로컬 설치 파일 전달
+6. 실제 Android 휴대폰에 설치하여 위치 권한, 로그인, 게시판, 주변 응급실 API를 점검
+
+## 비용 관련 메모
+
+- Expo Free 플랜은 월 $0이며 현재 공식 안내 기준 Android 빌드 15회와 iOS 빌드 15회를 제공합니다.
+- 무료 빌드는 낮은 우선순위 대기열을 사용합니다.
+- 무료 한도 이후 유료 Starter 플랜으로 자동 전환하지 말고, 빌드를 멈춘 뒤 사용자가 직접 판단합니다.
+- Google 계정으로 Expo에 가입·연결한 것만으로 결제되지 않습니다.
+- Expo 아이디, 비밀번호 및 인증 토큰은 채팅이나 저장소에 기록하지 않습니다.
+
+# EAS 로그인 상태 확인 (2026-07-29)
+
+- `lastcall-app-sdk54`에서 `npx.cmd eas-cli@latest whoami`를 실행한 결과 `Not logged in`을 확인했습니다.
+- 다음 단계인 EAS 프로젝트 연결과 Android `preview` APK 빌드는 사용자가 로컬 터미널에서 Expo 계정 로그인을 완료한 뒤 진행합니다.
+- Expo 아이디, 비밀번호, 인증 토큰은 채팅이나 저장소에 입력하거나 기록하지 않습니다.
+
+# EAS 프로젝트 연결 및 APK 빌드 제출 (2026-07-29)
+
+- Expo 계정 `parkeui` 로그인을 확인했습니다.
+- EAS 프로젝트 `@parkeui/lastcall`을 생성하고 앱에 연결했습니다.
+- EAS 프로젝트 ID는 `a5413c56-d72f-4e2f-ba8f-bc4d440729ed`이며 `lastcall-app-sdk54/app.json`에 반영됐습니다.
+- Android `preview` APK 빌드를 제출했습니다.
+- 빌드 ID는 `6d58d891-7bb6-4728-a6e5-81d17761ace5`이며 현재 무료 빌드 대기열 `IN_QUEUE` 상태입니다.
+- 동일 빌드를 계속 추적하며, 완료 후 APK 다운로드 주소를 확인하고 실제 Android 기기 검증을 진행합니다.
+
+# Android preview APK 빌드 완료 (2026-07-29)
+
+- EAS Android `preview` 빌드 `6d58d891-7bb6-4728-a6e5-81d17761ace5`가 `FINISHED`로 완료됐습니다.
+- 설치용 APK가 생성됐으며 EAS 빌드 페이지와 아티팩트 주소에서 다운로드할 수 있습니다.
+- 다음 단계는 실제 Android 휴대폰에 APK를 설치하고 위치 권한, 주변 응급실, 로그인, 게시판 기능을 점검하는 것입니다.
+
+# Android 실기기 1차 점검 보완 (2026-07-29)
+
+- 실기기에서 게시판 목록 불러오기 실패, 글쓰기 진입 차단, 지도 탭 진입 시 앱 종료, 앱 시작 직후 위치 권한 창 노출을 확인했습니다.
+- 운영 API를 직접 확인한 결과 `/community/posts`와 `/emergency/nearby`는 HTTPS HTTP 200으로 정상 응답했습니다.
+- 게시판 요청에 12초 제한과 일시 오류 1회 자동 재시도를 추가하고, 목록 조회가 실패해도 글쓰기와 수동 재시도가 가능하도록 오류 화면을 개선했습니다.
+- 글 작성 요청에도 동일한 제한·재시도를 적용했습니다.
+- 앱 실행 즉시 Android 위치 권한을 요청하지 않고, 위치 카드를 누르면 앱 안내 후 운영체제 권한을 요청하도록 변경했습니다.
+- Google Maps 네이티브 설정이 없는 APK에서 발생할 수 있는 지도 크래시를 제거하기 위해 내장 지도를 안전한 거리순 응급실 목록으로 교체했습니다.
+- 각 응급실에서 휴대폰 지도 앱 열기와 응급실 전화가 가능하며, 화면 상단에 119 확인 후 전화 기능과 병상 변동 경고를 추가했습니다.
+- Android 업데이트 설치를 위해 `versionCode`를 2로 올렸습니다.
+- 검증: `npx.cmd tsc --noEmit`, `npx.cmd expo lint` 통과.
+
+# 응급 UI 및 지도 방향 보완 (2026-07-30)
+
+- 홈 최상단에 위급 증상 안내와 확인 후 119 전화 기능을 배치해 응급 행동을 검색보다 우선하도록 UI를 재구성했습니다.
+- 현재 위치 카드에 위치 공유 기능을 추가해 주소와 좌표 지도 링크를 보호자에게 전달할 수 있도록 했습니다.
+- 하단 탭의 활성 색상과 글자 가독성을 보강하고 지도 탭 이름을 `주변 응급실`로 명확히 변경했습니다.
+- 앱 진입 직후 위치 권한 창을 띄우지 않고 사용자가 위치 카드를 선택한 뒤 설명을 확인하고 권한을 요청하도록 유지했습니다.
+- Google Maps 연동은 제외했습니다.
+- 국내 내장 지도 후보를 검토한 결과 네이버 Maps의 Mobile Dynamic Map을 우선 후보로 정했습니다. 네이버 클라우드 Client ID 발급 및 Expo 네이티브 연결은 별도 단계로 진행합니다.
+- 네이버 지도 연동 전까지 주변 응급실 거리순 목록, 병원 상세, 응급실 전화, 외부 지도 앱 연결을 제공하며 내장 지도 미설정으로 앱이 종료되지 않도록 했습니다.
+- 추가 기능 검토 결과 현재 단계에서는 119 전화, 위치 공유, 의료정보 공유, 보호자 문자, 병상 갱신 경고, 응급처치 안내를 핵심 기능으로 유지합니다. AED 검색과 원격 푸시 알림은 신뢰 가능한 데이터·서버 발송 체계가 준비된 뒤 추가합니다.
+- 검증: Expo 공개 설정 출력 정상, `npx.cmd tsc --noEmit`, `npx.cmd expo lint` 통과.
+
+# 전체 기능 점검 및 안전 기능 추가 (2026-07-30)
+
+- 앱 전체 화면·서비스와 서버 컨트롤러 API를 점검해 기존 기능과 추가 후보의 중복·운영 부담·개인정보 영향을 확인했습니다.
+- 병원 상세 화면에 진입하면 최근 본 응급실을 기기에 최대 5곳까지 저장하도록 추가했습니다.
+- 즐겨찾기 탭에서 최근 본 응급실을 다시 열거나 기록 전체를 삭제할 수 있습니다.
+- 내 정보 화면에 `의료정보 + 현재 위치 긴급 공유`를 추가했습니다. 사용자가 직접 실행할 때만 위치를 확인하며, 위치를 확인하지 못해도 의료정보 공유는 가능합니다.
+- 보호자 문자 외에 보호자 바로 전화 기능을 추가했습니다.
+- 응급 대처 안내에 인터넷 연결 없이도 사용할 수 있는 119 전화·기기 저장 의료정보·응급처치 안내 범위를 명시했습니다.
+- 기존 병상 갱신 경고, 응급실 전화, 위치 공유, 의료정보 보안 저장, 신고 관리, 공지사항 기능은 중복 추가하지 않고 유지했습니다.
+- AED 검색은 신뢰 가능한 공공데이터 API가 확정되기 전까지 보류하고, 원격 푸시는 서버 발송·수신 동의·토큰 관리 체계가 필요해 이번 범위에서 제외했습니다.
+- 검증: `npx.cmd tsc --noEmit`, `npx.cmd expo lint`, Android `expo export` 성공, `git diff --check` 통과.
+- 운영 API 확인: `/community/posts`, `/emergency/nearby` HTTPS HTTP 200.
+
+# 다음 작업 확정 (2026-07-30)
+
+- 네이버 지도를 앱 내부 지도 화면으로 연동합니다.
+- 사용자가 발급받을 AED 공공데이터 API를 확인한 뒤 현재 위치 기반 AED 검색을 추가합니다.
+- AED API 실제 응답 필드, 이용약관, 호출 한도와 갱신 시각을 먼저 확인하고 앱 요청·서버 중계·화면 표시를 함께 구현합니다.
+- 지도와 AED 기능까지 완료한 뒤 Android `versionCode 2` preview APK를 한 번만 빌드합니다.
+- 오늘은 무료 EAS 빌드를 추가로 제출하지 않습니다.
+
+# AED 준비 화면 추가 (2026-07-30)
+
+- 홈 화면에 `주변 AED 찾기` 진입 버튼을 추가했습니다.
+- 공공데이터포털 전환 작업으로 OpenAPI 활용신청·인증키 발급이 제한된 현재 상태를 안내하는 AED 준비 화면을 추가했습니다.
+- 준비 화면에서도 119 전화와 응급 대처 안내를 즉시 사용할 수 있습니다.
+- 향후 제공할 현재 위치 기반 거리순 AED, 지도 표시, 운영시간, 설치기관·관리기관·상세 위치 기능을 미리 안내합니다.
+- 실제 AED API 연동 후 동일 화면을 목록·지도 화면으로 교체합니다.
+
+# 네이버 지도 연동 진행 (2026-07-30)
+
+- 네이버 클라우드 Maps Application `lastcall`과 Android 패키지 `com.snail5039.lastcall` 등록을 완료했습니다.
+- Dynamic Map의 한도 초과 사용은 기본값 `허용안함`으로 확인해 무료 한도 초과 과금을 차단했습니다.
+- Expo SDK 54용 `@mj-studio/react-native-naver-map`과 `expo-build-properties`를 설치했습니다.
+- 네이버 지도 Client ID와 네이버 Maven 저장소를 Expo 네이티브 빌드 설정에 연결했습니다.
+- 주변 응급실 화면에 네이버 내장 지도, 현재 위치 마커, 응급실 마커, 병상 상태별 색상, 병원 상세 진입을 추가했습니다.
+- 더 이상 사용하지 않는 Google 지도용 `react-native-maps` 패키지를 제거했습니다.
+- 검증: Expo prebuild 설정 출력 정상, `npx.cmd tsc --noEmit`, `npx.cmd expo lint`, `git diff --check` 통과.
+- Expo Doctor 18/18 검사를 통과했습니다.
+- `versionCode 2` EAS APK 제출 명령은 중간에 중단됐으며, 최근 빌드 목록 확인 결과 새 빌드는 생성되지 않았습니다.
+
+# 빌드 제출 전 웹 실행 검증 (2026-07-30)
+
+- 사용자의 요청에 따라 EAS APK/AAB 빌드는 제출하지 않았습니다.
+- 모바일 크기 웹 실행 화면에서 홈, AED 준비 화면, 지도 웹 안내 화면, 자유게시판 목록과 글쓰기 진입을 확인했습니다.
+- 게시판 테스트 중 실제 게시글 등록은 서버 데이터를 변경하므로 수행하지 않았습니다.
+- 브라우저 콘솔 오류는 발견되지 않았습니다.
+- 웹 지도 안내 화면의 깨진 한글 문구를 수정했습니다.
+- 네이버 지도는 네이티브 모듈이므로 웹과 Expo Go에서는 실제 지도를 검증할 수 없으며, 네이버 지도 모듈을 포함한 새 Android 빌드에서 실기기 검증이 필요합니다.
+- 검증: `npx.cmd tsc --noEmit`, `npx.cmd expo lint`, `git diff --check` 통과.
+
+# versionCode 2 빌드 제출 전 전체 재검증 (2026-07-30)
+
+- 사용자의 최종 허락 전에는 EAS 빌드를 제출하지 않기로 했으며, 이번 점검에서도 새 빌드를 생성하지 않았습니다.
+- 앱 검증: TypeScript, Expo ESLint, Expo Doctor 18/18, Expo 공개 설정 출력, Android 번들 생성, `git diff --check` 통과.
+- 서버 검증: Maven 테스트 13개 전부 통과(실패·오류·건너뜀 0), Spring Boot 애플리케이션 컨텍스트 기동 성공.
+- 운영 API 검증: 앱과 동일한 파라미터로 `/community/posts`와 `/emergency/nearby` 모두 HTTPS HTTP 200 응답 확인.
+- 실행 화면 검증: 홈, 공지사항, 자유게시판, 건의사항, Q&A, 게시글 작성 진입, 응급 대처 안내, AED 준비 화면, 주변 응급실 검색 결과, 병원 상세, 즐겨찾기 빈 상태, 최근 본 응급실 저장·삭제를 확인했습니다.
+- 실제 게시글 등록, 전화, 문자, 외부 지도, 공유 전송은 외부 상태 변경을 피하기 위해 마지막 실행 버튼을 누르지 않았습니다.
+- 병원 상세에서 지원되지 않는 FontAwesome6 `scalpel` 아이콘 경고를 발견해 지원되는 `user-doctor`와 `hospital` 아이콘으로 교체했습니다.
+- React Native Web의 `shadow*`와 `pointerEvents` 사용 중단 경고만 남아 있으며 Android 앱 기능 오류와는 무관합니다.
+- 네이버 지도 네이티브 화면은 웹과 기존 APK에서 실행할 수 없으므로 새 APK 생성 후 실제 Android 기기에서 최종 확인해야 합니다.
+
+# Android versionCode 2 Preview APK 빌드 제출 (2026-07-30)
+
+- 사용자의 명시적 허락을 받은 뒤 Android `preview` APK 빌드를 EAS에 제출했습니다.
+- 빌드 ID: `c3b781d4-7fd0-4fd9-b657-2cc301df971b`
+- 앱 버전: `1.0.0`, Android `versionCode 2`
+- 제출 계정: `parkeui`
+- 현재 상태: `IN_PROGRESS`
+- 이 빌드는 내부 테스트용 APK이며 Google Play 스토어 제출은 진행하지 않았습니다.
+
+# Android versionCode 2 Preview APK 빌드 완료 (2026-07-30)
+
+- 빌드 `c3b781d4-7fd0-4fd9-b657-2cc301df971b`가 `FINISHED`로 완료됐습니다.
+- 생성된 APK를 Android 휴대폰에 설치해 네이버 지도, 위치 권한, 응급실 검색, 게시판과 추가 안전 기능을 최종 확인합니다.
+
+# versionCode 2 실기기 오류 보완 (2026-07-30)
+
+- 실기기에서 게시판 목록 조회 실패, 관리자 신고 목록 오류, 하단 탭과 Android 시스템 내비게이션 영역 중첩을 확인했습니다.
+- 운영 Nginx 접근 로그에서 같은 APK의 게시글 작성·댓글·응급실 요청은 정상 도착했지만 게시판 목록 GET 요청만 서버에 도착하지 않은 것을 확인했습니다.
+- 게시판 목록 요청 직전 Android 배포 환경에서 예외 가능성이 있는 `console.time`·`console.timeEnd` 계측을 제거하고 요청 흐름을 단순화했습니다.
+- 관리자 만료 세션의 `ResponseStatusException(401)`이 공통 예외 처리기에 의해 500으로 변환되던 서버 오류를 수정하고 회귀 테스트를 추가했습니다.
+- 운영 서버에 수정 JAR을 배포하고 `lastcall.service` 재기동 후 게시판 HTTP 200, 잘못된 관리자 토큰 HTTP 401, 서비스 `active`를 확인했습니다.
+- 관리자 앱 목록 조회에 제한 시간·재시도를 적용하고 401·403 응답 시 저장된 토큰을 지운 뒤 재로그인하도록 보강했습니다.
+- 하단 탭 높이와 아래쪽 패딩에 `useSafeAreaInsets()`의 Android 시스템 안전영역을 반영했습니다.
+- 다음 APK를 기존 v2 위에 업데이트 설치할 수 있도록 Android `versionCode`를 3으로 올렸습니다.
+- 검증: 앱 TypeScript·Expo lint·Android 번들·`git diff --check` 통과, 서버 테스트 14개 전부 통과.
+- versionCode 3 EAS 빌드는 사용자의 허락 전까지 제출하지 않습니다.
+
+# Android versionCode 3 Preview APK 빌드 제출 (2026-07-30)
+
+- 사용자의 명시적 허락을 받은 뒤 게시판·관리자·하단 안전영역 수정이 포함된 Android `preview` APK를 제출했습니다.
+- 빌드 ID: `8b6429a8-6348-4d70-882e-79a38a138120`
+- 앱 버전: `1.0.0`, Android `versionCode 3`
+- 현재 상태: `IN_PROGRESS`
+- 내부 실기기 테스트용 APK이며 Google Play 스토어 제출은 진행하지 않았습니다.
+
+# Android versionCode 3 Preview APK 빌드 완료 (2026-07-30)
+
+- 빌드 `8b6429a8-6348-4d70-882e-79a38a138120`가 `FINISHED`로 완료됐습니다.
+- 생성된 APK를 v2 위에 업데이트 설치하고 게시판 목록, 관리자 재로그인, 하단 시스템 안전영역을 우선 확인합니다.
+
+# Google Play 출시 전 정책·법률 점검 (2026-07-30)
+
+- 앱의 실제 데이터 흐름과 Google Play 사용자 데이터·건강 콘텐츠·UGC 정책, 개인정보 보호법, 위치정보법, 공공데이터 이용조건을 대조했습니다.
+- 공익·무료 목적이어도 Google Play 정책과 개인정보·위치정보 관련 의무가 자동 면제되지는 않습니다.
+- 출시 전 필수 보완 대상으로 공개 개인정보처리방침 URL과 앱 내 링크, 게시판 이용약관 동의 및 사용자/콘텐츠 차단 기능, 운영 주체 실명·연락처 정비를 확인했습니다.
+- 현재 위치 좌표가 응급실 API 요청의 쿼리 문자열로 서버와 Nginx 접근 로그에 남을 수 있어, 앱의 "서버에 영구 저장하지 않음" 안내와 실제 처리가 일치하지 않을 위험을 확인했습니다. 쿼리 로그 비식별화 또는 정확한 보유기간 공개가 필요합니다.
+- 위치기반서비스사업 신고 대상 여부는 운영자 지위와 서비스 개시일을 기준으로 관할 기관에 최종 확인해야 합니다. 소상공인·1인 창조기업도 계속 운영 시 법정 기한 내 신고 규정이 있습니다.
+- Play Console에서 Data safety, Health apps declaration, 콘텐츠 등급, 타깃 연령을 실제 처리 내용에 맞게 제출해야 합니다.
+- 공공데이터별 공공누리 유형을 다시 확인하고, 앱에 제공기관·출처·갱신시각을 명확히 표시하는 보완을 권고합니다.
+
+# 법적 안내 HTML 및 앱 연결 (2026-07-30)
+
+- `docs/index.html`에 개인정보처리방침, 위치기반서비스 이용약관, 커뮤니티 운영정책, 의료 면책·공공데이터 출처, 문의 안내를 단일 반응형 페이지로 작성했습니다.
+- 운영자는 박의혁, 공개 문의 수단은 `snail5039@gmail.com`, 전화번호는 비공개, 시행 예정은 2026년 8월 출시일로 반영했습니다.
+- 앱의 `내 정보` 화면에 개인정보처리방침 및 서비스 정책 링크를 추가했습니다.
+- 기본 공개 주소는 `https://snail5039-code.github.io/lastcall/`이며 `EXPO_PUBLIC_LEGAL_PAGE_URL` 환경변수로 변경할 수 있습니다.
+- 위치정보 정책의 기본 운영자·연락처를 새 공개 정보에 맞게 변경했습니다.
+- TypeScript 검사, Expo lint, HTML 필수 섹션 검사, `git diff --check`를 통과했습니다.
+- 외부 공개를 위해 저장소 반영 후 GitHub Pages의 배포 원본을 기본 브랜치 `/docs`로 활성화해야 합니다.
+
+# GitHub Pages 정책 페이지 공개 (2026-07-30)
+
+- 정책 HTML만 별도 커밋(`3f6802f`, `docs: publish service policies`)하여 `origin/main`에 푸시했습니다.
+- GitHub Pages 배포 원본을 `main` 브랜치의 `/docs` 폴더로 설정하고 HTTPS가 적용된 것을 확인했습니다.
+- 공개 주소 `https://snail5039-code.github.io/lastcall/`에서 개인정보처리방침, 위치서비스 약관, 커뮤니티 정책, 의료·데이터 안내와 운영자 문의 정보가 정상 출력되는 것을 확인했습니다.
+- 앱의 정책 버튼 연결 코드는 로컬 변경에 포함되어 있으며 다음 앱 출시 빌드에 반영해야 합니다.
+
+# Google Play 출시 전 필수 보완 구현 (2026-07-30)
+
+- 최초 이용 화면에서 의료·공공데이터 안전 고지와 위치정보 동의를 분리했습니다. 위치 동의는 선택 사항이며 거부해도 앱이 종료되지 않고 지역 직접 검색을 이용할 수 있습니다.
+- 위치 기능을 나중에 처음 실행할 때 처리 목적, 서버 전송, DB 미보관, 거부 시 수동 검색 가능 여부를 다시 고지하고 동의를 받도록 변경했습니다.
+- 개인정보처리방침과 서비스 정책 전문을 최초 이용 화면과 `내 정보` 화면에서 공개 GitHub Pages 주소로 열 수 있게 연결했습니다.
+- 게시글과 댓글 등록 전에 커뮤니티 운영정책을 명시적으로 확인하도록 체크 항목과 정책 전문 링크를 추가했습니다.
+- 이용자가 게시글 또는 동일 닉네임 작성자를 현재 기기에서 숨길 수 있게 했고, 게시판에서 숨김 목록을 초기화할 수 있게 했습니다.
+- 응급실 정보 출처를 홈 화면에 표시하고, 병상 수가 양수라는 이유만으로 실제 수용을 보장하는 것처럼 보이지 않도록 결과 배지를 `수용 가능`에서 `병상 있음`으로 변경했습니다.
+- 운영 Nginx에 쿼리 문자열을 제외하는 `lastcall_noargs` 접근 로그 형식을 적용했습니다. 테스트 좌표 요청 후 로그에 `/emergency/nearby` 경로만 기록되고 위도·경도 값은 남지 않는 것을 확인했습니다.
+- 운영 접근 로그는 기존 logrotate 설정에 따라 매일 순환하고 14개를 보관하므로 공개 정책의 최대 30일 이내 보관 조건을 충족합니다.
+- 재현 가능한 Nginx 설정을 `ops/nginx`에 추가하고 운영 설정 원본은 `/etc/nginx/sites-available/lastcall.bak-20260730`으로 백업했습니다.
+- 검증: TypeScript, Expo lint, Android Expo export, `git diff --check` 통과.
+- 서버 검증: Maven 테스트 14개 통과, 운영 `/emergency/nearby` 실제 호출 HTTP 200, Nginx 설정 검사 및 서비스 상태 `active`.
+
+# Android versionCode 4 테스트 APK 빌드 제출 (2026-07-30)
+
+- 위치 선택권, 정책 링크, 커뮤니티 동의·숨김, 데이터 출처 표시가 포함된 Android `preview` APK 빌드를 제출했습니다.
+- 앱 버전 `1.0.0`, Android `versionCode 4`.
+- EAS 빌드 ID: `6bc07518-1327-488d-98f6-3962503c107c`.
+- 내부 실기기 테스트용 APK이며 Google Play용 AAB 제출은 진행하지 않았습니다.
+
+# Android versionCode 4 테스트 APK 빌드 완료 (2026-07-30)
+
+- EAS 빌드 `6bc07518-1327-488d-98f6-3962503c107c`가 `FINISHED`로 완료됐습니다.
+- APK 다운로드: `https://expo.dev/artifacts/eas/OUWuoWvh_FiGs6-A38Hgj9JPbJinb5Y9qzSOlGk1GHs.apk`
+- 기존 v3 위에 업데이트 설치한 뒤 위치 없이 시작, 위치 재동의, 정책 링크, 게시판 운영정책 동의, 게시글·작성자 숨김과 숨김 초기화, 공공데이터 출처 표시를 실기기에서 확인합니다.
+# 전체 변경사항 커밋 및 APK 보관 준비 (2026-07-31)
+
+- 앱의 지도, AED 준비 화면, 게시판 안정화, 최근 본 응급실, 정책 연결 및 모바일 UI 보완 변경사항을 최종 커밋 대상으로 확인했습니다.
+- Android 테스트 APK `application-6bc07518-1327-488d-98f6-3962503c107c.apk`는 약 181MB로 GitHub 일반 파일 제한(100MB)을 초과하므로 Git 이력 대신 동일 커밋의 GitHub Release 첨부파일로 보관합니다.
+- 앱 검증:
+  - `npx.cmd tsc --noEmit` 통과
+  - `npx.cmd expo lint` 통과
+- 서버 검증:
+  - Maven 테스트 14개 통과
+  - 실패 0, 오류 0, 건너뜀 0
+- `git diff --check` 공백 오류 없음.

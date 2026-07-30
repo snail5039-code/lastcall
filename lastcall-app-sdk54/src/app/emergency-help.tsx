@@ -72,6 +72,14 @@ export default function EmergencyHelpScreen() {
             </Text>
           </View>
 
+          <View style={styles.offlineBox}>
+            <FontAwesome6 name="wifi" size={18} color="#1D4ED8" />
+            <View style={styles.offlineTextBox}>
+              <Text style={styles.offlineTitle}>인터넷이 없어도 사용할 수 있습니다</Text>
+              <Text style={styles.offlineText}>119 전화, 이 응급처치 안내, 기기에 저장된 의료정보는 네트워크 연결 없이도 확인할 수 있습니다.</Text>
+            </View>
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>즉시 신고가 필요한 상황</Text>
 
@@ -175,6 +183,10 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 26,
   },
+  offlineBox: { flexDirection: "row", gap: 11, alignItems: "flex-start", backgroundColor: "#EFF6FF", borderRadius: 16, padding: 15, marginBottom: 24 },
+  offlineTextBox: { flex: 1 },
+  offlineTitle: { color: "#1E3A8A", fontSize: 14, fontWeight: "900" },
+  offlineText: { marginTop: 5, color: "#475569", fontSize: 12, lineHeight: 18 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "900",

@@ -1,8 +1,24 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#DC2626",
+        tabBarInactiveTintColor: "#64748B",
+        tabBarStyle: {
+          height: 58 + insets.bottom,
+          paddingTop: 7,
+          paddingBottom: Math.max(insets.bottom, 7),
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "800" },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -14,8 +30,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="map"
         options={{
-          title: "지도",
-          tabBarIcon: ({ color, size }) => <FontAwesome6 name="map-location-dot" size={size} color={color} />,
+          title: "주변 응급실",
+          tabBarIcon: ({ color, size }) => <FontAwesome6 name="hospital" size={size} color={color} />,
         }}
       />
 

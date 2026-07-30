@@ -6,6 +6,7 @@ import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, Toucha
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
 import { ADMIN_TOKEN_KEY } from "../services/admin-auth";
+import { fetchWithRetry } from "../services/http";
 
 type AdminReport = {
   id: number;
@@ -37,10 +38,10 @@ export default function AdminReportsScreen() {
   const loadReports = useCallback(async (adminToken: string, nextStatus: string) => {
     try {
       setLoading(true);
-      const response = await fetch(apiUrl(`/community/admin/reports?status=${nextStatus === "ALL" ? "" : nextStatus}`), {
+      const response = await fetchWithRetry(apiUrl(`/community/admin/reports?status=${nextStatus === "ALL" ? "" : nextStatus}`), {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         await SecureStore.deleteItemAsync(ADMIN_TOKEN_KEY);
         setToken("");
         Alert.alert("로그인 만료", "관리자 비밀번호를 다시 입력해주세요.");
@@ -50,7 +51,7 @@ export default function AdminReportsScreen() {
       setReports(await response.json());
     } catch (error) {
       console.error("관리자 신고 목록 실패:", error);
-      Alert.alert("조회 실패", "신고 목록을 불러오지 못했습니다.");
+      Alert.alert("조회 실패", "서버 연결을 확인한 후 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }

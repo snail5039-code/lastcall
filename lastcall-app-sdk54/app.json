@@ -19,13 +19,17 @@
     },
     "android": {
       "package": "com.snail5039.lastcall",
-      "versionCode": 1,
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/app-icon-v2.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "output": "static",
@@ -51,11 +55,34 @@
         {
           "locationWhenInUsePermission": "현재 위치를 기준으로 가까운 응급실과 거리를 안내하기 위해 위치를 사용합니다."
         }
+      ],
+      [
+        "@mj-studio/react-native-naver-map",
+        {
+          "client_id": "axpsmt17vb"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://repository.map.naver.com/archive/maven"
+            ]
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a5413c56-d72f-4e2f-ba8f-bc4d440729ed"
+      }
+    },
+    "owner": "parkeui"
   }
 }

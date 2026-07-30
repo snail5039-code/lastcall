@@ -1,8 +1,10 @@
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
     Alert,
     KeyboardAvoidingView,
+    Linking,
     Platform,
     ScrollView,
     StyleSheet,
@@ -13,7 +15,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import { LEGAL_PAGE_URL } from "../config/legal";
 import { saveAuthoredPost } from "../services/community-notifications";
+import { fetchWithRetry } from "../services/http";
 
 export default function CommunityWriteScreen() {
     const params = useLocalSearchParams();
@@ -27,6 +31,7 @@ export default function CommunityWriteScreen() {
     const [password, setPassword] = useState("");
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [policyAccepted, setPolicyAccepted] = useState(false);
 
     const getBoardTitle = () => {
         switch (boardType) {
@@ -63,9 +68,13 @@ export default function CommunityWriteScreen() {
             Alert.alert("알림", "내용을 입력해주세요.");
             return;
         }
+        if (!policyAccepted) {
+            Alert.alert("운영정책 동의 필요", "게시물을 작성하려면 커뮤니티 운영정책에 동의해주세요.");
+            return;
+        }
 
         try {
-            const response = await fetch(
+            const response = await fetchWithRetry(
                 apiUrl("/community/post"),
                 {
                     method: "POST",
@@ -79,7 +88,8 @@ export default function CommunityWriteScreen() {
                         title: title.trim(),
                         content: content.trim(),
                     }),
-                }
+                },
+                1,
             );
 
             const responseText = await response.text();
@@ -193,7 +203,31 @@ export default function CommunityWriteScreen() {
                         />
 
                         <TouchableOpacity
-                            style={styles.submitButton}
+                            style={[styles.policyConsent, policyAccepted && styles.policyConsentAccepted]}
+                            onPress={() => setPolicyAccepted((current) => !current)}
+                            accessibilityRole="checkbox"
+                            accessibilityState={{ checked: policyAccepted }}
+                        >
+                            <FontAwesome6
+                                name={policyAccepted ? "square-check" : "square"}
+                                size={20}
+                                color={policyAccepted ? "#15803D" : "#64748B"}
+                            />
+                            <Text style={styles.policyConsentText}>
+                                개인정보 노출, 욕설·혐오, 불법·허위 의료정보를 게시하지 않으며 커뮤니티 운영정책에 동의합니다.
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.policyLink}
+                            onPress={() => void Linking.openURL(`${LEGAL_PAGE_URL}#community`)}
+                            accessibilityRole="link"
+                        >
+                            <Text style={styles.policyLinkText}>커뮤니티 운영정책 전문 보기</Text>
+                            <FontAwesome6 name="arrow-up-right-from-square" size={12} color="#1D4ED8" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.submitButton, !policyAccepted && styles.submitButtonDisabled]}
                             onPress={handleSubmit}
                         >
                             <Text style={styles.submitButtonText}>
@@ -280,6 +314,44 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         alignItems: "center",
         marginTop: 4,
+    },
+    submitButtonDisabled: {
+        backgroundColor: "#94A3B8",
+    },
+    policyConsent: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        gap: 10,
+        borderWidth: 1,
+        borderColor: "#CBD5E1",
+        borderRadius: 12,
+        padding: 13,
+        backgroundColor: "#F8FAFC",
+    },
+    policyConsentAccepted: {
+        borderColor: "#86EFAC",
+        backgroundColor: "#F0FDF4",
+    },
+    policyConsentText: {
+        flex: 1,
+        color: "#334155",
+        fontSize: 13,
+        lineHeight: 19,
+        fontWeight: "600",
+    },
+    policyLink: {
+        minHeight: 38,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 7,
+        marginBottom: 8,
+        paddingHorizontal: 4,
+    },
+    policyLinkText: {
+        color: "#1D4ED8",
+        fontSize: 13,
+        fontWeight: "800",
+        textDecorationLine: "underline",
     },
 
     submitButtonText: {

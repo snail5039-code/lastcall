@@ -13,7 +13,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getCurrentLocationFast } from "../../services/location";
 import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
+import { LEGAL_PAGE_URL } from "../../config/legal";
 
 type PersonInfo = {
   relation: string;
@@ -265,6 +267,16 @@ export default function MyInfoScreen() {
   ].join("\n") : "";
 
   const shareMedicalInfo = () => Share.share({ message: medicalSummary });
+  const shareEmergencyInfo = async () => {
+    let locationSummary = "현재 위치: 확인하지 못함";
+    try {
+      const location = await getCurrentLocationFast();
+      locationSummary = `현재 위치: ${location.addressText}\n지도: https://maps.google.com/?q=${location.latitude},${location.longitude}`;
+    } catch {
+      locationSummary = "현재 위치: 위치 권한이 없거나 확인하지 못함";
+    }
+    await Share.share({ message: `${medicalSummary}\n\n[현재 위치]\n${locationSummary}` });
+  };
   const messageGuardian = () => {
     if (!selectedPerson?.guardianPhone) {
       Alert.alert("보호자 연락처 없음", "보호자 연락처를 먼저 입력해주세요.");
@@ -336,9 +348,35 @@ export default function MyInfoScreen() {
             onEditPerson={startEditPerson}
             onDeletePerson={deleteSelectedPerson}
             onShare={shareMedicalInfo}
+            onEmergencyShare={shareEmergencyInfo}
             onMessageGuardian={messageGuardian}
+            onCallGuardian={() => {
+              if (!selectedPerson?.guardianPhone) {
+                Alert.alert("보호자 연락처 없음", "보호자 연락처를 먼저 입력해주세요.");
+                return;
+              }
+              void Linking.openURL(`tel:${selectedPerson.guardianPhone}`);
+            }}
             onCall119={() => Linking.openURL("tel:119")}
           />
+        )}
+        {!isEditMode && (
+          <View style={styles.policySection}>
+            <Text style={styles.policyTitle}>서비스 안내</Text>
+            <Text style={styles.policyDescription}>
+              개인정보 처리, 위치정보 이용, 커뮤니티 운영 기준을 확인할 수 있습니다.
+            </Text>
+            <TouchableOpacity
+              style={styles.policyButton}
+              onPress={() => void Linking.openURL(LEGAL_PAGE_URL)}
+              accessibilityRole="link"
+              accessibilityLabel="개인정보처리방침과 서비스 정책 열기"
+            >
+              <FontAwesome6 name="shield-halved" size={16} color="#061A44" />
+              <Text style={styles.policyButtonText}>개인정보처리방침 및 서비스 정책</Text>
+              <FontAwesome6 name="arrow-up-right-from-square" size={13} color="#64748B" />
+            </TouchableOpacity>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -507,7 +545,9 @@ type DetailViewProps = {
   onEditPerson: () => void;
   onDeletePerson: () => void;
   onShare: () => void;
+  onEmergencyShare: () => void;
   onMessageGuardian: () => void;
+  onCallGuardian: () => void;
   onCall119: () => void;
 };
 
@@ -520,7 +560,9 @@ function DetailView({
   onEditPerson,
   onDeletePerson,
   onShare,
+  onEmergencyShare,
   onMessageGuardian,
+  onCallGuardian,
   onCall119,
 }: DetailViewProps) {
   if (!selectedPerson) {
@@ -584,7 +626,9 @@ function DetailView({
       <View style={styles.shareSection}>
         <Text style={styles.sectionTitle}>응급 시 전달</Text>
         <Text style={styles.shareDescription}>민감한 의료정보가 포함됩니다. 필요한 상대에게만 공유해주세요.</Text>
+        <TouchableOpacity style={styles.locationMedicalButton} onPress={onEmergencyShare}><Text style={styles.locationMedicalText}>의료정보 + 현재 위치 긴급 공유</Text></TouchableOpacity>
         <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119}><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianCallButton} onPress={onCallGuardian}><Text style={styles.guardianCallText}>보호자에게 전화</Text></TouchableOpacity>
         <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian}><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
         <TouchableOpacity style={styles.generalShareButton} onPress={onShare}><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
       </View>
@@ -712,11 +756,20 @@ function InfoRow({ label, value }: InfoRowProps) {
 }
 
 const styles = StyleSheet.create({
+  policySection: { backgroundColor: "#FFFFFF", borderRadius: 16, padding: 16, marginTop: 8, borderWidth: 1, borderColor: "#E2E8F0" },
+  policyTitle: { color: "#172033", fontSize: 16, fontWeight: "800", marginBottom: 5 },
+  policyDescription: { color: "#64748B", fontSize: 12, lineHeight: 18, marginBottom: 12 },
+  policyButton: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 12, backgroundColor: "#F1F5F9", paddingHorizontal: 12 },
+  policyButtonText: { flexShrink: 1, color: "#061A44", fontSize: 14, fontWeight: "800" },
   shareSection: { backgroundColor: "#FFF7ED", borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#FED7AA" },
   shareDescription: { fontSize: 12, lineHeight: 18, color: "#9A3412", marginBottom: 12 },
+  locationMedicalButton: { backgroundColor: "#B91C1C", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  locationMedicalText: { color: "#FFFFFF", fontWeight: "900", fontSize: 14 },
   emergencyShareButton: { backgroundColor: "#DC2626", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
   emergencyShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
   guardianShareButton: { backgroundColor: "#061A44", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallButton: { backgroundColor: "#15803D", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
   guardianShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
   generalShareButton: { backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1" },
   generalShareText: { color: "#334155", fontWeight: "900", fontSize: 15 },

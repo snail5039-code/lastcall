@@ -5,6 +5,7 @@ import {
     ActivityIndicator,
     Alert,
     KeyboardAvoidingView,
+    Linking,
     Platform,
     ScrollView,
     StyleSheet,
@@ -15,7 +16,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import { LEGAL_PAGE_URL } from "../config/legal";
 import { clearAdminToken, getAdminToken } from "../services/admin-auth";
+import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../services/community-moderation";
 
 type CommunityPost = {
     id: number;
@@ -61,6 +64,8 @@ export default function CommunityDetailScreen() {
     const [commentNickname, setCommentNickname] = useState("");
     const [commentPassword, setCommentPassword] = useState("");
     const [commentContent, setCommentContent] = useState("");
+    const [commentPolicyAccepted, setCommentPolicyAccepted] = useState(false);
+    const [hiddenAuthors, setHiddenAuthors] = useState<string[]>([]);
 
     const [comments, setComments] = useState<CommunityComment[]>([]);
 
@@ -103,6 +108,37 @@ export default function CommunityDetailScreen() {
         ]);
     };
 
+    const hidePost = () => {
+        Alert.alert("게시글 숨기기", "이 기기에서 해당 게시글을 숨길까요?", [
+            { text: "취소", style: "cancel" },
+            {
+                text: "숨기기",
+                onPress: () => {
+                    void hideCommunityPost(Number(id)).then(() => router.back());
+                },
+            },
+        ]);
+    };
+
+    const hideAuthor = (nickname: string) => {
+        Alert.alert(
+            "작성자 숨기기",
+            `'${nickname}' 닉네임의 게시글과 댓글을 이 기기에서 숨길까요? 같은 닉네임을 다른 사람이 사용할 수도 있습니다.`,
+            [
+                { text: "취소", style: "cancel" },
+                {
+                    text: "숨기기",
+                    onPress: () => {
+                        void hideCommunityAuthor(nickname).then(() => {
+                            setHiddenAuthors((current) => current.includes(nickname) ? current : [...current, nickname]);
+                            if (post?.nickname === nickname) router.back();
+                        });
+                    },
+                },
+            ],
+        );
+    };
+
     const fetchPostDetail = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -126,6 +162,10 @@ export default function CommunityDetailScreen() {
             setIsLoading(false);
         }
     }, [id]);
+
+    useEffect(() => {
+        void getHiddenAuthors().then(setHiddenAuthors);
+    }, []);
     const startEditing = () => {
         setEditTitle(post?.title ?? "");
         setEditContent(post?.content ?? "");
@@ -320,6 +360,10 @@ export default function CommunityDetailScreen() {
             Alert.alert("알림", "댓글 내용을 입력해주세요.");
             return;
         }
+        if (!commentPolicyAccepted) {
+            Alert.alert("운영정책 동의 필요", "댓글을 등록하려면 커뮤니티 운영정책에 동의해주세요.");
+            return;
+        }
 
         try {
             const response = await fetch(
@@ -352,6 +396,7 @@ export default function CommunityDetailScreen() {
             setCommentNickname("");
             setCommentPassword("");
             setCommentContent("");
+            setCommentPolicyAccepted(false);
 
             await fetchComments();
             Alert.alert("등록 완료", "댓글이 등록되었습니다.");
@@ -650,6 +695,12 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity onPress={() => openReport("POST", Number(id))}>
                                         <Text style={styles.reportText}>신고</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity onPress={hidePost}>
+                                        <Text style={styles.hideText}>게시글 숨김</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => hideAuthor(post.nickname)}>
+                                        <Text style={styles.hideText}>작성자 숨김</Text>
+                                    </TouchableOpacity>
                                 </>
                             )}
                         </View>
@@ -692,16 +743,16 @@ export default function CommunityDetailScreen() {
 
                     <View style={styles.commentListContainer}>
                         <Text style={styles.commentSectionTitle}>
-                            댓글 {comments.length}
+                            댓글 {comments.filter((comment) => !hiddenAuthors.includes(comment.nickname)).length}
                         </Text>
 
-                        {comments.length === 0 ? (
+                        {comments.filter((comment) => !hiddenAuthors.includes(comment.nickname)).length === 0 ? (
                             <Text style={styles.emptyCommentText}>
                                 등록된 댓글이 없습니다.
                             </Text>
                         ) : (
 
-                            comments.map((comment) => (
+                            comments.filter((comment) => !hiddenAuthors.includes(comment.nickname)).map((comment) => (
                                 <View
                                     key={comment.id}
                                     style={styles.commentItem}
@@ -797,6 +848,11 @@ export default function CommunityDetailScreen() {
                                                 <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)}>
                                                     <Text style={styles.reportText}>신고</Text>
                                                 </TouchableOpacity>
+                                                {!comment.isAdmin && (
+                                                    <TouchableOpacity onPress={() => hideAuthor(comment.nickname)}>
+                                                        <Text style={styles.hideText}>작성자 숨김</Text>
+                                                    </TouchableOpacity>
+                                                )}
                                             </View>
                                         </>
                                     )}
@@ -870,7 +926,28 @@ export default function CommunityDetailScreen() {
                         />
 
                         <TouchableOpacity
-                            style={styles.commentSubmitButton}
+                            style={[styles.commentPolicy, commentPolicyAccepted && styles.commentPolicyAccepted]}
+                            onPress={() => setCommentPolicyAccepted((current) => !current)}
+                            accessibilityRole="checkbox"
+                            accessibilityState={{ checked: commentPolicyAccepted }}
+                        >
+                            <FontAwesome6
+                                name={commentPolicyAccepted ? "square-check" : "square"}
+                                size={18}
+                                color={commentPolicyAccepted ? "#15803D" : "#64748B"}
+                            />
+                            <Text style={styles.commentPolicyText}>커뮤니티 운영정책을 지키며 개인정보·욕설·허위 의료정보를 게시하지 않습니다.</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.policyLink}
+                            onPress={() => void Linking.openURL(`${LEGAL_PAGE_URL}#community`)}
+                            accessibilityRole="link"
+                        >
+                            <Text style={styles.policyLinkText}>운영정책 전문 보기</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.commentSubmitButton, !commentPolicyAccepted && styles.commentSubmitButtonDisabled]}
                             onPress={insertComment}
                         >
                             <Text style={styles.commentSubmitButtonText}>
@@ -885,6 +962,13 @@ export default function CommunityDetailScreen() {
 }
 const styles = StyleSheet.create({
     reportText: { color: "#DC2626", fontSize: 13, fontWeight: "700" },
+    hideText: { color: "#475569", fontSize: 13, fontWeight: "700" },
+    commentPolicy: { flexDirection: "row", alignItems: "flex-start", gap: 9, padding: 12, borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 10, backgroundColor: "#F8FAFC", marginTop: 12 },
+    commentPolicyAccepted: { borderColor: "#86EFAC", backgroundColor: "#F0FDF4" },
+    commentPolicyText: { flex: 1, color: "#334155", fontSize: 12, lineHeight: 18, fontWeight: "600" },
+    policyLink: { minHeight: 36, justifyContent: "center" },
+    policyLinkText: { color: "#1D4ED8", fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
+    commentSubmitButtonDisabled: { backgroundColor: "#94A3B8" },
     container: {
         flex: 1,
         backgroundColor: "#F5F7FA",

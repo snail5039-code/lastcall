@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { getCurrentLocationFast } from "../../services/location";
+import { clearRecentHospitals, getRecentHospitals, RecentHospital } from "../../services/recent-hospitals";
 import { Hospital, toHospitalDetailParams } from "../../types/hospital";
 
 type FavoriteHospital = Partial<Hospital> & {
@@ -29,6 +30,7 @@ type FavoriteHospital = Partial<Hospital> & {
 
 export default function FavoritesScreen() {
   const [favoriteList, setFavoriteList] = useState<FavoriteHospital[]>([]);
+  const [recentList, setRecentList] = useState<RecentHospital[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const loadFavoriteHospitals = async () => {
     try {
@@ -74,6 +76,7 @@ export default function FavoritesScreen() {
   useFocusEffect(
     useCallback(() => {
       loadFavoriteHospitals();
+      getRecentHospitals().then(setRecentList).catch(() => setRecentList([]));
     }, [])
   );
   return (
@@ -136,6 +139,40 @@ export default function FavoritesScreen() {
             ))}
           </View>
         )}
+
+        <View style={styles.recentSection}>
+          <View style={styles.recentHeader}>
+            <View>
+              <Text style={styles.recentTitle}>최근 본 응급실</Text>
+              <Text style={styles.recentSubtitle}>최근 확인한 병원은 최대 5곳까지 이 기기에 저장됩니다.</Text>
+            </View>
+            {recentList.length > 0 && (
+              <TouchableOpacity
+                onPress={() => {
+                  void clearRecentHospitals().then(() => setRecentList([]));
+                }}
+              >
+                <Text style={styles.clearText}>기록 삭제</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {recentList.length === 0 ? (
+            <View style={styles.recentEmpty}><Text style={styles.recentEmptyText}>아직 확인한 응급실이 없습니다.</Text></View>
+          ) : recentList.map((hospital) => (
+            <TouchableOpacity
+              key={`recent-${hospital.hpid}`}
+              style={styles.recentCard}
+              onPress={() => router.push({ pathname: "/hospital-detail", params: hospital })}
+            >
+              <View style={styles.recentIcon}><FontAwesome6 name="clock-rotate-left" size={14} color="#DC2626" /></View>
+              <View style={styles.recentInfo}>
+                <Text style={styles.recentName} numberOfLines={1}>{hospital.hospitalName}</Text>
+                <Text style={styles.recentMeta} numberOfLines={1}>{hospital.distance ? `${hospital.distance}km · ` : ""}{hospital.address}</Text>
+              </View>
+              <FontAwesome6 name="chevron-right" size={12} color="#94A3B8" />
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -243,4 +280,16 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: "#111827",
   },
+  recentSection: { marginHorizontal: 18, marginTop: 10, marginBottom: 36 },
+  recentHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
+  recentTitle: { color: "#111827", fontSize: 18, fontWeight: "900" },
+  recentSubtitle: { marginTop: 4, color: "#64748B", fontSize: 11 },
+  clearText: { color: "#DC2626", fontSize: 12, fontWeight: "800" },
+  recentEmpty: { backgroundColor: "#FFFFFF", borderRadius: 16, padding: 20, alignItems: "center" },
+  recentEmptyText: { color: "#94A3B8", fontSize: 13 },
+  recentCard: { minHeight: 70, paddingHorizontal: 14, flexDirection: "row", gap: 11, alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 16, marginBottom: 9, borderWidth: 1, borderColor: "#E2E8F0" },
+  recentIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: "#FFF1F1", alignItems: "center", justifyContent: "center" },
+  recentInfo: { flex: 1 },
+  recentName: { color: "#1F2937", fontSize: 14, fontWeight: "900" },
+  recentMeta: { marginTop: 5, color: "#64748B", fontSize: 11 },
 });

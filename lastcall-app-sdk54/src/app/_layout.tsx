@@ -13,6 +13,7 @@ export default function RootLayout() {
           <Stack.Screen name="admin-reports" />
           <Stack.Screen name="filter" />
           <Stack.Screen name="emergency-help" />
+          <Stack.Screen name="aed" />
           <Stack.Screen name="community-board" />
           <Stack.Screen name="community-write" />
         </Stack>

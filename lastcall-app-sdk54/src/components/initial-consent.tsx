@@ -4,8 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  BackHandler,
-  Platform,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,7 +12,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LOCATION_POLICY } from "../config/legal";
+import { LEGAL_PAGE_URL, LOCATION_POLICY } from "../config/legal";
+import { setLocationConsent } from "../services/location";
 
 const CONSENT_STORAGE_KEY = `lastcall.initialConsent.${LOCATION_POLICY.version}`;
 
@@ -22,7 +22,7 @@ type InitialConsentProps = {
 };
 
 export function InitialConsent({ children }: InitialConsentProps) {
-  const [status, setStatus] = useState<"loading" | "required" | "accepted" | "declined">("loading");
+  const [status, setStatus] = useState<"loading" | "required" | "accepted">("loading");
   const [checks, setChecks] = useState([false, false, false]);
   const [saving, setSaving] = useState(false);
 
@@ -43,36 +43,19 @@ export function InitialConsent({ children }: InitialConsentProps) {
 
   if (status === "accepted") return children;
 
-  if (status === "declined") {
-    return (
-      <SafeAreaView style={styles.declinedContainer}>
-        <FontAwesome6 name="circle-xmark" size={48} color="#DC2626" />
-        <Text style={styles.declinedTitle}>서비스가 종료되었습니다</Text>
-        <Text style={styles.declinedText}>
-          필수 고지와 위치정보 처리 내용에 동의하지 않아 앱 기능을 사용할 수 없습니다. 앱을 다시 실행하면 동의 여부를 다시 선택할 수 있습니다.
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  const allChecked = checks.every(Boolean);
+  const requiredChecked = checks[0] && checks[1];
   const toggleCheck = (index: number) => {
     setChecks((current) => current.map((checked, itemIndex) => itemIndex === index ? !checked : checked));
   };
 
-  const decline = () => {
-    if (Platform.OS === "android") {
-      BackHandler.exitApp();
-      return;
-    }
-    setStatus("declined");
-  };
-
   const accept = async () => {
-    if (!allChecked || saving) return;
+    if (!requiredChecked || saving) return;
     setSaving(true);
     try {
-      await AsyncStorage.setItem(CONSENT_STORAGE_KEY, "accepted");
+      await Promise.all([
+        AsyncStorage.setItem(CONSENT_STORAGE_KEY, "accepted"),
+        setLocationConsent(checks[2]),
+      ]);
       setStatus("accepted");
     } catch {
       Alert.alert("동의 저장 실패", "동의 내용을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.");
@@ -87,12 +70,12 @@ export function InitialConsent({ children }: InitialConsentProps) {
           <FontAwesome6 name="shield-heart" size={30} color="#DC2626" />
         </View>
         <Text style={styles.title}>서비스 이용 전 확인해주세요</Text>
-        <Text style={styles.subtitle}>아래 내용은 안전한 서비스 이용을 위한 필수 동의 사항입니다.</Text>
+        <Text style={styles.subtitle}>필수 안전 고지를 확인해주세요. 위치정보 이용은 선택할 수 있습니다.</Text>
 
         <ConsentItem
           checked={checks[0]}
           icon="clock-rotate-left"
-          title="실시간 정보의 지연·오류 가능성"
+          title="[필수] 실시간 정보의 지연·오류 가능성"
           onPress={() => toggleCheck(0)}
         >
           병상, 장비, 진료 가능 여부와 갱신 시각은 공공데이터 및 통신 상태에 따라 실제 현장보다 늦거나 누락·오류가 있을 수 있습니다. 출발 전 반드시 해당 응급실에 전화로 확인합니다.
@@ -101,7 +84,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
         <ConsentItem
           checked={checks[1]}
           icon="truck-medical"
-          title="의료진 및 119 비대체"
+          title="[필수] 의료진 및 119 비대체"
           onPress={() => toggleCheck(1)}
         >
           이 앱의 검색 결과와 응급처치 안내는 참고 정보이며 진단이나 의료행위가 아닙니다. 위급하거나 판단이 어려우면 앱보다 119 신고와 의료진의 지시를 우선합니다.
@@ -110,7 +93,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
         <ConsentItem
           checked={checks[2]}
           icon="location-dot"
-          title="위치정보 수집·이용 동의"
+          title="[선택] 위치정보 수집·이용 동의"
           onPress={() => toggleCheck(2)}
         >
           현재 좌표와 행정구역을 가까운 응급실 검색, 거리 계산 및 지도 표시에 사용하며 검색 시 서비스 서버로 전송합니다. 위치는 서버 DB에 저장하지 않고, 기기에서는 앱 실행 중에만 임시 보관합니다. 동의 후 위치 기능을 사용할 때 운영체제 권한을 별도로 요청합니다.
@@ -124,21 +107,26 @@ export function InitialConsent({ children }: InitialConsentProps) {
           <Text style={styles.privacyText}>목적: 주변 응급실 검색·거리 계산·지도 표시</Text>
           <Text style={styles.privacyText}>항목: 현재 좌표, 시·도 및 시·군·구, 주소 표시값</Text>
           <Text style={styles.privacyText}>보유: 서버에 영구 저장하지 않으며 앱 종료 시 메모리 캐시 소멸</Text>
-          <Text style={styles.privacyText}>거부: 동의를 거부할 수 있으나 핵심 위치 기반 기능을 제공할 수 없어 앱이 종료됩니다.</Text>
+          <Text style={styles.privacyText}>거부: 현재 위치·거리·지도 기능만 제한되며 지역을 직접 선택해 검색할 수 있습니다.</Text>
+          <TouchableOpacity
+            style={styles.policyLink}
+            onPress={() => void Linking.openURL(LEGAL_PAGE_URL)}
+            accessibilityRole="link"
+          >
+            <Text style={styles.policyLinkText}>전체 개인정보처리방침 및 서비스 정책 보기</Text>
+            <FontAwesome6 name="arrow-up-right-from-square" size={12} color="#1D4ED8" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.declineButton} onPress={decline} accessibilityRole="button">
-          <Text style={styles.declineButtonText}>거절하고 종료</Text>
-        </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.acceptButton, !allChecked && styles.acceptButtonDisabled]}
+          style={[styles.acceptButton, !requiredChecked && styles.acceptButtonDisabled]}
           onPress={accept}
-          disabled={!allChecked || saving}
+          disabled={!requiredChecked || saving}
           accessibilityRole="button"
         >
-          {saving ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.acceptButtonText}>모두 동의하고 시작</Text>}
+          {saving ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.acceptButtonText}>{checks[2] ? "동의하고 시작" : "위치 없이 시작"}</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -187,13 +175,10 @@ const styles = StyleSheet.create({
   privacyBox: { marginTop: 4, borderRadius: 14, backgroundColor: "#EFF6FF", padding: 15 },
   privacyTitle: { color: "#1E3A8A", fontSize: 14, fontWeight: "900", marginBottom: 7 },
   privacyText: { color: "#334155", fontSize: 12, lineHeight: 19 },
-  actions: { flexDirection: "row", gap: 10, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: "#E2E8F0", backgroundColor: "#FFFFFF" },
-  declineButton: { flex: 0.8, minHeight: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#F1F5F9" },
-  declineButtonText: { color: "#475569", fontSize: 14, fontWeight: "800" },
-  acceptButton: { flex: 1.4, minHeight: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#DC2626" },
+  policyLink: { minHeight: 40, marginTop: 9, flexDirection: "row", alignItems: "center", gap: 7 },
+  policyLinkText: { color: "#1D4ED8", fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
+  actions: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: "#E2E8F0", backgroundColor: "#FFFFFF" },
+  acceptButton: { minHeight: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#DC2626" },
   acceptButtonDisabled: { backgroundColor: "#CBD5E1" },
   acceptButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
-  declinedContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 30, backgroundColor: "#F8FAFC" },
-  declinedTitle: { marginTop: 18, color: "#0F172A", fontSize: 22, fontWeight: "900" },
-  declinedText: { marginTop: 10, color: "#64748B", fontSize: 14, lineHeight: 22, textAlign: "center" },
 });

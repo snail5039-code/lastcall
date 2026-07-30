@@ -7,6 +7,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
   ActivityIndicator,
   FlatList,
   StyleSheet,
@@ -16,6 +17,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import { clearCommunityHiddenState, getCommunityHiddenState } from "../services/community-moderation";
+import { fetchWithRetry } from "../services/http";
 
 type CommunityPost = {
   id: number;
@@ -133,13 +136,9 @@ export default function CommunityBoardScreen() {
         return;
       }
 
-      console.time("게시글 API 시간");
-
-      const response = await fetch(
+      const response = await fetchWithRetry(
         apiUrl(`/community/posts?boardType=${boardType}&page=${currentPage}&size=10`)
       );
-
-      console.timeEnd("게시글 API 시간");
 
       if (!response.ok) {
         throw new Error(`서버 응답 오류: ${response.status}`);
@@ -147,9 +146,8 @@ export default function CommunityBoardScreen() {
 
       const data: CommunityPostPage = await response.json();
 
-      console.log(`${boardType} 게시글 목록:`, data);
-
-      setPosts(data.posts);
+      const hidden = await getCommunityHiddenState();
+      setPosts(data.posts.filter((post) => !hidden.postIds.has(post.id) && !hidden.authors.has(post.nickname)));
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -183,12 +181,30 @@ export default function CommunityBoardScreen() {
   if (errorMessage) {
     return (
       <SafeAreaView
-        style={styles.centerContainer}
+        style={styles.container}
         edges={["top", "bottom"]}
       >
-        <Text style={styles.errorText}>
-          {errorMessage}
-        </Text>
+        <View style={styles.headerRow}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{getBoardTitle()}</Text>
+          <TouchableOpacity
+            style={styles.writeButton}
+            onPress={() => router.push({ pathname: "/community-write", params: { boardType } })}
+          >
+            <Text style={styles.writeButtonText}>글쓰기</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.errorContainer}>
+          <FontAwesome6 name="wifi" size={32} color="#DC2626" />
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <Text style={styles.errorDescription}>인터넷 연결을 확인한 후 다시 시도해주세요.</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchPosts}>
+            <FontAwesome6 name="rotate-right" size={14} color="#FFFFFF" />
+            <Text style={styles.retryButtonText}>다시 불러오기</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -335,11 +351,32 @@ export default function CommunityBoardScreen() {
             <Text style={styles.pageButtonText}>다음</Text>
           </TouchableOpacity>
         </View>
+        {boardType !== "NOTICE" && (
+          <TouchableOpacity
+            style={styles.resetHiddenButton}
+            onPress={() => {
+              Alert.alert("숨김 목록 초기화", "이 기기에서 숨긴 게시글과 작성자를 다시 표시할까요?", [
+                { text: "취소", style: "cancel" },
+                {
+                  text: "다시 표시",
+                  onPress: () => {
+                    void clearCommunityHiddenState().then(fetchPosts);
+                  },
+                },
+              ]);
+            }}
+          >
+            <FontAwesome6 name="eye" size={13} color="#64748B" />
+            <Text style={styles.resetHiddenText}>숨긴 게시글·작성자 다시 표시</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
+  resetHiddenButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  resetHiddenText: { color: "#64748B", fontSize: 12, fontWeight: "700" },
   container: {
     flex: 1,
     backgroundColor: "#F5F7FA",
@@ -399,8 +436,14 @@ const styles = StyleSheet.create({
 
   errorText: {
     fontSize: 15,
+    fontWeight: "800",
     color: "#DC2626",
+    marginTop: 14,
   },
+  errorContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
+  errorDescription: { marginTop: 7, color: "#64748B", fontSize: 13, textAlign: "center" },
+  retryButton: { marginTop: 18, minHeight: 46, paddingHorizontal: 20, borderRadius: 12, backgroundColor: "#061A44", flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
+  retryButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
 
   emptyListContainer: {
     flexGrow: 1,

@@ -19,6 +19,7 @@ import {
   findOpenHospitalImage,
   HospitalImage,
 } from "../services/hospital-image";
+import { saveRecentHospital } from "../services/recent-hospitals";
 
 type IconName = ComponentProps<typeof FontAwesome6>["name"];
 
@@ -27,7 +28,7 @@ const departmentIconRules: { keyword: string; icon: IconName }[] = [
   { keyword: "심장", icon: "heart-pulse" }, { keyword: "순환기", icon: "heart-pulse" },
   { keyword: "호흡기", icon: "lungs" }, { keyword: "흉부", icon: "lungs" },
   { keyword: "신경", icon: "brain" }, { keyword: "정형", icon: "bone" },
-  { keyword: "외과", icon: "scalpel" }, { keyword: "산부", icon: "person-pregnant" },
+  { keyword: "외과", icon: "user-doctor" }, { keyword: "산부", icon: "person-pregnant" },
   { keyword: "안과", icon: "eye" }, { keyword: "이비인후", icon: "ear-listen" },
   { keyword: "치과", icon: "tooth" }, { keyword: "정신", icon: "head-side-virus" },
   { keyword: "영상", icon: "x-ray" }, { keyword: "마취", icon: "syringe" },
@@ -225,6 +226,22 @@ export default function HospitalDetailScreen() {
   }, [checkFavoriteStatus]);
 
   useEffect(() => {
+    void saveRecentHospital({
+      ...params,
+      hpid: String(hpid || ""),
+      hospitalName: String(hospitalName || ""),
+      address: String(address || ""),
+      phone: String(phone || ""),
+      emergencyPhone: String(emergencyPhone || ""),
+      availableBeds: String(availableBeds || ""),
+      distance: String(distance || ""),
+      latitude: String(latitude || ""),
+      longitude: String(longitude || ""),
+      viewedAt: new Date().toISOString(),
+    }).catch((error) => console.log("최근 본 응급실 저장 실패:", error));
+  }, [address, availableBeds, distance, emergencyPhone, hpid, hospitalName, latitude, longitude, params, phone]);
+
+  useEffect(() => {
     let active = true;
     setHospitalImage(null);
     setImageLoadFailed(false);
@@ -291,7 +308,7 @@ export default function HospitalDetailScreen() {
     { label: "신생아 중환자실", value: Number(neonatalIcuBeds), icon: "baby" as IconName },
     { label: "흉부 중환자실", value: Number(chestIcuBeds), icon: "lungs" as IconName },
     { label: "입원실", value: Number(inpatientBeds), icon: "bed" as IconName },
-    { label: "수술실", value: Number(operatingRooms), icon: "scalpel" as IconName },
+    { label: "수술실", value: Number(operatingRooms), icon: "hospital" as IconName },
   ];
   const facilityItems = [
     { label: "CT", available: ctAvailable === "true", icon: "x-ray" as IconName },

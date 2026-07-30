@@ -1,22 +1,25 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router, useFocusEffect } from "expo-router";
+import { Href, router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { getAuthoredPosts, getReadCommentIds, markCommentsRead } from "../../services/community-notifications";
-import { getCurrentLocationFast } from "../../services/location";
+import { getCurrentLocationFast, hasLocationConsent } from "../../services/location";
 
 type CommentNotification = {
   commentId: number;
@@ -40,7 +43,7 @@ export default function HomeScreen() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState<CommentNotification[]>([]);
 
-  const [addressText, setAddressText] = useState("현재 위치 확인 중...");
+  const [addressText, setAddressText] = useState("현재 위치를 설정해주세요");
   const [currentLat, setCurrentLat] = useState<number | null>(null);
   const [currentLon, setCurrentLon] = useState<number | null>(null);
   const [stage1, setStage1] = useState("");
@@ -74,11 +77,14 @@ export default function HomeScreen() {
   useFocusEffect(useCallback(() => { loadNotifications(); }, [loadNotifications]));
 
   useEffect(() => {
-    getCurrentLocation();
+    Promise.all([Location.getForegroundPermissionsAsync(), hasLocationConsent()]).then(([permission, consented]) => {
+      if (consented && permission.status === "granted") void getCurrentLocation();
+    });
   }, []);
 
   const getCurrentLocation = async () => {
     try {
+      setAddressText("현재 위치 확인 중...");
       const location = await getCurrentLocationFast();
       const { latitude, longitude } = location;
       setCurrentLat(latitude);
@@ -95,6 +101,31 @@ export default function HomeScreen() {
       console.log("현재 위치 조회 실패:", error);
       setAddressText("위치 조회 실패");
     }
+  };
+  const requestCurrentLocation = () => {
+    Alert.alert(
+      "현재 위치 사용",
+      "가까운 응급실과 거리를 안내하기 위해 현재 위치가 필요합니다. 위치는 서버에 저장하지 않습니다.",
+      [
+        { text: "나중에", style: "cancel" },
+        { text: "위치 허용", onPress: () => void getCurrentLocation() },
+      ],
+    );
+  };
+  const call119 = () => {
+    Alert.alert("119에 전화", "생명이 위급한 상황이면 즉시 신고하세요.", [
+      { text: "취소", style: "cancel" },
+      { text: "전화하기", style: "destructive", onPress: () => void Linking.openURL("tel:119") },
+    ]);
+  };
+  const shareCurrentLocation = async () => {
+    if (currentLat === null || currentLon === null) {
+      Alert.alert("위치 확인 필요", "먼저 현재 위치를 설정해주세요.");
+      return;
+    }
+    await Share.share({
+      message: `[살려줌 현재 위치]\n${addressText}\nhttps://maps.google.com/?q=${currentLat},${currentLon}`,
+    });
   };
   const handleSearchEmergency = () => {
     if ((currentLat === null || currentLon === null) && !searchKeyword.trim()) {
@@ -261,6 +292,20 @@ export default function HomeScreen() {
           </View>
         )}
 
+        <View style={styles.emergencyHero}>
+          <View style={styles.emergencyCopy}>
+            <View style={styles.emergencyTitleRow}>
+              <FontAwesome6 name="shield-heart" size={18} color="#FFFFFF" />
+              <Text style={styles.emergencyTitle}>지금 위급한 상황인가요?</Text>
+            </View>
+            <Text style={styles.emergencyDescription}>의식 저하·호흡곤란·심한 흉통은 검색보다 119 신고가 먼저입니다.</Text>
+          </View>
+          <TouchableOpacity style={styles.call119Button} onPress={call119}>
+            <FontAwesome6 name="phone" size={15} color="#DC2626" />
+            <Text style={styles.call119ButtonText}>119 전화</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.logoArea}>
           <Text style={styles.logo}>
             <Text style={styles.logoRed}>살려</Text>줌
@@ -270,6 +315,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.locationCard}>
+          <TouchableOpacity style={styles.locationMain} onPress={requestCurrentLocation} activeOpacity={0.8}>
           <View style={styles.locationRow}>
             <FontAwesome6 name="location-dot" size={20} color="#EF4444" />
             <View>
@@ -277,7 +323,14 @@ export default function HomeScreen() {
               <Text style={styles.locationText}>{addressText}</Text>
             </View>
           </View>
-          <FontAwesome6 name="gear" size={19} color="#64748B" />
+          <FontAwesome6 name={currentLat === null ? "location-crosshairs" : "rotate"} size={19} color="#64748B" />
+          </TouchableOpacity>
+          {currentLat !== null && (
+            <TouchableOpacity style={styles.locationShareButton} onPress={() => void shareCurrentLocation()}>
+              <FontAwesome6 name="share-nodes" size={14} color="#1D4ED8" />
+              <Text style={styles.locationShareText}>위치 공유</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.symptomCard}>
@@ -343,6 +396,13 @@ export default function HomeScreen() {
         >
           <View style={styles.buttonLabel}><FontAwesome6 name="triangle-exclamation" size={16} color="#DC2626" /><Text style={styles.helpButtonText}>응급 대처 안내</Text></View>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.aedButton} onPress={() => router.push("/aed" as Href)}>
+          <View style={styles.buttonLabel}><FontAwesome6 name="heart-pulse" size={16} color="#1D4ED8" /><Text style={styles.aedButtonText}>주변 AED 찾기</Text></View>
+          <Text style={styles.aedStatusText}>서비스 준비 중</Text>
+        </TouchableOpacity>
+        <Text style={styles.dataSourceText}>
+          응급실 정보 출처: 보건복지부·국립중앙의료원 / 공공데이터포털
+        </Text>
       </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -362,6 +422,7 @@ const styles = StyleSheet.create({
   },
   keyboardArea: { flex: 1 },
   scrollView: { flex: 1 },
+  dataSourceText: { marginTop: 14, color: "#64748B", fontSize: 11, lineHeight: 17, textAlign: "center" },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -369,6 +430,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   topIconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  emergencyHero: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#B91C1C", borderRadius: 18, padding: 15, marginBottom: 14 },
+  emergencyCopy: { flex: 1 },
+  emergencyTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  emergencyTitle: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
+  emergencyDescription: { marginTop: 6, color: "#FEE2E2", fontSize: 11, lineHeight: 16 },
+  call119Button: { minWidth: 76, height: 42, borderRadius: 12, backgroundColor: "#FFFFFF", flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  call119ButtonText: { color: "#B91C1C", fontSize: 13, fontWeight: "900" },
   notificationBadge: { position: "absolute", top: 1, right: 0, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: "#EF4444", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F3F6FB" },
   notificationBadgeText: { color: "#FFFFFF", fontSize: 9, fontWeight: "900" },
   notificationBox: { position: "absolute", top: 52, right: 22, width: 310, maxHeight: 420, backgroundColor: "#FFFFFF", borderRadius: 18, padding: 14, zIndex: 120, elevation: 10, shadowColor: "#000", shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } },
@@ -405,12 +473,9 @@ const styles = StyleSheet.create({
   locationCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
-    paddingHorizontal: 15,
-    paddingVertical: 11,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     marginBottom: 9,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 12,
@@ -493,6 +558,9 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 8,
   },
+  locationMain: { minHeight: 60, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  locationShareButton: { minHeight: 40, borderTopWidth: 1, borderTopColor: "#EFF6FF", flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", backgroundColor: "#F8FBFF", borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  locationShareText: { color: "#1D4ED8", fontSize: 12, fontWeight: "900" },
   buttonLabel: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   symptomText: {
     fontSize: 12,
@@ -586,6 +654,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1F2937",
   },
+  aedButton: { minHeight: 48, backgroundColor: "#EFF6FF", borderRadius: 15, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: "#BFDBFE", marginBottom: 4 },
+  aedButtonText: { color: "#1E3A8A", fontSize: 15, fontWeight: "900" },
+  aedStatusText: { color: "#64748B", fontSize: 10, fontWeight: "800" },
   adminMenuItem: { borderTopWidth: 1, borderTopColor: "#E2E8F0", borderBottomWidth: 0 },
   adminMenuText: { fontSize: 13, fontWeight: "700", color: "#64748B" },
 });
