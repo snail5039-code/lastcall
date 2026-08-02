@@ -580,3 +580,11 @@
 - 루트 `README.md`에 GitHub Release에서 Android 테스트 APK를 내려받고 설치하는 순서를 추가했습니다.
 - `v1.0.0-rc4` Release 페이지와 APK 직접 다운로드 링크를 함께 제공했습니다.
 - 해당 APK가 Google Play 제출용 AAB 또는 정식 출시 버전이 아닌 테스트 파일임을 명시했습니다.
+
+# LastCall 프로젝트 소개서 제작 (2026-08-03)
+
+- 참고용 WorkLog 소개서의 A4 포트폴리오 구성을 바탕으로 LastCall 프로젝트 소개서 HTML과 PDF를 제작했습니다.
+- `README.md`, `WORK_PROGRESS.md`, 앱·서버 설정과 핵심 컨트롤러를 확인해 프로젝트 목표, 주요 기능, 시스템 구성, 안전·보안 판단, 개발 과정과 검증 결과를 정리했습니다.
+- 홈과 응급실 검색 결과 화면, 앱 아이콘을 포함하고 AED는 준비 화면 단계이며 APK는 내부 테스트 릴리스라는 현재 범위를 명시했습니다.
+- 결과물: `output/pdf/LastCall_프로젝트_소개서.html`, `output/pdf/LastCall_프로젝트_소개서.pdf`
+- 검증: PDF A4 2페이지 확인, 페이지별 PNG 렌더링 시 한글·이미지·레이아웃 잘림 없음, PDF 텍스트 추출 및 `git diff --check` 확인.
