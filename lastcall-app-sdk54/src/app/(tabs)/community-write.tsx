@@ -14,11 +14,11 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { LEGAL_PAGE_URL } from "../config/legal";
-import { saveAuthoredPost } from "../services/community-notifications";
-import { fetchWithRetry } from "../services/http";
-import { Colors, Radius } from "../constants/design";
+import { apiUrl } from "../../config/api";
+import { LEGAL_PAGE_URL } from "../../config/legal";
+import { saveAuthoredPost } from "../../services/community-notifications";
+import { fetchWithRetry } from "../../services/http";
+import { Colors, Radius } from "../../constants/design";
 
 export default function CommunityWriteScreen() {
     const params = useLocalSearchParams();
@@ -134,7 +134,7 @@ export default function CommunityWriteScreen() {
     return (
         <SafeAreaView
             style={styles.container}
-            edges={["top", "bottom"]}
+            edges={["top"]}
         >
             <View style={styles.headerRow}>
                 <TouchableOpacity

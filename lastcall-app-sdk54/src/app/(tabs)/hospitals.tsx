@@ -13,10 +13,10 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { Colors, Radius, Type } from "../constants/design";
-import { getCurrentLocationFast } from "../services/location";
-import { Hospital, toHospitalDetailParams } from "../types/hospital";
+import { apiUrl } from "../../config/api";
+import { Colors, Radius, Type } from "../../constants/design";
+import { getCurrentLocationFast } from "../../services/location";
+import { Hospital, toHospitalDetailParams } from "../../types/hospital";
 
 const formatUpdatedAt = (value?: string) => {
   if (!value) return "갱신 시각 확인 필요";
@@ -174,7 +174,7 @@ export default function HospitalsScreen() {
   return (
     <SafeAreaView
       style={styles.container}
-      edges={["top", "bottom"]}
+      edges={["top"]}
     >
       <View style={styles.screen}>
         <View style={styles.header}>

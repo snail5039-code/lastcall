@@ -10,11 +10,30 @@ import { Colors } from "../../constants/design";
 const TAB_CONTENT_HEIGHT = 52;
 const TAB_PADDING = 8;
 
+/**
+ * 탭 바를 모든 화면에서 유지하기 위해 상세·검색 화면도 이 그룹 안에 둔다.
+ * 탭 버튼으로는 보이면 안 되므로 href: null 로 버튼만 숨긴다.
+ */
+const HIDDEN_ROUTES = [
+  "hospitals",
+  "hospital-detail",
+  "aed",
+  "filter",
+  "emergency-help",
+  "community-board",
+  "community-detail",
+  "community-write",
+  "admin-reports",
+];
+
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
+      // 상세·검색 화면이 탭 라우트가 되면서 기본 backBehavior 로는 뒤로가기가 동작하지 않는다.
+      // history 로 두어야 router.back() 이 직전에 보던 화면으로 돌아간다.
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.navy,
@@ -59,6 +78,10 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <FontAwesome6 name="user" size={size} color={color} />,
         }}
       />
+
+      {HIDDEN_ROUTES.map((name) => (
+        <Tabs.Screen key={name} name={name} options={{ href: null }} />
+      ))}
     </Tabs>
   );
 }

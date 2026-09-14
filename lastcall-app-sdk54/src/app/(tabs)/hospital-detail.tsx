@@ -14,13 +14,13 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { Colors, Radius, Type } from "../constants/design";
+import { apiUrl } from "../../config/api";
+import { Colors, Radius, Type } from "../../constants/design";
 import {
   findOpenHospitalImage,
   HospitalImage,
-} from "../services/hospital-image";
-import { saveRecentHospital } from "../services/recent-hospitals";
+} from "../../services/hospital-image";
+import { saveRecentHospital } from "../../services/recent-hospitals";
 
 type IconName = ComponentProps<typeof FontAwesome6>["name"];
 
@@ -386,7 +386,7 @@ export default function HospitalDetailScreen() {
   return (
     <SafeAreaView
       style={styles.container}
-      edges={["top", "bottom"]}
+      edges={["top"]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>

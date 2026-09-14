@@ -16,11 +16,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { stage2Options } from "../data/regions";
-import { fetchWithRetry } from "../services/http";
-import { getCurrentLocationFast } from "../services/location";
-import { Colors, Radius } from "../constants/design";
+import { apiUrl } from "../../config/api";
+import { stage2Options } from "../../data/regions";
+import { fetchWithRetry } from "../../services/http";
+import { getCurrentLocationFast } from "../../services/location";
+import { Colors, Radius } from "../../constants/design";
 
 type Aed = {
   serialSeq: string;
@@ -129,7 +129,7 @@ export default function AedScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />

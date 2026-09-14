@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Radius } from "../constants/design";
+import { Colors, Radius } from "../../constants/design";
 const dangerSigns = [
   "의식이 없거나 반응이 없는 경우",
   "호흡이 어렵거나 멈춘 경우",
@@ -49,7 +49,7 @@ export default function EmergencyHelpScreen() {
     Linking.openURL("tel:119");
   };
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">

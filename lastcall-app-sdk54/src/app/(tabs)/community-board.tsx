@@ -16,10 +16,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { clearCommunityHiddenState, getCommunityHiddenState } from "../services/community-moderation";
-import { fetchWithRetry } from "../services/http";
-import { Colors, Radius } from "../constants/design";
+import { apiUrl } from "../../config/api";
+import { clearCommunityHiddenState, getCommunityHiddenState } from "../../services/community-moderation";
+import { fetchWithRetry } from "../../services/http";
+import { Colors, Radius } from "../../constants/design";
 
 type CommunityPost = {
   id: number;
@@ -168,7 +168,7 @@ export default function CommunityBoardScreen() {
     return (
       <SafeAreaView
         style={styles.centerContainer}
-        edges={["top", "bottom"]}
+        edges={["top"]}
       >
         <ActivityIndicator size="large" />
 
@@ -183,7 +183,7 @@ export default function CommunityBoardScreen() {
     return (
       <SafeAreaView
         style={styles.container}
-        edges={["top", "bottom"]}
+        edges={["top"]}
       >
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -213,7 +213,7 @@ export default function CommunityBoardScreen() {
   return (
     <SafeAreaView
       style={styles.container}
-      edges={["top", "bottom"]}
+      edges={["top"]}
     >
       <View style={styles.headerRow}>
         <TouchableOpacity

@@ -15,11 +15,11 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { LEGAL_PAGE_URL } from "../config/legal";
-import { clearAdminToken, getAdminToken } from "../services/admin-auth";
-import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../services/community-moderation";
-import { Colors, Radius } from "../constants/design";
+import { apiUrl } from "../../config/api";
+import { LEGAL_PAGE_URL } from "../../config/legal";
+import { clearAdminToken, getAdminToken } from "../../services/admin-auth";
+import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../../services/community-moderation";
+import { Colors, Radius } from "../../constants/design";
 
 type CommunityPost = {
     id: number;
@@ -570,7 +570,7 @@ export default function CommunityDetailScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={["top"]}>
             <KeyboardAvoidingView
                 style={styles.keyboardContainer}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
