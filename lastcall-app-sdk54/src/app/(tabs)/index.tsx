@@ -18,6 +18,7 @@ import {
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
+import { Colors, Radius, Tap, Type } from "../../constants/design";
 import { getAuthoredPosts, getReadCommentIds, markCommentsRead } from "../../services/community-notifications";
 import { getCurrentLocationFast, hasLocationConsent } from "../../services/location";
 
@@ -190,13 +191,18 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴">
-            <FontAwesome6 name="bars" size={21} color="#111827" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림">
-            <FontAwesome6 name="bell" size={20} color="#111827" />
-            {notifications.length > 0 && <View style={styles.notificationBadge}><Text style={styles.notificationBadgeText}>{notifications.length > 9 ? "9+" : notifications.length}</Text></View>}
-          </TouchableOpacity>
+          <Text style={styles.logo}>
+            <Text style={styles.logoAccent}>살려</Text>줌
+          </Text>
+          <View style={styles.topActions}>
+            <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림">
+              <FontAwesome6 name="bell" size={20} color={Colors.textSub} />
+              {notifications.length > 0 && <View style={styles.notificationBadge}><Text style={styles.notificationBadgeText}>{notifications.length > 9 ? "9+" : notifications.length}</Text></View>}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴">
+              <FontAwesome6 name="bars" size={21} color={Colors.textSub} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {isNotificationOpen && (
@@ -206,7 +212,7 @@ export default function HomeScreen() {
               {notifications.length > 0 && <TouchableOpacity onPress={readAllNotifications}><Text style={styles.readAllText}>모두 읽음</Text></TouchableOpacity>}
             </View>
             {notifications.length === 0 ? (
-              <View style={styles.emptyNotification}><FontAwesome6 name="bell-slash" size={22} color="#94A3B8" /><Text style={styles.emptyNotificationText}>새로운 댓글이 없습니다</Text></View>
+              <View style={styles.emptyNotification}><FontAwesome6 name="bell-slash" size={22} color={Colors.textFaint} /><Text style={styles.emptyNotificationText}>새로운 댓글이 없습니다</Text></View>
             ) : notifications.slice(0, 8).map((notification) => (
               <TouchableOpacity key={notification.commentId} style={styles.notificationItem} onPress={() => openNotification(notification)}>
                 <View style={styles.notificationDot} />
@@ -214,7 +220,7 @@ export default function HomeScreen() {
                   <Text style={styles.notificationPostTitle} numberOfLines={1}>{notification.postTitle}</Text>
                   <Text style={styles.notificationContent} numberOfLines={2}>{notification.nickname}: {notification.content}</Text>
                 </View>
-                <FontAwesome6 name="chevron-right" size={12} color="#94A3B8" />
+                <FontAwesome6 name="chevron-right" size={12} color={Colors.textFaint} />
               </TouchableOpacity>
             ))}
           </View>
@@ -235,7 +241,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <FontAwesome6 name="bullhorn" size={15} color="#334155" /><Text style={styles.menuItemText}>공지사항</Text>
+              <FontAwesome6 name="bullhorn" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>공지사항</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -251,7 +257,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <FontAwesome6 name="comments" size={15} color="#334155" /><Text style={styles.menuItemText}>자유게시판</Text>
+              <FontAwesome6 name="comments" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>자유게시판</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -267,7 +273,7 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <FontAwesome6 name="pen-to-square" size={15} color="#334155" /><Text style={styles.menuItemText}>건의사항</Text>
+              <FontAwesome6 name="pen-to-square" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>건의사항</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -283,51 +289,40 @@ export default function HomeScreen() {
                 });
               }}
             >
-              <FontAwesome6 name="circle-question" size={15} color="#334155" /><Text style={styles.menuItemText}>Q&A 게시판</Text>
+              <FontAwesome6 name="circle-question" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>Q&A 게시판</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.menuItem, styles.adminMenuItem]} onPress={() => { setIsMenuOpen(false); router.push("/admin-reports"); }}>
-              <FontAwesome6 name="user-shield" size={15} color="#64748B" /><Text style={styles.adminMenuText}>관리자 로그인</Text>
+              <FontAwesome6 name="user-shield" size={15} color={Colors.textMuted} /><Text style={styles.adminMenuText}>관리자 로그인</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <View style={styles.emergencyHero}>
-          <View style={styles.emergencyCopy}>
-            <View style={styles.emergencyTitleRow}>
-              <FontAwesome6 name="shield-heart" size={18} color="#FFFFFF" />
-              <Text style={styles.emergencyTitle}>지금 위급한 상황인가요?</Text>
-            </View>
-            <Text style={styles.emergencyDescription}>의식 저하·호흡곤란·심한 흉통은 검색보다 119 신고가 먼저입니다.</Text>
+          <Text style={styles.emergencyDescription}>의식 저하 · 호흡곤란 · 심한 흉통</Text>
+          <View style={styles.emergencyTitleRow}>
+            <Text style={styles.emergencyTitle}>검색보다 119가 먼저입니다</Text>
+            <TouchableOpacity style={styles.call119Button} onPress={call119} accessibilityRole="button">
+              <FontAwesome6 name="phone" size={15} color={Colors.urgent} />
+              <Text style={styles.call119ButtonText}>119</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.call119Button} onPress={call119}>
-            <FontAwesome6 name="phone" size={15} color="#DC2626" />
-            <Text style={styles.call119ButtonText}>119 전화</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.logoArea}>
-          <Text style={styles.logo}>
-            <Text style={styles.logoRed}>살려</Text>줌
-          </Text>
-          <Text style={styles.mainText}>응급상황, 가장 가까운</Text>
-          <Text style={styles.mainText}>응급실을 빠르게 찾아드립니다</Text>
         </View>
 
         <View style={styles.locationCard}>
           <TouchableOpacity style={styles.locationMain} onPress={requestCurrentLocation} activeOpacity={0.8}>
           <View style={styles.locationRow}>
-            <FontAwesome6 name="location-dot" size={20} color="#EF4444" />
-            <View>
+            <FontAwesome6 name="location-dot" size={20} color={Colors.navySoft} />
+            <View style={styles.locationTextBox}>
               <Text style={styles.locationLabel} numberOfLines={1}>현재 위치</Text>
-              <Text style={styles.locationText}>{addressText}</Text>
+              <Text style={styles.locationText} numberOfLines={1}>{addressText}</Text>
             </View>
           </View>
-          <FontAwesome6 name={currentLat === null ? "location-crosshairs" : "rotate"} size={19} color="#64748B" />
+          <FontAwesome6 name={currentLat === null ? "location-crosshairs" : "rotate"} size={19} color={Colors.textMuted} />
           </TouchableOpacity>
           {currentLat !== null && (
             <TouchableOpacity style={styles.locationShareButton} onPress={() => void shareCurrentLocation()}>
-              <FontAwesome6 name="share-nodes" size={14} color="#1D4ED8" />
+              <FontAwesome6 name="share-nodes" size={14} color={Colors.navySoft} />
               <Text style={styles.locationShareText}>위치 공유</Text>
             </TouchableOpacity>
           )}
@@ -347,7 +342,7 @@ export default function HomeScreen() {
                 ]}
                 onPress={() => setSelectedSymptom((current) => current === symptom.name ? null : symptom.name)}
               >
-                <FontAwesome6 name={symptom.icon} size={23} color={selectedSymptom === symptom.name ? "#EF4444" : "#475569"} />
+                <FontAwesome6 name={symptom.icon} size={23} color={selectedSymptom === symptom.name ? Colors.onDark : Colors.navySoft} />
                 <Text
                   style={[
                     styles.symptomText,
@@ -362,13 +357,13 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.keywordSearchBox}>
-          <FontAwesome6 name="magnifying-glass" size={16} color="#64748B" />
+          <FontAwesome6 name="magnifying-glass" size={16} color={Colors.textMuted} />
           <TextInput
             style={styles.keywordInput}
             value={searchKeyword}
             onChangeText={setSearchKeyword}
             placeholder="병원명 또는 주소를 입력하세요"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={Colors.textFaint}
             returnKeyType="search"
             onSubmitEditing={handleSearchEmergency}
             autoCorrect={false}
@@ -376,30 +371,29 @@ export default function HomeScreen() {
           />
           {searchKeyword.length > 0 && (
             <TouchableOpacity onPress={() => setSearchKeyword("")} accessibilityLabel="검색어 지우기">
-              <FontAwesome6 name="circle-xmark" size={17} color="#94A3B8" />
+              <FontAwesome6 name="circle-xmark" size={17} color={Colors.textFaint} />
             </TouchableOpacity>
           )}
         </View>
 
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={handleSearchEmergency}
-        >
-          <View style={styles.buttonLabel}><FontAwesome6 name="magnifying-glass" size={16} color="#FFFFFF" /><Text style={styles.searchButtonText}>응급실 검색하기</Text></View>
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearchEmergency}>
+          <View style={styles.buttonLabel}><FontAwesome6 name="magnifying-glass" size={17} color={Colors.onDark} /><Text style={styles.searchButtonText}>응급실 검색</Text></View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.detailSearchButton} onPress={openDetailedSearch}>
-          <View style={styles.buttonLabel}><FontAwesome6 name="sliders" size={16} color="#061A44" /><Text style={styles.detailSearchButtonText}>세부검색</Text></View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.helpButton}
-          onPress={() => router.push("/emergency-help")}
-        >
-          <View style={styles.buttonLabel}><FontAwesome6 name="triangle-exclamation" size={16} color="#DC2626" /><Text style={styles.helpButtonText}>응급 대처 안내</Text></View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.aedButton} onPress={() => router.push("/aed" as Href)}>
-          <View style={styles.buttonLabel}><FontAwesome6 name="heart-pulse" size={16} color="#1D4ED8" /><Text style={styles.aedButtonText}>주변 AED 찾기</Text></View>
-          <Text style={styles.aedStatusText}>서비스 준비 중</Text>
-        </TouchableOpacity>
+
+        <View style={styles.secondaryRow}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={openDetailedSearch}>
+            <FontAwesome6 name="sliders" size={18} color={Colors.navySoft} />
+            <Text style={styles.secondaryButtonText}>세부검색</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/aed" as Href)}>
+            <FontAwesome6 name="heart-pulse" size={18} color={Colors.navySoft} />
+            <Text style={styles.secondaryButtonText}>AED 찾기</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/emergency-help")}>
+            <FontAwesome6 name="kit-medical" size={18} color={Colors.navySoft} />
+            <Text style={styles.secondaryButtonText}>응급처치</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.dataSourceText}>
           응급실 정보 출처: 보건복지부·국립중앙의료원 / 공공데이터포털
         </Text>
@@ -410,253 +404,73 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F3F6FB",
-  },
-  screen: {
-    flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 10,
-    paddingBottom: 28,
-  },
+  container: { flex: 1, backgroundColor: Colors.screen },
+  screen: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 26 },
   keyboardArea: { flex: 1 },
   scrollView: { flex: 1 },
-  dataSourceText: { marginTop: 14, color: "#64748B", fontSize: 11, lineHeight: 17, textAlign: "center" },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  topIconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-  emergencyHero: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#B91C1C", borderRadius: 18, padding: 15, marginBottom: 14 },
+
+  topBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  topActions: { flexDirection: "row", alignItems: "center" },
+  topIconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  logo: { fontSize: 19, fontWeight: "900", color: Colors.text },
+  logoAccent: { color: Colors.urgent },
+
+  emergencyHero: { backgroundColor: Colors.urgent, borderRadius: Radius.control, padding: 14, marginBottom: 12 },
   emergencyCopy: { flex: 1 },
-  emergencyTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  emergencyTitle: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
-  emergencyDescription: { marginTop: 6, color: "#FEE2E2", fontSize: 11, lineHeight: 16 },
-  call119Button: { minWidth: 76, height: 42, borderRadius: 12, backgroundColor: "#FFFFFF", flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
-  call119ButtonText: { color: "#B91C1C", fontSize: 13, fontWeight: "900" },
-  notificationBadge: { position: "absolute", top: 1, right: 0, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: "#EF4444", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F3F6FB" },
-  notificationBadgeText: { color: "#FFFFFF", fontSize: 9, fontWeight: "900" },
-  notificationBox: { position: "absolute", top: 52, right: 22, width: 310, maxHeight: 420, backgroundColor: "#FFFFFF", borderRadius: 18, padding: 14, zIndex: 120, elevation: 10, shadowColor: "#000", shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } },
-  notificationHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, paddingBottom: 10 },
-  notificationTitle: { fontSize: 17, fontWeight: "900", color: "#111827" },
-  readAllText: { fontSize: 13, fontWeight: "800", color: "#EF4444" },
-  emptyNotification: { alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 26 },
-  emptyNotificationText: { fontSize: 14, color: "#64748B" },
-  notificationItem: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 10, borderTopWidth: 1, borderTopColor: "#F1F5F9", paddingVertical: 10 },
-  notificationDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
-  notificationTextBox: { flex: 1 },
-  notificationPostTitle: { fontSize: 14, fontWeight: "900", color: "#1F2937", marginBottom: 4 },
-  notificationContent: { fontSize: 13, lineHeight: 18, color: "#64748B" },
-  logoArea: {
-    alignItems: "center",
-    marginBottom: 13,
-  },
-  logo: {
-    fontSize: 31,
-    fontWeight: "900",
-    color: "#111827",
-    marginBottom: 3,
-  },
-  logoRed: {
-    color: "#E53935",
-  },
-  mainText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1F2937",
-    lineHeight: 19,
-  },
+  emergencyTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
+  emergencyTitle: { flex: 1, color: Colors.onDark, fontSize: Type.title, fontWeight: "800" },
+  emergencyDescription: { color: "#FFD9D9", fontSize: Type.caption, lineHeight: 17 },
+  call119Button: { minWidth: 84, minHeight: Tap.min, paddingHorizontal: 14, borderRadius: Radius.control, backgroundColor: Colors.onDark, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
+  call119ButtonText: { color: Colors.urgent, fontSize: Type.body, fontWeight: "900" },
 
-  locationCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    marginBottom: 9,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    elevation: 3,
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    gap: 10,
-  },
-  locationIcon: {
-    fontSize: 22,
-    marginRight: 12,
-  },
-  locationLabel: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 4,
-  },
-  locationText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#111827",
-  },
-  settingIcon: {
-    fontSize: 20,
-  },
-  symptomCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 11,
-    marginBottom: 9,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#111827",
-  },
-  sectionSubText: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  symptomGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    rowGap: 7,
-  },
-  symptomItem: {
-    width: "31%",
-    height: 57,
-    backgroundColor: "#F8FAFC",
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#EEF2F7",
-  },
-  selectedSymptom: {
-    backgroundColor: "#FFF1F1",
-    borderColor: "#E53935",
-  },
-  symptomIcon: {
-    fontSize: 25,
-    marginBottom: 8,
-  },
-  locationMain: { minHeight: 60, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  locationShareButton: { minHeight: 40, borderTopWidth: 1, borderTopColor: "#EFF6FF", flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", backgroundColor: "#F8FBFF", borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
-  locationShareText: { color: "#1D4ED8", fontSize: 12, fontWeight: "900" },
+  locationCard: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, marginBottom: 10, overflow: "hidden" },
+  locationMain: { minHeight: 58, paddingHorizontal: 13, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  locationRow: { flexDirection: "row", alignItems: "center", flex: 1, gap: 10 },
+  locationTextBox: { flex: 1 },
+  locationLabel: { fontSize: 10, color: Colors.textMuted },
+  locationText: { fontSize: Type.body, fontWeight: "800", color: Colors.text, marginTop: 2 },
+  locationShareButton: { minHeight: 44, borderTopWidth: 1, borderTopColor: Colors.divider, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", backgroundColor: Colors.surfaceSunken },
+  locationShareText: { color: Colors.navySoft, fontSize: Type.label, fontWeight: "800" },
+
+  sectionTitle: { fontSize: Type.label, fontWeight: "800", color: Colors.navySoft },
+  sectionSubText: { fontSize: Type.caption, color: Colors.textFaint, marginTop: 2, marginBottom: 7 },
+  symptomCard: { marginBottom: 10 },
+  symptomGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 5 },
+  symptomItem: { width: "32%", minHeight: 60, backgroundColor: Colors.surface, borderRadius: Radius.control, alignItems: "center", justifyContent: "center", gap: 4, borderWidth: 1, borderColor: Colors.border },
+  selectedSymptom: { backgroundColor: Colors.navy, borderColor: Colors.navy },
+  symptomText: { fontSize: Type.caption, fontWeight: "700", color: Colors.navySoft },
+  selectedSymptomText: { color: Colors.onDark },
+
+  keywordSearchBox: { minHeight: Tap.min, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, paddingHorizontal: 13, marginBottom: 8 },
+  keywordInput: { flex: 1, paddingVertical: 12, fontSize: Type.body, color: Colors.text },
+
   buttonLabel: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
-  symptomText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#374151",
-  },
-  selectedSymptomText: {
-    color: "#E53935",
-  },
-  keywordSearchBox: {
-    minHeight: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  keywordInput: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: "#111827",
-  },
-  searchButton: {
-    backgroundColor: "#061A44",
-    borderRadius: 15,
-    paddingVertical: 13,
-    alignItems: "center",
-    marginBottom: 9,
-  },
-  searchButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "900",
-  },
-  detailSearchButton: { backgroundColor: "#FFFFFF", borderRadius: 15, paddingVertical: 11, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1", marginBottom: 9 },
-  detailSearchButtonText: { color: "#061A44", fontSize: 15, fontWeight: "900" },
+  searchButton: { backgroundColor: Colors.navy, borderRadius: Radius.control, minHeight: 54, alignItems: "center", justifyContent: "center", marginBottom: 10 },
+  searchButtonText: { color: Colors.onDark, fontSize: Type.screenTitle, fontWeight: "900" },
 
-  helpButton: {
-    backgroundColor: "#FFF1F1",
-    borderRadius: 15,
-    paddingVertical: 11,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#FECACA",
-    marginBottom: 4,
-  },
-  helpButtonText: {
-    color: "#DC2626",
-    fontSize: 15,
-    fontWeight: "900",
-  },
+  secondaryRow: { flexDirection: "row", gap: 5 },
+  secondaryButton: { flex: 1, minHeight: Tap.min, backgroundColor: Colors.surface, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, alignItems: "center", justifyContent: "center", gap: 4, paddingVertical: 9 },
+  secondaryButtonText: { fontSize: Type.caption, fontWeight: "700", color: Colors.navySoft },
 
-  menuBox: {
-    position: "absolute",
-    top: 52,
-    left: 22,
-    width: 210,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingVertical: 8,
-    zIndex: 100,
-    elevation: 8,
+  dataSourceText: { marginTop: 14, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
 
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-  },
+  notificationBadge: { position: "absolute", top: 4, right: 2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: Radius.control, backgroundColor: Colors.urgent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: Colors.screen },
+  notificationBadgeText: { color: Colors.onDark, fontSize: 9, fontWeight: "900" },
+  notificationBox: { position: "absolute", top: 50, right: 18, width: 300, maxHeight: 420, backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, padding: 12, zIndex: 120, elevation: 10, shadowColor: "#000", shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } },
+  notificationHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, paddingBottom: 9 },
+  notificationTitle: { fontSize: Type.screenTitle, fontWeight: "900", color: Colors.text },
+  readAllText: { fontSize: Type.label, fontWeight: "800", color: Colors.navySoft },
+  emptyNotification: { alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 26 },
+  emptyNotificationText: { fontSize: Type.body, color: Colors.textMuted },
+  notificationItem: { minHeight: 66, flexDirection: "row", alignItems: "center", gap: 10, borderTopWidth: 1, borderTopColor: Colors.divider, paddingVertical: 10 },
+  notificationDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.navySoft },
+  notificationTextBox: { flex: 1 },
+  notificationPostTitle: { fontSize: Type.label, fontWeight: "800", color: Colors.text, marginBottom: 3 },
+  notificationContent: { fontSize: Type.label, lineHeight: 18, color: Colors.textMuted },
 
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-
-  menuItemText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1F2937",
-  },
-  aedButton: { minHeight: 48, backgroundColor: "#EFF6FF", borderRadius: 15, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: "#BFDBFE", marginBottom: 4 },
-  aedButtonText: { color: "#1E3A8A", fontSize: 15, fontWeight: "900" },
-  aedStatusText: { color: "#64748B", fontSize: 10, fontWeight: "800" },
-  adminMenuItem: { borderTopWidth: 1, borderTopColor: "#E2E8F0", borderBottomWidth: 0 },
-  adminMenuText: { fontSize: 13, fontWeight: "700", color: "#64748B" },
+  menuBox: { position: "absolute", top: 50, right: 18, width: 210, backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, paddingVertical: 6, zIndex: 100, elevation: 8, shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+  menuItem: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: Tap.min, paddingHorizontal: 15, borderBottomWidth: 1, borderBottomColor: Colors.divider },
+  menuItemText: { fontSize: Type.body, fontWeight: "700", color: Colors.text },
+  adminMenuItem: { borderTopWidth: 1, borderTopColor: Colors.border, borderBottomWidth: 0 },
+  adminMenuText: { fontSize: Type.label, fontWeight: "700", color: Colors.textMuted },
 });

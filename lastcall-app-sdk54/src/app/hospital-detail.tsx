@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
+import { Colors, Radius, Type } from "../constants/design";
 import {
   findOpenHospitalImage,
   HospitalImage,
@@ -55,35 +56,35 @@ const getHospitalFallbackTheme = (name: string): HospitalFallbackTheme => {
     return {
       label: "어린이·소아 전문 의료기관",
       icon: "baby",
-      backgroundColor: "#FFF1F2",
-      accentColor: "#FDA4AF",
-      iconColor: "#E11D48",
+      backgroundColor: Colors.surfaceSunken,
+      accentColor: Colors.borderStrong,
+      iconColor: Colors.navySoft,
     };
   }
   if (/산부인과|여성|모자/.test(name)) {
     return {
       label: "여성 전문 의료기관",
       icon: "person-pregnant",
-      backgroundColor: "#FAF5FF",
-      accentColor: "#D8B4FE",
-      iconColor: "#9333EA",
+      backgroundColor: Colors.surfaceSunken,
+      accentColor: Colors.borderStrong,
+      iconColor: Colors.navySoft,
     };
   }
   if (/대학교|대학병원/.test(name)) {
     return {
       label: "대학병원",
       icon: "building-columns",
-      backgroundColor: "#EFF6FF",
-      accentColor: "#93C5FD",
-      iconColor: "#1D4ED8",
+      backgroundColor: Colors.surfaceSunken,
+      accentColor: Colors.borderStrong,
+      iconColor: Colors.navySoft,
     };
   }
   return {
     label: "응급의료기관",
     icon: "hospital",
-    backgroundColor: "#ECFDF5",
-    accentColor: "#6EE7B7",
-    iconColor: "#047857",
+    backgroundColor: Colors.okBg,
+    accentColor: Colors.ok,
+    iconColor: Colors.ok,
   };
 };
 
@@ -390,13 +391,13 @@ export default function HospitalDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
-            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+            <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>응급실 상세</Text>
 
           <TouchableOpacity style={styles.headerIconButton} accessibilityLabel="병원 정보">
-            <FontAwesome6 name="circle-info" size={20} color="#64748B" />
+            <FontAwesome6 name="circle-info" size={20} color={Colors.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -418,7 +419,7 @@ export default function HospitalDetailScreen() {
                 <Text style={styles.imageAttributionText} numberOfLines={1}>
                   {hospitalImage.author} · {hospitalImage.license} · Wikimedia Commons
                 </Text>
-                <FontAwesome6 name="arrow-up-right-from-square" size={10} color="#FFFFFF" />
+                <FontAwesome6 name="arrow-up-right-from-square" size={10} color={Colors.surface} />
               </TouchableOpacity>
             </>
           ) : (
@@ -468,7 +469,7 @@ export default function HospitalDetailScreen() {
                       <FontAwesome6
                         name="location-dot"
                         size={11}
-                        color="#64748B"
+                        color={Colors.textMuted}
                       />
                       <Text style={styles.fallbackRegion}>{regionLabel}</Text>
                     </View>
@@ -497,7 +498,7 @@ export default function HospitalDetailScreen() {
                 ]}
                 onPress={toggleFavorite}
               >
-                <FontAwesome6 name="star" solid={isFavorite} size={19} color={isFavorite ? "#EF4444" : "#64748B"} />
+                <FontAwesome6 name="star" solid={isFavorite} size={19} color={isFavorite ? Colors.navy : Colors.textMuted} />
               </TouchableOpacity>
 
               <View
@@ -519,7 +520,7 @@ export default function HospitalDetailScreen() {
           </View>
 
           <View style={styles.phoneRow}>
-            <FontAwesome6 name="phone" size={15} color="#334155" />
+            <FontAwesome6 name="phone" size={15} color={Colors.textSub} />
             <Text style={styles.phoneText}>
               {emergencyPhone || phone || "전화번호 정보 없음"}
             </Text>
@@ -556,7 +557,7 @@ export default function HospitalDetailScreen() {
                 <View style={styles.departmentGrid}>
                   {visibleDepartments.map((department, index) => (
                     <View key={`${department}-${index}`} style={styles.departmentItem}>
-                      <View style={styles.departmentIconBox}><FontAwesome6 name={iconForDepartment(department)} size={20} color="#E53935" /></View>
+                      <View style={styles.departmentIconBox}><FontAwesome6 name={iconForDepartment(department)} size={20} color={Colors.navySoft} /></View>
                       <Text style={styles.departmentText} numberOfLines={1}>{department}</Text>
                     </View>
                   ))}
@@ -635,7 +636,7 @@ export default function HospitalDetailScreen() {
             <View style={styles.detailGrid}>
               {bedItems.map((item) => (
                 <View key={item.label} style={styles.detailItem}>
-                  <FontAwesome6 name={item.icon} size={18} color={item.value > 0 ? "#16A34A" : "#94A3B8"} />
+                  <FontAwesome6 name={item.icon} size={18} color={item.value > 0 ? Colors.ok : Colors.textFaint} />
                   <Text style={styles.detailLabel} numberOfLines={1}>{item.label}</Text>
                   <Text style={[styles.detailStatus, item.value <= 0 && styles.detailUnknown]}>{item.value > 0 ? `${item.value}개` : "확인 필요"}</Text>
                 </View>
@@ -648,7 +649,7 @@ export default function HospitalDetailScreen() {
             <View style={styles.detailGrid}>
               {facilityItems.map((item) => (
                 <View key={item.label} style={styles.detailItem}>
-                  <FontAwesome6 name={item.icon} size={18} color={item.available ? "#2563EB" : "#94A3B8"} />
+                  <FontAwesome6 name={item.icon} size={18} color={item.available ? Colors.navySoft : Colors.textFaint} />
                   <Text style={styles.detailLabel} numberOfLines={1}>{item.label}</Text>
                   <Text style={[styles.detailStatus, item.available ? styles.detailAvailable : styles.detailUnknown]}>{item.available ? "가능" : "확인 필요"}</Text>
                 </View>
@@ -661,7 +662,7 @@ export default function HospitalDetailScreen() {
             <View style={styles.capabilityCard}>
               {Object.entries(severeLabels).map(([key, label]) => {
                 const available = severeSet.has(key);
-                return <View key={key} style={styles.capabilityRow}><Text style={styles.capabilityLabel}>{label}</Text><View style={[styles.capabilityBadge, available && styles.capabilityBadgeActive]}><FontAwesome6 name={available ? "check" : "minus"} size={11} color={available ? "#15803D" : "#94A3B8"} /><Text style={[styles.capabilityText, available && styles.capabilityTextActive]}>{available ? "가능" : "확인 필요"}</Text></View></View>;
+                return <View key={key} style={styles.capabilityRow}><Text style={styles.capabilityLabel}>{label}</Text><View style={[styles.capabilityBadge, available && styles.capabilityBadgeActive]}><FontAwesome6 name={available ? "check" : "minus"} size={11} color={available ? Colors.ok : Colors.textFaint} /><Text style={[styles.capabilityText, available && styles.capabilityTextActive]}>{available ? "가능" : "확인 필요"}</Text></View></View>;
               })}
             </View>
           </View>
@@ -680,402 +681,99 @@ export default function HospitalDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  realtimeNotice: { marginTop: 12, marginBottom: 16, backgroundColor: "#FFFBEB", borderRadius: 14, padding: 14, borderWidth: 1, borderColor: "#FDE68A" },
-  realtimeTitle: { fontSize: 15, fontWeight: "900", color: "#92400E", marginBottom: 8 },
-  realtimeText: { fontSize: 13, color: "#475569", lineHeight: 20 },
-  staleRealtimeText: { color: "#DC2626", fontWeight: "800" },
-  realtimeWarning: { fontSize: 12, color: "#B45309", fontWeight: "800", lineHeight: 18, marginTop: 7 },
-  container: {
-    flex: 1,
-    backgroundColor: "#F3F6FB",
-  },
-  header: {
-    height: 56,
-    paddingHorizontal: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  headerIconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#111827",
-  },
-  infoIcon: {
-    fontSize: 22,
-    color: "#111827",
-  },
-  imageBox: {
-    height: 190,
-    marginHorizontal: 18,
-    borderRadius: 22,
-    backgroundColor: "#DDE6F2",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 18,
-  },
-  hospitalImage: {
-    width: "100%",
-    height: "100%",
-  },
-  fallbackImage: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    paddingHorizontal: 22,
-  },
-  fallbackDecorLarge: {
-    position: "absolute",
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    top: -70,
-    right: -35,
-    opacity: 0.3,
-  },
-  fallbackDecorSmall: {
-    position: "absolute",
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    bottom: -30,
-    left: -18,
-    opacity: 0.25,
-  },
-  fallbackContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  fallbackIconBox: {
-    width: 68,
-    height: 68,
-    borderRadius: 22,
-    borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.82)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  fallbackTextBox: {
-    flex: 1,
-  },
-  fallbackType: {
-    fontSize: 12,
-    fontWeight: "900",
-    marginBottom: 5,
-  },
-  fallbackHospitalName: {
-    color: "#0F172A",
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: "900",
-  },
-  fallbackRegionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    marginTop: 7,
-  },
-  fallbackRegion: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  fallbackNotice: {
-    position: "absolute",
-    left: 22,
-    right: 22,
-    bottom: 12,
-    color: "#64748B",
-    fontSize: 9,
-    fontWeight: "600",
-  },
-  imageAttribution: {
-    position: "absolute",
-    left: 10,
-    right: 10,
-    bottom: 10,
-    minHeight: 28,
-    borderRadius: 8,
-    paddingHorizontal: 9,
-    backgroundColor: "rgba(15, 23, 42, 0.78)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  imageAttributionText: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  content: {
-    paddingHorizontal: 18,
-    paddingBottom: 36,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  titleBox: {
-    flex: 1,
-    marginRight: 12,
-  },
-  hospitalName: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  address: {
-    fontSize: 14,
-    color: "#6B7280",
-    lineHeight: 21,
-  },
-  statusBadge: {
-    backgroundColor: "#E8F8EF",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
-  statusText: {
-    fontSize: 13,
-    fontWeight: "900",
-    color: "#16A34A",
-  },
-  phoneRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-  phoneIcon: {
-    fontSize: 18,
-    marginRight: 8,
-    color: "#2563EB",
-  },
-  phoneText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#2563EB",
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 26,
-  },
-  callButton: {
-    flex: 1,
-    backgroundColor: "#16A34A",
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  callButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "900",
-  },
-  mapButton: {
-    flex: 1,
-    backgroundColor: "#061A44",
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  mapButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "900",
-  },
-  shareButton: {
-    flex: 1,
-    backgroundColor: "#EEF2F7",
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  shareButtonText: {
-    color: "#334155",
-    fontSize: 15,
-    fontWeight: "900",
-  },
-  section: {
-    marginBottom: 26,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#111827",
-    marginBottom: 14,
-  },
-  sectionTitleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  updateText: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    fontWeight: "700",
-    marginBottom: 14,
-  },
-  departmentGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  departmentItem: {
-    width: "31%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingVertical: 13,
-    paddingHorizontal: 5,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    elevation: 2,
-  },
-  departmentIconBox: { width: 36, height: 36, borderRadius: 12, backgroundColor: "#FFF1F1", alignItems: "center", justifyContent: "center", marginBottom: 7 },
-  departmentText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#334155",
-  },
-  infoCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    elevation: 2,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 13,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: "900",
-    color: "#16A34A",
-  },
-  detailGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  detailItem: { width: "31%", minHeight: 104, backgroundColor: "#FFFFFF", borderRadius: 16, paddingHorizontal: 7, paddingVertical: 13, alignItems: "center", justifyContent: "center", gap: 6, elevation: 2, shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 8 },
-  detailLabel: { fontSize: 12, fontWeight: "800", color: "#475569", textAlign: "center" },
-  detailStatus: { fontSize: 12, fontWeight: "900", color: "#16A34A" },
-  detailAvailable: { color: "#2563EB" },
-  detailUnknown: { color: "#94A3B8" },
-  capabilityCard: { backgroundColor: "#FFFFFF", borderRadius: 18, paddingHorizontal: 16, paddingVertical: 5, elevation: 2 },
-  capabilityRow: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: "#F1F5F9" },
-  capabilityLabel: { fontSize: 14, fontWeight: "700", color: "#475569" },
-  capabilityBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#F1F5F9", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 12 },
-  capabilityBadgeActive: { backgroundColor: "#DCFCE7" },
-  capabilityText: { fontSize: 11, fontWeight: "900", color: "#94A3B8" },
-  capabilityTextActive: { color: "#15803D" },
-  warningBox: {
-    backgroundColor: "#FFF1F1",
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#FECACA",
-  },
-  warningTitle: {
-    fontSize: 15,
-    fontWeight: "900",
-    color: "#E53935",
-    marginBottom: 6,
-  },
-  warningText: {
-    fontSize: 13,
-    color: "#B91C1C",
-    lineHeight: 20,
-  },
-  warningBadge: {
-    backgroundColor: "#FFF4D8",
-  },
-  statusWarningText: {
-    color: "#F59E0B",
-  },
-  emptyInfoBox: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    elevation: 2,
-  },
+  container: { flex: 1, backgroundColor: Colors.screen },
+  header: { minHeight: 56, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  headerIconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  headerTitle: { fontSize: Type.screenTitle, fontWeight: "900", color: Colors.text },
+  infoIcon: { fontSize: 22, color: Colors.text },
 
-  emptyInfoText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#6B7280",
-  },
-  moreButton: {
-    marginTop: 12,
-    backgroundColor: "#EEF2F7",
-    borderRadius: 14,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
+  imageBox: { height: 170, marginHorizontal: 14, marginTop: 12, borderRadius: Radius.card, backgroundColor: Colors.border, overflow: "hidden", alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  hospitalImage: { width: "100%", height: "100%" },
+  fallbackImage: { width: "100%", height: "100%", justifyContent: "center", paddingHorizontal: 20 },
+  fallbackDecorLarge: { position: "absolute", width: 150, height: 150, borderRadius: 75, top: -70, right: -35, opacity: 0.3 },
+  fallbackDecorSmall: { position: "absolute", width: 74, height: 74, borderRadius: 37, bottom: -30, left: -18, opacity: 0.25 },
+  fallbackContent: { flexDirection: "row", alignItems: "center", gap: 14 },
+  fallbackIconBox: { width: 64, height: 64, borderRadius: Radius.card, borderWidth: 1, backgroundColor: "rgba(255,255,255,0.82)", alignItems: "center", justifyContent: "center" },
+  fallbackTextBox: { flex: 1 },
+  fallbackType: { fontSize: Type.caption, fontWeight: "900", marginBottom: 5 },
+  fallbackHospitalName: { color: Colors.text, fontSize: 18, lineHeight: 24, fontWeight: "900" },
+  fallbackRegionRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 7 },
+  fallbackRegion: { color: Colors.textMuted, fontSize: Type.caption, fontWeight: "700" },
+  fallbackNotice: { position: "absolute", left: 20, right: 20, bottom: 12, color: Colors.textMuted, fontSize: 9, fontWeight: "600" },
+  imageAttribution: { position: "absolute", left: 10, right: 10, bottom: 10, minHeight: 28, borderRadius: Radius.control, paddingHorizontal: 9, backgroundColor: "rgba(11, 31, 58, 0.82)", flexDirection: "row", alignItems: "center", gap: 6 },
+  imageAttributionText: { flex: 1, color: Colors.onDark, fontSize: 10, fontWeight: "700" },
 
-  moreButtonText: {
-    fontSize: 14,
-    fontWeight: "900",
-    color: "#334155",
-  },
-  rightActionBox: {
-    alignItems: "flex-end",
-    gap: 8,
-  },
+  content: { paddingHorizontal: 14, paddingBottom: 32 },
+  titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 },
+  titleBox: { flex: 1, marginRight: 12 },
+  hospitalName: { fontSize: 21, fontWeight: "900", color: Colors.text, marginBottom: 6 },
+  address: { fontSize: Type.label, color: Colors.textMuted, lineHeight: 19 },
+  statusBadge: { backgroundColor: Colors.okBg, borderRadius: Radius.control, paddingHorizontal: 10, paddingVertical: 6 },
+  statusText: { fontSize: Type.caption, fontWeight: "900", color: Colors.ok },
+  warningBadge: { backgroundColor: Colors.cautionBg },
+  statusWarningText: { color: Colors.caution },
 
-  favoriteIconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
+  phoneRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
+  phoneIcon: { fontSize: 17, marginRight: 8, color: Colors.navySoft },
+  phoneText: { fontSize: Type.body, fontWeight: "800", color: Colors.navySoft },
 
-  favoriteIconButtonActive: {
-    backgroundColor: "#FFF1F1",
-    borderColor: "#E53935",
-  },
+  actionRow: { flexDirection: "row", gap: 6, marginBottom: 20 },
+  callButton: { flex: 1, backgroundColor: Colors.urgent, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
+  callButtonText: { color: Colors.onDark, fontSize: Type.body, fontWeight: "900" },
+  mapButton: { flex: 1, backgroundColor: Colors.navy, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
+  mapButtonText: { color: Colors.onDark, fontSize: Type.body, fontWeight: "900" },
+  shareButton: { flex: 1, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
+  shareButtonText: { color: Colors.text, fontSize: Type.body, fontWeight: "900" },
 
-  favoriteStar: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#9CA3AF",
-  },
+  realtimeNotice: { marginTop: 10, marginBottom: 14, backgroundColor: Colors.cautionBg, borderRadius: Radius.card, padding: 12, borderLeftWidth: 3, borderLeftColor: Colors.caution },
+  realtimeTitle: { fontSize: Type.body, fontWeight: "900", color: Colors.caution, marginBottom: 6 },
+  realtimeText: { fontSize: Type.label, color: Colors.textSub, lineHeight: 19 },
+  staleRealtimeText: { color: Colors.urgent, fontWeight: "800" },
+  realtimeWarning: { fontSize: Type.caption, color: Colors.caution, fontWeight: "800", lineHeight: 17, marginTop: 6 },
 
-  favoriteStarActive: {
-    color: "#E53935",
-  },
+  section: { marginBottom: 20 },
+  sectionTitle: { fontSize: Type.screenTitle, fontWeight: "900", color: Colors.text, marginBottom: 10 },
+  sectionTitleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  updateText: { fontSize: Type.caption, color: Colors.textFaint, fontWeight: "700", marginBottom: 10 },
+
+  departmentGrid: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  departmentItem: { width: "32%", backgroundColor: Colors.surface, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, paddingVertical: 11, paddingHorizontal: 4, alignItems: "center" },
+  departmentIconBox: { width: 34, height: 34, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, alignItems: "center", justifyContent: "center", marginBottom: 6 },
+  departmentText: { fontSize: Type.caption, fontWeight: "800", color: Colors.textSub },
+
+  infoCard: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, paddingVertical: 6 },
+  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", minHeight: 42, borderBottomWidth: 1, borderBottomColor: Colors.divider },
+  infoLabel: { fontSize: Type.label, color: Colors.textMuted },
+  infoValue: { fontSize: Type.figureSm, fontWeight: "900", color: Colors.text },
+
+  detailGrid: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  detailItem: { width: "32%", minHeight: 96, backgroundColor: Colors.surface, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 6, paddingVertical: 11, alignItems: "center", justifyContent: "center", gap: 5 },
+  detailLabel: { fontSize: Type.caption, fontWeight: "800", color: Colors.textSub, textAlign: "center" },
+  detailStatus: { fontSize: Type.caption, fontWeight: "900", color: Colors.ok },
+  detailAvailable: { color: Colors.ok },
+  detailUnknown: { color: Colors.textFaint },
+
+  capabilityCard: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, paddingVertical: 2 },
+  capabilityRow: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: Colors.divider },
+  capabilityLabel: { fontSize: Type.label, fontWeight: "700", color: Colors.textSub },
+  capabilityBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: Colors.surfaceSunken, paddingHorizontal: 9, paddingVertical: 5, borderRadius: Radius.control },
+  capabilityBadgeActive: { backgroundColor: Colors.okBg },
+  capabilityText: { fontSize: Type.caption, fontWeight: "900", color: Colors.textFaint },
+  capabilityTextActive: { color: Colors.ok },
+
+  warningBox: { backgroundColor: Colors.urgentBg, borderRadius: Radius.card, padding: 14, borderLeftWidth: 3, borderLeftColor: Colors.urgent },
+  warningTitle: { fontSize: Type.body, fontWeight: "900", color: Colors.urgent, marginBottom: 5 },
+  warningText: { fontSize: Type.label, color: Colors.urgentText, lineHeight: 19 },
+
+  emptyInfoBox: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, paddingVertical: 16, paddingHorizontal: 14, alignItems: "center" },
+  emptyInfoText: { fontSize: Type.label, fontWeight: "700", color: Colors.textMuted },
+
+  moreButton: { marginTop: 10, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, minHeight: 46, alignItems: "center", justifyContent: "center" },
+  moreButtonText: { fontSize: Type.label, fontWeight: "900", color: Colors.text },
+
+  rightActionBox: { alignItems: "flex-end", gap: 8 },
+  favoriteIconButton: { width: 44, height: 44, borderRadius: Radius.control, backgroundColor: Colors.surface, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: Colors.border },
+  favoriteIconButtonActive: { backgroundColor: Colors.navy, borderColor: Colors.navy },
+  favoriteStar: { fontSize: 20, fontWeight: "900", color: Colors.textFaint },
+  favoriteStarActive: { color: Colors.onDark },
 });

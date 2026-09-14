@@ -1,6 +1,14 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/design";
+
+/**
+ * 아이콘(24) + 라벨(14) + 사이 여백이 들어갈 실제 내용 높이.
+ * Android 제스처 바가 겹치면 탭이 눌리지 않으므로 이 높이 위에 안전영역을 따로 더한다.
+ */
+const TAB_CONTENT_HEIGHT = 52;
+const TAB_PADDING = 8;
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -9,14 +17,15 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#DC2626",
-        tabBarInactiveTintColor: "#64748B",
+        tabBarActiveTintColor: Colors.navy,
+        tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
-          height: 58 + insets.bottom,
-          paddingTop: 7,
-          paddingBottom: Math.max(insets.bottom, 7),
+          height: TAB_CONTENT_HEIGHT + TAB_PADDING * 2 + insets.bottom,
+          paddingTop: TAB_PADDING,
+          paddingBottom: TAB_PADDING + insets.bottom,
+          borderTopColor: Colors.border,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "800" },
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontWeight: "800" },
       }}
     >
       <Tabs.Screen

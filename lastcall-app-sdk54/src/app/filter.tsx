@@ -5,6 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { SafeAreaView } from "react-native-safe-area-context";
 import { stage2Options } from "../data/regions";
 import { getCurrentLocationFast } from "../services/location";
+import { Colors, Radius } from "../constants/design";
 
 const stage1Options = Object.keys(stage2Options);
 
@@ -130,7 +131,7 @@ export default function FilterScreen() {
           <Text style={styles.sectionTitle}>{title}</Text>
           {selected.length > 0 && <Text style={styles.countBadge}>{selected.length}</Text>}
         </View>
-        <FontAwesome6 name={openSections[key] ? "chevron-up" : "chevron-down"} size={15} color="#64748B" />
+        <FontAwesome6 name={openSections[key] ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} />
       </TouchableOpacity>
       {openSections[key] && (
         <View style={styles.optionBox}>
@@ -139,7 +140,7 @@ export default function FilterScreen() {
             return (
               <TouchableOpacity key={option.key} style={styles.optionRow} onPress={() => toggleValue(option.key, selected, setter)}>
                 <Text style={styles.optionText}>{option.label}</Text>
-                <View style={[styles.checkBox, checked && styles.checkedBox]}>{checked && <FontAwesome6 name="check" size={13} color="#FFFFFF" />}</View>
+                <View style={[styles.checkBox, checked && styles.checkedBox]}>{checked && <FontAwesome6 name="check" size={13} color={Colors.surface} />}</View>
               </TouchableOpacity>
             );
           })}
@@ -152,7 +153,7 @@ export default function FilterScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color="#111827" /></TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity>
           <Text style={styles.headerTitle}>검색 필터</Text>
           <TouchableOpacity onPress={reset}><Text style={styles.resetText}>초기화</Text></TouchableOpacity>
         </View>
@@ -162,23 +163,23 @@ export default function FilterScreen() {
             <View style={styles.regionBox}>
               <TouchableOpacity style={styles.currentLocationButton} onPress={useCurrentLocation}><Text style={styles.currentLocationText}>현재 위치 사용</Text></TouchableOpacity>
               <TouchableOpacity style={styles.regionSelectButton} onPress={() => setIsStage1Open(!isStage1Open)}>
-                <Text style={styles.regionSelectText}>{selectedStage1 || "시·도 선택"}</Text><FontAwesome6 name={isStage1Open ? "chevron-up" : "chevron-down"} size={14} color="#64748B" />
+                <Text style={styles.regionSelectText}>{selectedStage1 || "시·도 선택"}</Text><FontAwesome6 name={isStage1Open ? "chevron-up" : "chevron-down"} size={14} color={Colors.textMuted} />
               </TouchableOpacity>
               {isStage1Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled>{stage1Options.map((stage1) => <TouchableOpacity key={stage1} style={styles.regionOptionButton} onPress={() => { setSelectedStage1(stage1); setSelectedStage2(""); setIsStage1Open(false); }}><Text style={styles.regionOptionText}>{stage1}</Text></TouchableOpacity>)}</ScrollView></View>}
               <TouchableOpacity style={[styles.regionSelectButton, !selectedStage1 && styles.disabledRegionButton]} disabled={!selectedStage1} onPress={() => setIsStage2Open(!isStage2Open)}>
-                <Text style={[styles.regionSelectText, !selectedStage1 && styles.disabledRegionText]}>{selectedStage2 || "시·군·구 전체"}</Text><FontAwesome6 name={isStage2Open ? "chevron-up" : "chevron-down"} size={14} color={selectedStage1 ? "#64748B" : "#9CA3AF"} />
+                <Text style={[styles.regionSelectText, !selectedStage1 && styles.disabledRegionText]}>{selectedStage2 || "시·군·구 전체"}</Text><FontAwesome6 name={isStage2Open ? "chevron-up" : "chevron-down"} size={14} color={selectedStage1 ? Colors.textMuted : Colors.textFaint} />
               </TouchableOpacity>
               {isStage2Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled><TouchableOpacity style={styles.regionOptionButton} onPress={() => { setSelectedStage2(""); setIsStage2Open(false); }}><Text style={styles.regionOptionText}>시·군·구 전체</Text></TouchableOpacity>{(stage2Options[selectedStage1] ?? []).map((stage2) => <TouchableOpacity key={stage2} style={styles.regionOptionButton} onPress={() => { setSelectedStage2(stage2); setIsStage2Open(false); }}><Text style={styles.regionOptionText}>{stage2}</Text></TouchableOpacity>)}</ScrollView></View>}
             </View>
           </View>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, sort: !prev.sort }))}><Text style={styles.sectionTitle}>정렬 기준</Text><FontAwesome6 name={openSections.sort ? "chevron-up" : "chevron-down"} size={15} color="#64748B" /></TouchableOpacity>
+            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, sort: !prev.sort }))}><Text style={styles.sectionTitle}>정렬 기준</Text><FontAwesome6 name={openSections.sort ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
             {openSections.sort && <View style={styles.sortBox}>{sortOptions.map((option) => <TouchableOpacity key={option.key} style={[styles.sortButton, selectedSort === option.key && styles.selectedSortButton]} onPress={() => setSelectedSort(option.key)}><Text style={[styles.sortText, selectedSort === option.key && styles.selectedSortText]}>{option.label}</Text></TouchableOpacity>)}</View>}
           </View>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, department: !prev.department }))}><Text style={styles.sectionTitle}>진료과</Text><FontAwesome6 name={openSections.department ? "chevron-up" : "chevron-down"} size={15} color="#64748B" /></TouchableOpacity>
+            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, department: !prev.department }))}><Text style={styles.sectionTitle}>진료과</Text><FontAwesome6 name={openSections.department ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
             {openSections.department && <View style={styles.grid}>{departments.map((department) => <TouchableOpacity key={department} style={[styles.departmentButton, selectedDepartment === department && styles.selectedDepartmentButton]} onPress={() => setSelectedDepartment(department)}><Text style={[styles.departmentText, selectedDepartment === department && styles.selectedDepartmentText]}>{department}</Text></TouchableOpacity>)}</View>}
           </View>
 
@@ -193,46 +194,46 @@ export default function FilterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F6FB" },
+  container: { flex: 1, backgroundColor: Colors.screen },
   screen: { flex: 1, paddingHorizontal: 18, paddingTop: 8 },
   header: { height: 54, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontSize: 18, fontWeight: "900", color: "#111827" },
-  resetText: { fontSize: 14, fontWeight: "800", color: "#EF4444" },
+  headerTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
+  resetText: { fontSize: 14, fontWeight: "800", color: Colors.navySoft },
   scrollArea: { flex: 1 },
   scrollContent: { paddingBottom: 28 },
   section: { marginTop: 22 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   titleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: "900", color: "#111827" },
-  countBadge: { minWidth: 22, textAlign: "center", color: "#FFFFFF", backgroundColor: "#EF4444", borderRadius: 11, paddingHorizontal: 6, paddingVertical: 2, fontSize: 12, fontWeight: "800" },
-  regionBox: { marginTop: 14, backgroundColor: "#FFFFFF", borderRadius: 20, padding: 14, gap: 10, elevation: 2 },
-  currentLocationButton: { backgroundColor: "#061A44", borderRadius: 14, paddingVertical: 15, alignItems: "center" },
-  currentLocationText: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
-  regionSelectButton: { minHeight: 52, paddingHorizontal: 16, backgroundColor: "#F1F5F9", borderRadius: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  regionSelectText: { fontSize: 15, fontWeight: "800", color: "#334155" },
-  regionOptionList: { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", overflow: "hidden" },
+  sectionTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
+  countBadge: { minWidth: 22, textAlign: "center", color: Colors.surface, backgroundColor: Colors.navy, borderRadius: Radius.control, paddingHorizontal: 6, paddingVertical: 2, fontSize: 12, fontWeight: "800" },
+  regionBox: { marginTop: 14, backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 14, gap: 10, elevation: 2 },
+  currentLocationButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center" },
+  currentLocationText: { color: Colors.surface, fontSize: 15, fontWeight: "900" },
+  regionSelectButton: { minHeight: 52, paddingHorizontal: 16, backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  regionSelectText: { fontSize: 15, fontWeight: "800", color: Colors.textSub },
+  regionOptionList: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, overflow: "hidden" },
   regionOptionScroll: { maxHeight: 240 },
-  regionOptionButton: { minHeight: 48, paddingHorizontal: 16, justifyContent: "center", borderBottomWidth: 1, borderBottomColor: "#F1F5F9" },
-  regionOptionText: { fontSize: 14, fontWeight: "700", color: "#334155" },
-  disabledRegionButton: { backgroundColor: "#E5E7EB" },
-  disabledRegionText: { color: "#9CA3AF" },
-  sortBox: { marginTop: 14, backgroundColor: "#FFFFFF", borderRadius: 20, padding: 14, gap: 10, elevation: 2 },
-  sortButton: { backgroundColor: "#F1F5F9", borderRadius: 14, paddingVertical: 15, alignItems: "center" },
-  selectedSortButton: { backgroundColor: "#061A44" },
-  sortText: { color: "#334155", fontSize: 15, fontWeight: "800" },
-  selectedSortText: { color: "#FFFFFF" },
+  regionOptionButton: { minHeight: 48, paddingHorizontal: 16, justifyContent: "center", borderBottomWidth: 1, borderBottomColor: Colors.surfaceSunken },
+  regionOptionText: { fontSize: 14, fontWeight: "700", color: Colors.textSub },
+  disabledRegionButton: { backgroundColor: Colors.border },
+  disabledRegionText: { color: Colors.textFaint },
+  sortBox: { marginTop: 14, backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 14, gap: 10, elevation: 2 },
+  sortButton: { backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center" },
+  selectedSortButton: { backgroundColor: Colors.navy },
+  sortText: { color: Colors.textSub, fontSize: 15, fontWeight: "800" },
+  selectedSortText: { color: Colors.surface },
   grid: { marginTop: 14, flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  departmentButton: { width: "31%", backgroundColor: "#FFFFFF", borderRadius: 15, paddingVertical: 15, alignItems: "center", borderWidth: 1, borderColor: "#E5E7EB" },
-  selectedDepartmentButton: { backgroundColor: "#FFF1F1", borderColor: "#EF4444" },
-  departmentText: { fontSize: 13, fontWeight: "800", color: "#374151" },
-  selectedDepartmentText: { color: "#EF4444" },
-  optionBox: { marginTop: 14, backgroundColor: "#FFFFFF", borderRadius: 20, paddingHorizontal: 16, paddingVertical: 6, elevation: 2 },
+  departmentButton: { width: "31%", backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center", borderWidth: 1, borderColor: Colors.border },
+  selectedDepartmentButton: { backgroundColor: Colors.surfaceSunken, borderColor: Colors.navy },
+  departmentText: { fontSize: 13, fontWeight: "800", color: Colors.textSub },
+  selectedDepartmentText: { color: Colors.navy },
+  optionBox: { marginTop: 14, backgroundColor: Colors.surface, borderRadius: Radius.card, paddingHorizontal: 16, paddingVertical: 6, elevation: 2 },
   optionRow: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  optionText: { fontSize: 15, fontWeight: "800", color: "#334155" },
-  checkBox: { width: 24, height: 24, borderRadius: 8, borderWidth: 1, borderColor: "#CBD5E1", alignItems: "center", justifyContent: "center" },
-  checkedBox: { backgroundColor: "#EF4444", borderColor: "#EF4444" },
+  optionText: { fontSize: 15, fontWeight: "800", color: Colors.textSub },
+  checkBox: { width: 24, height: 24, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.borderStrong, alignItems: "center", justifyContent: "center" },
+  checkedBox: { backgroundColor: Colors.navy, borderColor: Colors.navy },
   bottomArea: { paddingTop: 10, paddingBottom: 24 },
-  applyButton: { backgroundColor: "#061A44", borderRadius: 16, paddingVertical: 17, alignItems: "center" },
-  applyButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
+  applyButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 17, alignItems: "center" },
+  applyButtonText: { color: Colors.surface, fontSize: 16, fontWeight: "900" },
 });

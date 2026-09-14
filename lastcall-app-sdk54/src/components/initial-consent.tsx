@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LEGAL_PAGE_URL, LOCATION_POLICY } from "../config/legal";
 import { setLocationConsent } from "../services/location";
+import { Colors, Radius } from "../constants/design";
 
 const CONSENT_STORAGE_KEY = `lastcall.initialConsent.${LOCATION_POLICY.version}`;
 
@@ -35,7 +36,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
   if (status === "loading") {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#DC2626" />
+        <ActivityIndicator size="large" color={Colors.navy} />
         <Text style={styles.loadingText}>서비스 이용 정보를 확인하고 있습니다</Text>
       </SafeAreaView>
     );
@@ -67,7 +68,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.titleIcon}>
-          <FontAwesome6 name="shield-heart" size={30} color="#DC2626" />
+          <FontAwesome6 name="shield-heart" size={30} color={Colors.navy} />
         </View>
         <Text style={styles.title}>서비스 이용 전 확인해주세요</Text>
         <Text style={styles.subtitle}>필수 안전 고지를 확인해주세요. 위치정보 이용은 선택할 수 있습니다.</Text>
@@ -114,7 +115,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
             accessibilityRole="link"
           >
             <Text style={styles.policyLinkText}>전체 개인정보처리방침 및 서비스 정책 보기</Text>
-            <FontAwesome6 name="arrow-up-right-from-square" size={12} color="#1D4ED8" />
+            <FontAwesome6 name="arrow-up-right-from-square" size={12} color={Colors.navySoft} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -126,7 +127,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
           disabled={!requiredChecked || saving}
           accessibilityRole="button"
         >
-          {saving ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.acceptButtonText}>{checks[2] ? "동의하고 시작" : "위치 없이 시작"}</Text>}
+          {saving ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.acceptButtonText}>{checks[2] ? "동의하고 시작" : "위치 없이 시작"}</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -145,10 +146,10 @@ function ConsentItem({ checked, icon, title, children, onPress }: ConsentItemPro
   return (
     <TouchableOpacity style={[styles.card, checked && styles.cardChecked]} onPress={onPress} activeOpacity={0.8} accessibilityRole="checkbox" accessibilityState={{ checked }}>
       <View style={styles.cardHeader}>
-        <View style={styles.cardIcon}><FontAwesome6 name={icon} size={18} color="#DC2626" /></View>
+        <View style={styles.cardIcon}><FontAwesome6 name={icon} size={18} color={Colors.navySoft} /></View>
         <Text style={styles.cardTitle}>{title}</Text>
         <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
-          {checked ? <FontAwesome6 name="check" size={12} color="#FFFFFF" /> : null}
+          {checked ? <FontAwesome6 name="check" size={12} color={Colors.surface} /> : null}
         </View>
       </View>
       <Text style={styles.cardText}>{children}</Text>
@@ -157,28 +158,28 @@ function ConsentItem({ checked, icon, title, children, onPress }: ConsentItemPro
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FAFC" },
-  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F8FAFC", gap: 14 },
-  loadingText: { color: "#475569", fontSize: 14, fontWeight: "700" },
+  container: { flex: 1, backgroundColor: Colors.surfaceSunken },
+  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: Colors.surfaceSunken, gap: 14 },
+  loadingText: { color: Colors.textSub, fontSize: 14, fontWeight: "700" },
   content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 18 },
-  titleIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: "#FEE2E2", alignItems: "center", justifyContent: "center", marginBottom: 18 },
-  title: { fontSize: 25, lineHeight: 33, fontWeight: "900", color: "#0F172A" },
-  subtitle: { marginTop: 8, marginBottom: 22, fontSize: 14, lineHeight: 21, color: "#64748B" },
-  card: { backgroundColor: "#FFFFFF", borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: "#E2E8F0" },
-  cardChecked: { borderColor: "#FCA5A5", backgroundColor: "#FFF7F7" },
+  titleIcon: { width: 58, height: 58, borderRadius: Radius.card, backgroundColor: Colors.surfaceSunken, alignItems: "center", justifyContent: "center", marginBottom: 18 },
+  title: { fontSize: 25, lineHeight: 33, fontWeight: "900", color: Colors.text },
+  subtitle: { marginTop: 8, marginBottom: 22, fontSize: 14, lineHeight: 21, color: Colors.textMuted },
+  card: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  cardChecked: { borderColor: Colors.navy, backgroundColor: Colors.surfaceSunken },
   cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  cardIcon: { width: 34, height: 34, borderRadius: 11, backgroundColor: "#FEE2E2", alignItems: "center", justifyContent: "center", marginRight: 10 },
-  cardTitle: { flex: 1, color: "#1E293B", fontSize: 15, fontWeight: "900" },
-  checkbox: { width: 23, height: 23, borderRadius: 7, borderWidth: 2, borderColor: "#CBD5E1", alignItems: "center", justifyContent: "center" },
-  checkboxChecked: { backgroundColor: "#DC2626", borderColor: "#DC2626" },
-  cardText: { color: "#475569", fontSize: 13, lineHeight: 20 },
-  privacyBox: { marginTop: 4, borderRadius: 14, backgroundColor: "#EFF6FF", padding: 15 },
-  privacyTitle: { color: "#1E3A8A", fontSize: 14, fontWeight: "900", marginBottom: 7 },
-  privacyText: { color: "#334155", fontSize: 12, lineHeight: 19 },
+  cardIcon: { width: 34, height: 34, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, alignItems: "center", justifyContent: "center", marginRight: 10 },
+  cardTitle: { flex: 1, color: Colors.text, fontSize: 15, fontWeight: "900" },
+  checkbox: { width: 23, height: 23, borderRadius: Radius.control, borderWidth: 2, borderColor: Colors.borderStrong, alignItems: "center", justifyContent: "center" },
+  checkboxChecked: { backgroundColor: Colors.navy, borderColor: Colors.navy },
+  cardText: { color: Colors.textSub, fontSize: 13, lineHeight: 20 },
+  privacyBox: { marginTop: 4, borderRadius: Radius.card, backgroundColor: Colors.surfaceSunken, padding: 15 },
+  privacyTitle: { color: Colors.navy, fontSize: 14, fontWeight: "900", marginBottom: 7 },
+  privacyText: { color: Colors.textSub, fontSize: 12, lineHeight: 19 },
   policyLink: { minHeight: 40, marginTop: 9, flexDirection: "row", alignItems: "center", gap: 7 },
-  policyLinkText: { color: "#1D4ED8", fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
-  actions: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: "#E2E8F0", backgroundColor: "#FFFFFF" },
-  acceptButton: { minHeight: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#DC2626" },
-  acceptButtonDisabled: { backgroundColor: "#CBD5E1" },
-  acceptButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+  policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
+  actions: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface },
+  acceptButton: { minHeight: 52, borderRadius: Radius.control, alignItems: "center", justifyContent: "center", backgroundColor: Colors.navy },
+  acceptButtonDisabled: { backgroundColor: Colors.borderStrong },
+  acceptButtonText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
 });

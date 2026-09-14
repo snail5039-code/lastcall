@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../config/api";
 import { clearCommunityHiddenState, getCommunityHiddenState } from "../services/community-moderation";
 import { fetchWithRetry } from "../services/http";
+import { Colors, Radius } from "../constants/design";
 
 type CommunityPost = {
   id: number;
@@ -186,7 +187,7 @@ export default function CommunityBoardScreen() {
       >
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+            <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{getBoardTitle()}</Text>
           <TouchableOpacity
@@ -197,11 +198,11 @@ export default function CommunityBoardScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.errorContainer}>
-          <FontAwesome6 name="wifi" size={32} color="#DC2626" />
+          <FontAwesome6 name="wifi" size={32} color={Colors.urgent} />
           <Text style={styles.errorText}>{errorMessage}</Text>
           <Text style={styles.errorDescription}>인터넷 연결을 확인한 후 다시 시도해주세요.</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchPosts}>
-            <FontAwesome6 name="rotate-right" size={14} color="#FFFFFF" />
+            <FontAwesome6 name="rotate-right" size={14} color={Colors.surface} />
             <Text style={styles.retryButtonText}>다시 불러오기</Text>
           </TouchableOpacity>
         </View>
@@ -219,7 +220,7 @@ export default function CommunityBoardScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+          <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>
@@ -266,7 +267,7 @@ export default function CommunityBoardScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => boardType === "NOTICE" ? (
             <View style={styles.noticeRow}>
-              <View style={styles.noticeIcon}><FontAwesome6 name="bullhorn" size={14} color="#DC2626" /></View>
+              <View style={styles.noticeIcon}><FontAwesome6 name="bullhorn" size={14} color={Colors.navySoft} /></View>
               <View style={styles.postInfo}>
                 <Text style={styles.postTitle}>{item.title}</Text>
                 <Text style={styles.noticeContent}>{item.content}</Text>
@@ -366,7 +367,7 @@ export default function CommunityBoardScreen() {
               ]);
             }}
           >
-            <FontAwesome6 name="eye" size={13} color="#64748B" />
+            <FontAwesome6 name="eye" size={13} color={Colors.textMuted} />
             <Text style={styles.resetHiddenText}>숨긴 게시글·작성자 다시 표시</Text>
           </TouchableOpacity>
         )}
@@ -376,10 +377,10 @@ export default function CommunityBoardScreen() {
 }
 const styles = StyleSheet.create({
   resetHiddenButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  resetHiddenText: { color: "#64748B", fontSize: 12, fontWeight: "700" },
+  resetHiddenText: { color: Colors.textMuted, fontSize: 12, fontWeight: "700" },
   container: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
+    backgroundColor: Colors.surfaceSunken,
     paddingTop: 20,
   },
 
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F5F7FA",
+    backgroundColor: Colors.surfaceSunken,
   },
 
   headerTitle: {
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 24,
     fontWeight: "700",
-    color: "#1F2937",
+    color: Colors.text,
   },
 
   listContainer: {
@@ -403,8 +404,8 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     padding: 16,
     marginBottom: 12,
   },
@@ -417,33 +418,33 @@ const styles = StyleSheet.create({
 
   nickname: {
     fontSize: 13,
-    color: "#6B7280",
+    color: Colors.textMuted,
     marginTop: 7,
   },
 
   content: {
     fontSize: 14,
     lineHeight: 21,
-    color: "#4B5563",
+    color: Colors.textSub,
     marginTop: 10,
   },
 
   loadingText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: Colors.textMuted,
     marginTop: 12,
   },
 
   errorText: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#DC2626",
+    color: Colors.urgent,
     marginTop: 14,
   },
   errorContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
-  errorDescription: { marginTop: 7, color: "#64748B", fontSize: 13, textAlign: "center" },
-  retryButton: { marginTop: 18, minHeight: 46, paddingHorizontal: 20, borderRadius: 12, backgroundColor: "#061A44", flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  retryButtonText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+  errorDescription: { marginTop: 7, color: Colors.textMuted, fontSize: 13, textAlign: "center" },
+  retryButton: { marginTop: 18, minHeight: 46, paddingHorizontal: 20, borderRadius: Radius.card, backgroundColor: Colors.navy, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
+  retryButtonText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
 
   emptyListContainer: {
     flexGrow: 1,
@@ -458,7 +459,7 @@ const styles = StyleSheet.create({
 
   emptyText: {
     fontSize: 15,
-    color: "#9CA3AF",
+    color: Colors.textFaint,
   },
 
   headerRow: {
@@ -477,7 +478,7 @@ const styles = StyleSheet.create({
 
   backButtonText: {
     fontSize: 28,
-    color: "#111827",
+    color: Colors.text,
   },
   noticeRow: {
     flexDirection: "row",
@@ -485,36 +486,36 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 14,
     paddingVertical: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: Colors.border,
   },
   noticeIcon: {
     width: 30,
     height: 30,
-    borderRadius: 15,
+    borderRadius: Radius.card,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFF1F1",
+    backgroundColor: Colors.surfaceSunken,
   },
   noticeContent: {
     marginTop: 8,
     fontSize: 13,
     lineHeight: 20,
-    color: "#4B5563",
+    color: Colors.textSub,
   },
 
   writeButton: {
     width: 54,
     height: 40,
-    backgroundColor: "#061A44",
-    borderRadius: 10,
+    backgroundColor: Colors.navy,
+    borderRadius: Radius.control,
     justifyContent: "center",
     alignItems: "center",
   },
 
   writeButtonText: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -527,16 +528,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     minHeight: 72,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: Colors.border,
   },
 
   postNumber: {
     width: 48,
     textAlign: "center",
     fontSize: 13,
-    color: "#6B7280",
+    color: Colors.textMuted,
   },
 
   postInfo: {
@@ -547,29 +548,29 @@ const styles = StyleSheet.create({
   postTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: Colors.text,
   },
 
   postMeta: {
     marginTop: 5,
     fontSize: 12,
-    color: "#9CA3AF",
+    color: Colors.textFaint,
   },
 
   viewCount: {
     width: 48,
     textAlign: "center",
     fontSize: 12,
-    color: "#6B7280",
+    color: Colors.textMuted,
   },
   tableHeader: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     paddingVertical: 12,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: Colors.borderStrong,
   },
 
   headerNumber: {
@@ -577,7 +578,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 13,
     fontWeight: "700",
-    color: "#374151",
+    color: Colors.textSub,
   },
 
   headerPostTitle: {
@@ -586,7 +587,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 13,
     fontWeight: "700",
-    color: "#374151",
+    color: Colors.textSub,
   },
 
   headerViewCount: {
@@ -594,13 +595,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 13,
     fontWeight: "700",
-    color: "#374151",
+    color: Colors.textSub,
   },
 
   tableContainer: {
     flex: 1,
     marginHorizontal: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
   },
 
   paginationContainer: {
@@ -616,18 +617,18 @@ const styles = StyleSheet.create({
     height: 38,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#061A44",
-    borderRadius: 8,
+    backgroundColor: Colors.navy,
+    borderRadius: Radius.control,
   },
 
   disabledButton: {
-    backgroundColor: "#D1D5DB",
+    backgroundColor: Colors.borderStrong,
   },
 
   pageButtonText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: Colors.surface,
   },
 
   pageInfo: {
@@ -635,6 +636,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
+    color: Colors.textSub,
   },
 });

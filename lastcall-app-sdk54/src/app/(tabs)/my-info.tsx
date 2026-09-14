@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentLocationFast } from "../../services/location";
 import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
 import { LEGAL_PAGE_URL } from "../../config/legal";
+import { Colors, Radius } from "../../constants/design";
 
 type PersonInfo = {
   relation: string;
@@ -289,7 +290,7 @@ export default function MyInfoScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+          <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>내 정보</Text>
@@ -372,9 +373,9 @@ export default function MyInfoScreen() {
               accessibilityRole="link"
               accessibilityLabel="개인정보처리방침과 서비스 정책 열기"
             >
-              <FontAwesome6 name="shield-halved" size={16} color="#061A44" />
+              <FontAwesome6 name="shield-halved" size={16} color={Colors.navy} />
               <Text style={styles.policyButtonText}>개인정보처리방침 및 서비스 정책</Text>
-              <FontAwesome6 name="arrow-up-right-from-square" size={13} color="#64748B" />
+              <FontAwesome6 name="arrow-up-right-from-square" size={13} color={Colors.textMuted} />
             </TouchableOpacity>
           </View>
         )}
@@ -691,7 +692,7 @@ function Input({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#999"
+        placeholderTextColor={Colors.textFaint}
         multiline={multiline}
         keyboardType={keyboardType}
       />
@@ -756,23 +757,23 @@ function InfoRow({ label, value }: InfoRowProps) {
 }
 
 const styles = StyleSheet.create({
-  policySection: { backgroundColor: "#FFFFFF", borderRadius: 16, padding: 16, marginTop: 8, borderWidth: 1, borderColor: "#E2E8F0" },
-  policyTitle: { color: "#172033", fontSize: 16, fontWeight: "800", marginBottom: 5 },
-  policyDescription: { color: "#64748B", fontSize: 12, lineHeight: 18, marginBottom: 12 },
-  policyButton: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 12, backgroundColor: "#F1F5F9", paddingHorizontal: 12 },
-  policyButtonText: { flexShrink: 1, color: "#061A44", fontSize: 14, fontWeight: "800" },
-  shareSection: { backgroundColor: "#FFF7ED", borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#FED7AA" },
-  shareDescription: { fontSize: 12, lineHeight: 18, color: "#9A3412", marginBottom: 12 },
-  locationMedicalButton: { backgroundColor: "#B91C1C", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  locationMedicalText: { color: "#FFFFFF", fontWeight: "900", fontSize: 14 },
-  emergencyShareButton: { backgroundColor: "#DC2626", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  emergencyShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  guardianShareButton: { backgroundColor: "#061A44", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallButton: { backgroundColor: "#15803D", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  guardianShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  generalShareButton: { backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1" },
-  generalShareText: { color: "#334155", fontWeight: "900", fontSize: 15 },
+  policySection: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 16, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
+  policyTitle: { color: Colors.text, fontSize: 16, fontWeight: "800", marginBottom: 5 },
+  policyDescription: { color: Colors.textMuted, fontSize: 12, lineHeight: 18, marginBottom: 12 },
+  policyButton: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: Radius.card, backgroundColor: Colors.surfaceSunken, paddingHorizontal: 12 },
+  policyButtonText: { flexShrink: 1, color: Colors.navy, fontSize: 14, fontWeight: "800" },
+  shareSection: { backgroundColor: Colors.cautionBg, borderRadius: Radius.card, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.cautionBg },
+  shareDescription: { fontSize: 12, lineHeight: 18, color: Colors.caution, marginBottom: 12 },
+  locationMedicalButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  locationMedicalText: { color: Colors.surface, fontWeight: "900", fontSize: 14 },
+  emergencyShareButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  emergencyShareText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  guardianShareButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallButton: { backgroundColor: Colors.ok, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  guardianShareText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  generalShareButton: { backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: Colors.borderStrong },
+  generalShareText: { color: Colors.textSub, fontWeight: "900", fontSize: 15 },
   header: {
     height: 56,
     paddingHorizontal: 20,
@@ -783,18 +784,18 @@ const styles = StyleSheet.create({
 
   backText: {
     fontSize: 34,
-    color: "#222",
+    color: Colors.text,
   },
 
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#222",
+    color: Colors.text,
   },
 
   description: {
     fontSize: 14,
-    color: "#666",
+    color: Colors.textMuted,
     lineHeight: 20,
     marginBottom: 20,
   },
@@ -804,33 +805,33 @@ const styles = StyleSheet.create({
   },
 
   personChip: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 999,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.control,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: Colors.border,
   },
 
   personChipActive: {
-    backgroundColor: "#E53935",
-    borderColor: "#E53935",
+    backgroundColor: Colors.navy,
+    borderColor: Colors.navy,
   },
 
   personChipText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#555",
+    color: Colors.textMuted,
   },
 
   personChipTextActive: {
-    color: "#FFFFFF",
+    color: Colors.surface,
   },
 
   addChip: {
-    backgroundColor: "#222",
-    borderRadius: 999,
+    backgroundColor: Colors.text,
+    borderRadius: Radius.control,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginRight: 8,
@@ -839,12 +840,12 @@ const styles = StyleSheet.create({
   addChipText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: Colors.surface,
   },
 
   section: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     padding: 16,
     marginBottom: 16,
   },
@@ -852,7 +853,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#222",
+    color: Colors.text,
     marginBottom: 14,
   },
 
@@ -863,17 +864,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: Colors.textSub,
     marginBottom: 8,
   },
 
   input: {
-    backgroundColor: "#F2F3F5",
-    borderRadius: 10,
+    backgroundColor: Colors.surfaceSunken,
+    borderRadius: Radius.control,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: "#222",
+    color: Colors.text,
   },
 
   textArea: {
@@ -888,115 +889,115 @@ const styles = StyleSheet.create({
   },
 
   selectButton: {
-    backgroundColor: "#F2F3F5",
-    borderRadius: 10,
+    backgroundColor: Colors.surfaceSunken,
+    borderRadius: Radius.control,
     paddingVertical: 11,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: "#F2F3F5",
+    borderColor: Colors.surfaceSunken,
   },
 
   selectButtonActive: {
-    backgroundColor: "#FFECEC",
-    borderColor: "#E53935",
+    backgroundColor: Colors.surfaceSunken,
+    borderColor: Colors.navy,
   },
 
   selectButtonText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#555",
+    color: Colors.textMuted,
   },
 
   selectButtonTextActive: {
-    color: "#E53935",
+    color: Colors.navy,
   },
 
   infoRow: {
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: "#EEEEEE",
+    borderBottomColor: Colors.border,
   },
 
   infoLabel: {
     fontSize: 13,
-    color: "#777",
+    color: Colors.textFaint,
     marginBottom: 4,
   },
 
   infoValue: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#222",
+    color: Colors.text,
     lineHeight: 21,
   },
 
   saveButton: {
-    backgroundColor: "#E53935",
-    borderRadius: 14,
+    backgroundColor: Colors.navy,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 8,
   },
 
   saveButtonText: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontSize: 17,
     fontWeight: "700",
   },
 
   editButton: {
-    backgroundColor: "#222",
-    borderRadius: 14,
+    backgroundColor: Colors.text,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 8,
   },
 
   editButtonText: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontSize: 17,
     fontWeight: "700",
   },
 
   cancelButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#DDDDDD",
+    borderColor: Colors.borderStrong,
   },
 
   cancelButtonText: {
-    color: "#555",
+    color: Colors.textMuted,
     fontSize: 16,
     fontWeight: "700",
   },
 
   deleteButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#E53935",
+    borderColor: Colors.urgent,
   },
 
   deleteButtonText: {
-    color: "#E53935",
+    color: Colors.urgent,
     fontSize: 16,
     fontWeight: "700",
   },
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F8FA",
+    backgroundColor: Colors.surfaceSunken,
   },
 
   container: {
     flex: 1,
-    backgroundColor: "#F7F8FA",
+    backgroundColor: Colors.surfaceSunken,
   },
 
   scrollContent: {

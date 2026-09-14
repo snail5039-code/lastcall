@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors, Radius } from "../constants/design";
 const dangerSigns = [
   "의식이 없거나 반응이 없는 경우",
   "호흡이 어렵거나 멈춘 경우",
@@ -52,7 +53,7 @@ export default function EmergencyHelpScreen() {
       <View style={styles.screen}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
-            <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+            <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>긴급 상황 도움</Text>
@@ -65,7 +66,7 @@ export default function EmergencyHelpScreen() {
           contentContainerStyle={styles.content}
         >
           <View style={styles.alertBox}>
-            <FontAwesome6 name="triangle-exclamation" size={30} color="#DC2626" />
+            <FontAwesome6 name="triangle-exclamation" size={30} color={Colors.urgent} />
             <Text style={styles.alertTitle}>위급한 상황이면 즉시 119에 신고하세요</Text>
             <Text style={styles.alertText}>
               앱 정보보다 실제 응급 신고와 의료진 안내가 우선입니다.
@@ -73,7 +74,7 @@ export default function EmergencyHelpScreen() {
           </View>
 
           <View style={styles.offlineBox}>
-            <FontAwesome6 name="wifi" size={18} color="#1D4ED8" />
+            <FontAwesome6 name="wifi" size={18} color={Colors.navySoft} />
             <View style={styles.offlineTextBox}>
               <Text style={styles.offlineTitle}>인터넷이 없어도 사용할 수 있습니다</Text>
               <Text style={styles.offlineText}>119 전화, 이 응급처치 안내, 기기에 저장된 의료정보는 네트워크 연결 없이도 확인할 수 있습니다.</Text>
@@ -99,7 +100,7 @@ export default function EmergencyHelpScreen() {
             {guides.map((guide) => (
               <View key={guide.id} style={styles.guideCard}>
                 <View style={styles.guideIconBox}>
-                  <FontAwesome6 name={guide.icon} size={22} color="#DC2626" />
+                  <FontAwesome6 name={guide.icon} size={22} color={Colors.navySoft} />
                 </View>
 
                 <View style={styles.guideTextBox}>
@@ -125,7 +126,7 @@ export default function EmergencyHelpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F6FB",
+    backgroundColor: Colors.screen,
   },
   screen: {
     flex: 1,
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: Colors.text,
   },
   emptyBox: {
     width: 24,
@@ -152,12 +153,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   alertBox: {
-    backgroundColor: "#FFF1F1",
-    borderRadius: 22,
+    backgroundColor: Colors.urgentBg,
+    borderRadius: Radius.card,
     padding: 22,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#FECACA",
+    borderColor: Colors.urgent,
     marginTop: 10,
     marginBottom: 26,
   },
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   alertTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#B91C1C",
+    color: Colors.urgent,
     textAlign: "center",
     marginBottom: 8,
     lineHeight: 26,
@@ -176,26 +177,26 @@ const styles = StyleSheet.create({
   alertText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#EF4444",
+    color: Colors.urgent,
     textAlign: "center",
     lineHeight: 21,
   },
   section: {
     marginBottom: 26,
   },
-  offlineBox: { flexDirection: "row", gap: 11, alignItems: "flex-start", backgroundColor: "#EFF6FF", borderRadius: 16, padding: 15, marginBottom: 24 },
+  offlineBox: { flexDirection: "row", gap: 11, alignItems: "flex-start", backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, padding: 15, marginBottom: 24 },
   offlineTextBox: { flex: 1 },
-  offlineTitle: { color: "#1E3A8A", fontSize: 14, fontWeight: "900" },
-  offlineText: { marginTop: 5, color: "#475569", fontSize: 12, lineHeight: 18 },
+  offlineTitle: { color: Colors.navy, fontSize: 14, fontWeight: "900" },
+  offlineText: { marginTop: 5, color: Colors.textSub, fontSize: 12, lineHeight: 18 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "900",
-    color: "#111827",
+    color: Colors.text,
     marginBottom: 14,
   },
   signCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     padding: 16,
     shadowColor: "#000",
     shadowOpacity: 0.05,
@@ -214,9 +215,9 @@ const styles = StyleSheet.create({
   checkIcon: {
     width: 24,
     height: 24,
-    borderRadius: 999,
-    backgroundColor: "#EF4444",
-    color: "#FFFFFF",
+    borderRadius: Radius.control,
+    backgroundColor: Colors.navy,
+    color: Colors.surface,
     textAlign: "center",
     lineHeight: 24,
     fontSize: 14,
@@ -227,12 +228,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "800",
-    color: "#334155",
+    color: Colors.textSub,
     lineHeight: 21,
   },
   guideCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     padding: 16,
     marginBottom: 12,
     flexDirection: "row",
@@ -248,8 +249,8 @@ const styles = StyleSheet.create({
   guideIconBox: {
     width: 48,
     height: 48,
-    borderRadius: 16,
-    backgroundColor: "#F1F5F9",
+    borderRadius: Radius.card,
+    backgroundColor: Colors.surfaceSunken,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -263,31 +264,31 @@ const styles = StyleSheet.create({
   guideTitle: {
     fontSize: 16,
     fontWeight: "900",
-    color: "#111827",
+    color: Colors.text,
     marginBottom: 6,
   },
   guideDesc: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#64748B",
+    color: Colors.textMuted,
     lineHeight: 20,
   },
   call119Button: {
-    backgroundColor: "#EF4444",
-    borderRadius: 16,
+    backgroundColor: Colors.urgent,
+    borderRadius: Radius.card,
     paddingVertical: 17,
     alignItems: "center",
     marginBottom: 24,
   },
   call119Text: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontSize: 17,
     fontWeight: "900",
   },
   callButton: {
-    backgroundColor: "#E53935",
+    backgroundColor: Colors.urgent,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: Radius.card,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 16,
