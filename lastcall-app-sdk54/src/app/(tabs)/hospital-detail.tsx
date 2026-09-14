@@ -124,6 +124,18 @@ type FavoriteHospital = {
   latitude: string;
   longitude: string;
 };
+/**
+ * 병상 수를 숫자로 읽는다. 값이 없으면 0 으로 본다.
+ *
+ * Number(undefined) 는 NaN 인데 NaN 은 > 0 도 <= 0 도 아니다. 그래서 "모름" 인데도
+ * 경고 스타일이 붙지 않아 초록으로 보인다. 병상을 모르는 상태가 여유 있는 것처럼
+ * 보이면 안 된다. 알림이나 링크로 상세를 바로 열면 실제로 이 값이 비어 있다.
+ */
+const bedNumber = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 export default function HospitalDetailScreen() {
   const Colors = useThemeColors();
   const styles = useThemeStyles(createStyles);
@@ -267,7 +279,9 @@ export default function HospitalDetailScreen() {
     };
   }, [address, hospitalName, latitude, longitude]);
 
-  const bedCount = Number(availableBeds);
+  const bedCount = bedNumber(availableBeds);
+  // 거리가 없으면 단위만 남아 "km" 로 보인다. 다른 항목과 같은 문구를 쓴다.
+  const distanceText = distance ? `${distance}km` : "확인 필요";
   const [departmentList, setDepartmentList] = useState<string[]>(() => (departments ?? "").split(",").map((item) => item.trim()).filter(Boolean));
   const [showAllDepartments, setShowAllDepartments] = useState(false);
   const visibleDepartments = showAllDepartments
@@ -307,13 +321,13 @@ export default function HospitalDetailScreen() {
   }, [hpid]);
 
   const bedItems = [
-    { label: "응급실", value: Number(availableBeds), icon: "bed-pulse" as IconName },
-    { label: "일반 중환자실", value: Number(generalIcuBeds), icon: "heart-pulse" as IconName },
-    { label: "신경 중환자실", value: Number(neuroIcuBeds), icon: "brain" as IconName },
-    { label: "신생아 중환자실", value: Number(neonatalIcuBeds), icon: "baby" as IconName },
-    { label: "흉부 중환자실", value: Number(chestIcuBeds), icon: "lungs" as IconName },
-    { label: "입원실", value: Number(inpatientBeds), icon: "bed" as IconName },
-    { label: "수술실", value: Number(operatingRooms), icon: "hospital" as IconName },
+    { label: "응급실", value: bedNumber(availableBeds), icon: "bed-pulse" as IconName },
+    { label: "일반 중환자실", value: bedNumber(generalIcuBeds), icon: "heart-pulse" as IconName },
+    { label: "신경 중환자실", value: bedNumber(neuroIcuBeds), icon: "brain" as IconName },
+    { label: "신생아 중환자실", value: bedNumber(neonatalIcuBeds), icon: "baby" as IconName },
+    { label: "흉부 중환자실", value: bedNumber(chestIcuBeds), icon: "lungs" as IconName },
+    { label: "입원실", value: bedNumber(inpatientBeds), icon: "bed" as IconName },
+    { label: "수술실", value: bedNumber(operatingRooms), icon: "hospital" as IconName },
   ];
   const facilityItems = [
     { label: "CT", available: ctAvailable === "true", icon: "x-ray" as IconName },
@@ -378,7 +392,7 @@ export default function HospitalDetailScreen() {
       `${hospitalName}\n\n` +
       `주소: ${address}\n` +
       `응급실 전화: ${emergencyPhone || phone}\n` +
-      `거리: ${distance}km\n\n` +
+      `거리: ${distanceText}\n\n` +
       `길찾기: ${kakaoMapUrl}\n\n` +
       `살려줌 추천 응급실`;
 
@@ -619,7 +633,7 @@ export default function HospitalDetailScreen() {
 
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>현재 위치와의 거리</Text>
-                <Text style={styles.infoValue}>{distance}km</Text>
+                <Text style={styles.infoValue}>{distanceText}</Text>
               </View>
 
               <View style={styles.infoRow}>
