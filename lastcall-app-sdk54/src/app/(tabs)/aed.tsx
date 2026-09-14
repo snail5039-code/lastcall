@@ -130,12 +130,16 @@ export default function AedScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      {/* 하단은 탭 바가 차지하므로 119 는 헤더에 둔다. 주변 응급실 화면과 같은 자리다. */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주변 AED 찾기</Text>
-        <View style={styles.headerButton} />
+        <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityLabel="119에 전화">
+          <FontAwesome6 name="phone" size={14} color={Colors.surface} />
+          <Text style={styles.emergencyText}>119</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.warning}>
@@ -144,6 +148,12 @@ export default function AedScreen() {
           심정지가 의심되면 먼저 119에 신고하고 가슴압박을 시작하세요. AED는 주변 사람에게 요청해 가져오는 것이 빠릅니다.
         </Text>
       </View>
+
+      <TouchableOpacity style={styles.guideRow} onPress={() => router.push("/emergency-help")}>
+        <FontAwesome6 name="book-medical" size={14} color={Colors.navySoft} />
+        <Text style={styles.guideRowText}>응급 대처 안내 보기</Text>
+        <FontAwesome6 name="chevron-right" size={12} color={Colors.textFaint} />
+      </TouchableOpacity>
 
       <View style={styles.searchBox}>
         <View style={styles.regionRow}>
@@ -281,17 +291,6 @@ export default function AedScreen() {
         출처: 중앙응급의료센터 자동심장충격기 정보. 설치 위치와 운영시간은 실제와 다를 수 있습니다.
       </Text>
 
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.guideButton} onPress={() => router.push("/emergency-help")}>
-          <FontAwesome6 name="book-medical" size={15} color={Colors.navy} />
-          <Text style={styles.guideButtonText}>응급 대처 안내</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.callButton} onPress={call119}>
-          <FontAwesome6 name="phone" size={15} color={Colors.surface} />
-          <Text style={styles.callButtonText}>119 전화</Text>
-        </TouchableOpacity>
-      </View>
-
       <Modal visible={picker !== null} transparent animationType="slide" onRequestClose={() => setPicker(null)}>
         {/* 배경을 시트의 형제로 두어야 한다. 시트를 Pressable 안에 넣으면 옵션 터치를 배경이 먼저 먹는다. */}
         <View style={styles.modalBackdrop}>
@@ -369,11 +368,10 @@ const styles = StyleSheet.create({
   mapButton: { minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: Colors.surfaceSunken },
   mapText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
   source: { paddingHorizontal: 18, paddingBottom: 8, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
-  actions: { flexDirection: "row", gap: 10, padding: 14, backgroundColor: Colors.surface, borderTopWidth: 1, borderTopColor: Colors.border },
-  guideButton: { flex: 1, minHeight: 50, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.borderStrong, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  guideButtonText: { color: Colors.navy, fontSize: 14, fontWeight: "900" },
-  callButton: { flex: 1, minHeight: 50, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  callButtonText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
+  emergencyButton: { minWidth: 62, minHeight: 40, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  emergencyText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
+  guideRow: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 14, marginTop: 8, paddingHorizontal: 12, minHeight: 44, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
+  guideRowText: { flex: 1, color: Colors.navy, fontSize: 13, fontWeight: "800" },
   modalBackdrop: { flex: 1, backgroundColor: "rgba(15,23,42,0.45)", justifyContent: "flex-end" },
   modalSheet: { maxHeight: "75%", backgroundColor: Colors.surface, borderTopLeftRadius: Radius.card, borderTopRightRadius: Radius.card },
   modalHeader: { height: 58, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: Colors.surfaceSunken },
