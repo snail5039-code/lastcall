@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { ADMIN_TOKEN_KEY } from "../../services/admin-auth";
 import { fetchWithRetry } from "../../services/http";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type AdminReport = {
   id: number;
@@ -136,7 +136,7 @@ export default function AdminReportsScreen() {
 const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen, paddingHorizontal: 18 },
   header: { height: 58, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  iconButton: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
   loginCard: { marginTop: 60, backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 22, alignItems: "center" },
   loginTitle: { fontSize: 21, fontWeight: "900", color: Colors.text, marginTop: 12 },

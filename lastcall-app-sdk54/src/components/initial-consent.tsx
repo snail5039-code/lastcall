@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LEGAL_PAGE_URL, LOCATION_POLICY } from "../config/legal";
 import { setLocationConsent } from "../services/location";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../constants/design";
 
 const CONSENT_STORAGE_KEY = `lastcall.initialConsent.${LOCATION_POLICY.version}`;
 
@@ -180,7 +180,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   privacyBox: { marginTop: 4, borderRadius: Radius.card, backgroundColor: Colors.surfaceSunken, padding: 15 },
   privacyTitle: { color: Colors.navy, fontSize: 14, fontWeight: "900", marginBottom: 7 },
   privacyText: { color: Colors.textSub, fontSize: 12, lineHeight: 19 },
-  policyLink: { minHeight: 40, marginTop: 9, flexDirection: "row", alignItems: "center", gap: 7 },
+  policyLink: { minHeight: Tap.min, marginTop: 9, flexDirection: "row", alignItems: "center", gap: 7 },
   policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
   actions: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface },
   acceptButton: { minHeight: 52, borderRadius: Radius.control, alignItems: "center", justifyContent: "center", backgroundColor: Colors.navy },

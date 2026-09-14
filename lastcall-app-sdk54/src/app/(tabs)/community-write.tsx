@@ -18,7 +18,7 @@ import { apiUrl } from "../../config/api";
 import { LEGAL_PAGE_URL } from "../../config/legal";
 import { saveAuthoredPost } from "../../services/community-notifications";
 import { fetchWithRetry } from "../../services/http";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 export default function CommunityWriteScreen() {
   const Colors = useThemeColors();
@@ -290,8 +290,8 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     },
 
     backButton: {
-        width: 40,
-        height: 40,
+        width: Tap.min,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
     },
@@ -345,7 +345,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
         fontWeight: "600",
     },
     policyLink: {
-        minHeight: 38,
+        minHeight: Tap.min,
         flexDirection: "row",
         alignItems: "center",
         gap: 7,

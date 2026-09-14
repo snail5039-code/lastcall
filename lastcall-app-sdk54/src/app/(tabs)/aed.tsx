@@ -20,7 +20,7 @@ import { apiUrl } from "../../config/api";
 import { stage2Options } from "../../data/regions";
 import { fetchWithRetry } from "../../services/http";
 import { getCurrentLocationFast } from "../../services/location";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type Aed = {
   serialSeq: string;
@@ -331,7 +331,7 @@ export default function AedScreen() {
 const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   header: { height: 58, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface },
-  headerButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  headerButton: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
   warning: { flexDirection: "row", gap: 9, alignItems: "flex-start", marginHorizontal: 14, marginTop: 12, padding: 12, borderRadius: Radius.card, backgroundColor: Colors.urgentBg, borderWidth: 1, borderColor: Colors.border },
   warningText: { flex: 1, color: Colors.urgentText, fontSize: 12, lineHeight: 18 },
@@ -372,7 +372,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   mapButton: { minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: Colors.surfaceSunken },
   mapText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
   source: { paddingHorizontal: 18, paddingBottom: 8, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
-  emergencyButton: { minWidth: 62, minHeight: 40, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  emergencyButton: { minWidth: 62, minHeight: Tap.min, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
   emergencyText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
   guideRow: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 14, marginTop: 8, paddingHorizontal: 12, minHeight: 44, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
   guideRowText: { flex: 1, color: Colors.navy, fontSize: 13, fontWeight: "800" },
@@ -380,7 +380,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   modalSheet: { maxHeight: "75%", backgroundColor: Colors.surface, borderTopLeftRadius: Radius.card, borderTopRightRadius: Radius.card },
   modalHeader: { height: 58, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: Colors.surfaceSunken },
   modalTitle: { color: Colors.text, fontSize: 16, fontWeight: "900" },
-  modalClose: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  modalClose: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   optionRow: { minHeight: 50, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: Colors.surfaceSunken },
   optionRowSelected: { backgroundColor: Colors.surfaceSunken },
   optionText: { color: Colors.textSub, fontSize: 14, fontWeight: "700" },

@@ -417,6 +417,8 @@ export default function HospitalDetailScreen() {
               <TouchableOpacity
                 style={styles.imageAttribution}
                 onPress={() => Linking.openURL(hospitalImage.sourceUrl)}
+                // 사진을 가리지 않으려 띠는 낮게 두고, 누르는 범위만 위아래로 넓힌다.
+                hitSlop={{ top: 10, bottom: 10, left: 0, right: 0 }}
                 accessibilityLabel="병원 사진 출처 열기"
                 accessibilityRole="button"
               >

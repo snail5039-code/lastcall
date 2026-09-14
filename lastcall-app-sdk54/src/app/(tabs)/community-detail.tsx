@@ -19,7 +19,7 @@ import { apiUrl } from "../../config/api";
 import { LEGAL_PAGE_URL } from "../../config/legal";
 import { clearAdminToken, getAdminToken } from "../../services/admin-auth";
 import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../../services/community-moderation";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type CommunityPost = {
     id: number;
@@ -984,7 +984,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     commentPolicy: { flexDirection: "row", alignItems: "flex-start", gap: 9, padding: 12, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, marginTop: 12 },
     commentPolicyAccepted: { borderColor: Colors.ok, backgroundColor: Colors.okBg },
     commentPolicyText: { flex: 1, color: Colors.textSub, fontSize: 12, lineHeight: 18, fontWeight: "600" },
-    policyLink: { minHeight: 36, justifyContent: "center" },
+    policyLink: { minHeight: Tap.min, justifyContent: "center" },
     policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
     commentSubmitButtonDisabled: { backgroundColor: Colors.textFaint },
     container: {
@@ -1009,7 +1009,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     backButton: {
         width: 54,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "flex-start",
     },
@@ -1127,7 +1127,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     editButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1143,7 +1143,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     deleteButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1191,7 +1191,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     cancelButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1207,7 +1207,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     saveButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1257,7 +1257,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     deleteCancelButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1273,7 +1273,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
     deleteConfirmButton: {
         width: 92,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
@@ -1343,7 +1343,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     commentSubmitButton: {
         alignSelf: "flex-end",
         minWidth: 90,
-        height: 40,
+        height: Tap.min,
         marginTop: 12,
         paddingHorizontal: 14,
         justifyContent: "center",

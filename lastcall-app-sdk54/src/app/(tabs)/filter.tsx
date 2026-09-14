@@ -5,7 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { SafeAreaView } from "react-native-safe-area-context";
 import { stage2Options } from "../../data/regions";
 import { getCurrentLocationFast } from "../../services/location";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 const stage1Options = Object.keys(stage2Options);
 
@@ -199,7 +199,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   screen: { flex: 1, paddingHorizontal: 18, paddingTop: 8 },
   header: { height: 54, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  iconButton: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
   resetText: { fontSize: 14, fontWeight: "800", color: Colors.navySoft },
   scrollArea: { flex: 1 },

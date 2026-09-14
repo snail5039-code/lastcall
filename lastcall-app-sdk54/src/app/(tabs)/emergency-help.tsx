@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 const dangerSigns = [
   "의식이 없거나 반응이 없는 경우",
   "호흡이 어렵거나 멈춘 경우",
@@ -143,7 +143,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  iconButton: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   headerTitle: {
     fontSize: 18,
     fontWeight: "900",

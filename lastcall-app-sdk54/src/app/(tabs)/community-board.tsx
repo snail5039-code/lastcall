@@ -19,7 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { clearCommunityHiddenState, getCommunityHiddenState } from "../../services/community-moderation";
 import { fetchWithRetry } from "../../services/http";
-import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type CommunityPost = {
   id: number;
@@ -481,7 +481,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   backButton: {
     width: 54,
-    height: 40,
+    height: Tap.min,
     justifyContent: "center",
     alignItems: "flex-start",
   },
@@ -517,7 +517,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   writeButton: {
     width: 54,
-    height: 40,
+    height: Tap.min,
     backgroundColor: Colors.navy,
     borderRadius: Radius.control,
     justifyContent: "center",
@@ -624,7 +624,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   pageButton: {
     minWidth: 64,
-    height: 38,
+    height: Tap.min,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.navy,
