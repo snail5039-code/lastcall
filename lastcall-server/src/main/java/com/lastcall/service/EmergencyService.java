@@ -40,13 +40,28 @@ public class EmergencyService {
 	/** 공공 API 한 번에 받아올 최대 건수. 100이면 경기도처럼 응급의료기관이 많은 시·도에서 뒷부분이 잘린다. */
 	private static final int API_PAGE_SIZE = 1000;
 	private static final List<String> PROVINCES = List.of(
-			"서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시", "대전광역시", "울산광역시",
-			"세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "전북특별자치도", "전라남도",
-			"경상북도", "경상남도", "제주특별자치도");
+			"서울특별시", "부산광역시", "대구광역시", "인천광역시", "대전광역시", "울산광역시",
+			"세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "전북특별자치도",
+			"전남광주통합특별시", "경상북도", "경상남도", "제주특별자치도");
+
+	/**
+	 * 행정구역 통합으로 바뀐 시·도 이름. 공공데이터는 이미 통합 이름만 쓰기 때문에 옛 이름으로 조회하면 0건이 돌아온다.
+	 * 기기 역지오코딩이나 예전에 저장된 값이 옛 이름을 주더라도 검색이 비지 않도록 여기서 흡수한다.
+	 */
+	private static final Map<String, String> LEGACY_PROVINCE_NAMES = Map.of(
+			"광주광역시", "전남광주통합특별시",
+			"전라남도", "전남광주통합특별시");
 	
 	@Value("${emergency.api.service-key}")
 	private String serviceKey;
 	
+	/** 옛 시·도 이름을 공공데이터가 쓰는 현재 이름으로 바꾼다. 매핑에 없으면 그대로 둔다. 테스트를 위해 패키지 범위로 둔다. */
+	String normalizeProvince(String stage1) {
+		if (stage1 == null) return null;
+		String trimmed = stage1.trim();
+		return LEGACY_PROVINCE_NAMES.getOrDefault(trimmed, trimmed);
+	}
+
 	public List<EmergencyDto> getEmergencyList() {
 		return emergencyDao.getEmergencyList();
 	}
@@ -210,10 +225,11 @@ public class EmergencyService {
 	// 병상 정보
 	private List<EmergencyDto> getEmergencyBedList(String stage1, String stage2) {
 
+		String province = normalizeProvince(stage1);
 		UriComponentsBuilder builder = UriComponentsBuilder
 		        .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire")
 		        .queryParam("serviceKey", serviceKey)
-		        .queryParam("STAGE1", stage1)
+		        .queryParam("STAGE1", province)
 		        .queryParam("pageNo", 1)
 		        .queryParam("numOfRows", API_PAGE_SIZE)
 		        .queryParam("_type", "json");
@@ -292,10 +308,11 @@ public class EmergencyService {
 	// 병원 정보
 	private List<EmergencyDto> getHospitalInfoList(String stage1, String stage2) {
 
+		String province = normalizeProvince(stage1);
 		UriComponentsBuilder builder = UriComponentsBuilder
 		        .fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire")
 		        .queryParam("serviceKey", serviceKey)
-		        .queryParam("Q0", stage1)
+		        .queryParam("Q0", province)
 		        .queryParam("pageNo", 1)
 		        .queryParam("numOfRows", API_PAGE_SIZE)
 		        .queryParam("_type", "json");
@@ -460,10 +477,11 @@ public class EmergencyService {
 	private record ApiResponseCacheEntry(String body, long createdAt) {}
 
 	private Map<String, List<String>> getSevereCapabilities(String stage1, String stage2) {
+		String province = normalizeProvince(stage1);
 		UriComponentsBuilder builder = UriComponentsBuilder
 				.fromUriString("https://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire")
 				.queryParam("serviceKey", serviceKey)
-				.queryParam("STAGE1", stage1)
+				.queryParam("STAGE1", province)
 				.queryParam("pageNo", 1)
 				.queryParam("numOfRows", API_PAGE_SIZE)
 				.queryParam("_type", "json");
