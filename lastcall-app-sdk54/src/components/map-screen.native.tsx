@@ -74,7 +74,7 @@ export default function MapScreen() {
           <Text style={styles.title}>주변 응급실</Text>
           <Text style={styles.subtitle}>거리순 목록 · 선택하면 지도 앱으로 연결됩니다</Text>
         </View>
-        <TouchableOpacity style={styles.emergencyButton} onPress={call119}>
+        <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityRole="button">
           <FontAwesome6 name="phone" size={14} color={Colors.onDark} />
           <Text style={styles.emergencyText}>119</Text>
         </TouchableOpacity>
@@ -127,7 +127,7 @@ export default function MapScreen() {
         <View style={styles.state}>
           <FontAwesome6 name="location-crosshairs" size={34} color={Colors.textFaint} />
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => void load()}><Text style={styles.retryText}>다시 시도</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.retryButton} onPress={() => void load()} accessibilityRole="button"><Text style={styles.retryText}>다시 시도</Text></TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -137,7 +137,7 @@ export default function MapScreen() {
           ListEmptyComponent={<Text style={styles.emptyText}>표시할 응급실이 없습니다.</Text>}
           renderItem={({ item: hospital, index }) => (
             <View style={styles.card}>
-              <TouchableOpacity style={styles.cardMain} onPress={() => router.push({ pathname: "/hospital-detail", params: toHospitalDetailParams(hospital) })}>
+              <TouchableOpacity style={styles.cardMain} onPress={() => router.push({ pathname: "/hospital-detail", params: toHospitalDetailParams(hospital) })} accessibilityRole="button">
                 <View style={styles.rank}><Text style={styles.rankText}>{index + 1}</Text></View>
                 <View style={styles.hospitalInfo}>
                   <Text style={styles.hospitalName} numberOfLines={1}>{hospital.hospitalName}</Text>
@@ -147,10 +147,10 @@ export default function MapScreen() {
                 <FontAwesome6 name="chevron-right" size={13} color={Colors.textFaint} />
               </TouchableOpacity>
               <View style={styles.actions}>
-                <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(hospital)}>
+                <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(hospital)} accessibilityRole="button">
                   <FontAwesome6 name="map-location-dot" size={14} color={Colors.navySoft} /><Text style={styles.mapText}>지도 앱에서 보기</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.callButton} onPress={() => void Linking.openURL(`tel:${hospital.emergencyPhone || hospital.phone}`)}>
+                <TouchableOpacity style={styles.callButton} onPress={() => void Linking.openURL(`tel:${hospital.emergencyPhone || hospital.phone}`)} accessibilityRole="button">
                   <FontAwesome6 name="phone" size={13} color={Colors.ok} /><Text style={styles.callText}>응급실 전화</Text>
                 </TouchableOpacity>
               </View>

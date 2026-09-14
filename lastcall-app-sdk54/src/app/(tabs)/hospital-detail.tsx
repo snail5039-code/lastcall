@@ -393,13 +393,13 @@ export default function HospitalDetailScreen() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>응급실 상세</Text>
 
-          <TouchableOpacity style={styles.headerIconButton} accessibilityLabel="병원 정보">
+          <TouchableOpacity style={styles.headerIconButton} accessibilityLabel="병원 정보" accessibilityRole="button">
             <FontAwesome6 name="circle-info" size={20} color={Colors.textMuted} />
           </TouchableOpacity>
         </View>
@@ -418,6 +418,7 @@ export default function HospitalDetailScreen() {
                 style={styles.imageAttribution}
                 onPress={() => Linking.openURL(hospitalImage.sourceUrl)}
                 accessibilityLabel="병원 사진 출처 열기"
+                accessibilityRole="button"
               >
                 <Text style={styles.imageAttributionText} numberOfLines={1}>
                   {hospitalImage.author} · {hospitalImage.license} · Wikimedia Commons
@@ -500,6 +501,8 @@ export default function HospitalDetailScreen() {
                   isFavorite && styles.favoriteIconButtonActive,
                 ]}
                 onPress={toggleFavorite}
+                accessibilityRole="button"
+                accessibilityLabel={isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
               >
                 <FontAwesome6 name="star" solid={isFavorite} size={19} color={isFavorite ? Colors.navy : Colors.textMuted} />
               </TouchableOpacity>
@@ -533,6 +536,7 @@ export default function HospitalDetailScreen() {
             <TouchableOpacity
               style={styles.callButton}
               onPress={() => handleCall(emergencyPhone || phone)}
+              accessibilityRole="button"
             >
               <Text style={styles.callButtonText}>전화</Text>
             </TouchableOpacity>
@@ -540,6 +544,7 @@ export default function HospitalDetailScreen() {
             <TouchableOpacity
               style={styles.mapButton}
               onPress={handleNavigation}
+              accessibilityRole="button"
             >
               <Text style={styles.mapButtonText}>길찾기</Text>
             </TouchableOpacity>
@@ -547,6 +552,7 @@ export default function HospitalDetailScreen() {
             <TouchableOpacity
               style={styles.shareButton}
               onPress={handleShare}
+              accessibilityRole="button"
             >
               <Text style={styles.shareButtonText}>공유</Text>
             </TouchableOpacity>
@@ -570,6 +576,7 @@ export default function HospitalDetailScreen() {
                   <TouchableOpacity
                     style={styles.moreButton}
                     onPress={() => setShowAllDepartments(!showAllDepartments)}
+                    accessibilityRole="button"
                   >
                     <Text style={styles.moreButtonText}>
                       {showAllDepartments ? "접기" : `더보기 ${departmentList.length - 6}개`}

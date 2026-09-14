@@ -142,6 +142,7 @@ export default function CommunityWriteScreen() {
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => router.back()}
+                    accessibilityRole="button"
                 >
                     <Text style={styles.backButtonText}>←</Text>
                 </TouchableOpacity>
@@ -232,6 +233,7 @@ export default function CommunityWriteScreen() {
                         <TouchableOpacity
                             style={[styles.submitButton, !policyAccepted && styles.submitButtonDisabled]}
                             onPress={handleSubmit}
+                            accessibilityRole="button"
                         >
                             <Text style={styles.submitButtonText}>
                                 작성하기

@@ -188,13 +188,14 @@ export default function CommunityBoardScreen() {
         edges={["top"]}
       >
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{getBoardTitle()}</Text>
           <TouchableOpacity
             style={styles.writeButton}
             onPress={() => router.push({ pathname: "/community-write", params: { boardType } })}
+            accessibilityRole="button"
           >
             <Text style={styles.writeButtonText}>글쓰기</Text>
           </TouchableOpacity>
@@ -203,7 +204,7 @@ export default function CommunityBoardScreen() {
           <FontAwesome6 name="wifi" size={32} color={Colors.urgent} />
           <Text style={styles.errorText}>{errorMessage}</Text>
           <Text style={styles.errorDescription}>인터넷 연결을 확인한 후 다시 시도해주세요.</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchPosts}>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchPosts} accessibilityRole="button">
             <FontAwesome6 name="rotate-right" size={14} color={Colors.onDark} />
             <Text style={styles.retryButtonText}>다시 불러오기</Text>
           </TouchableOpacity>
@@ -221,6 +222,8 @@ export default function CommunityBoardScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="뒤로 가기"
         >
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
@@ -240,6 +243,7 @@ export default function CommunityBoardScreen() {
                 },
               })
             }
+            accessibilityRole="button"
           >
             <Text style={styles.writeButtonText}>
               글쓰기
@@ -288,6 +292,7 @@ export default function CommunityBoardScreen() {
                   },
                 })
               }
+              accessibilityRole="button"
             >
               <Text style={styles.postNumber}>
                 {item.id}
@@ -335,6 +340,7 @@ export default function CommunityBoardScreen() {
             ]}
             disabled={currentPage === 0}
             onPress={() => setCurrentPage(currentPage - 1)}
+            accessibilityRole="button"
           >
             <Text style={styles.pageButtonText}>이전</Text>
           </TouchableOpacity>
@@ -350,6 +356,7 @@ export default function CommunityBoardScreen() {
             ]}
             disabled={currentPage + 1 >= totalPages}
             onPress={() => setCurrentPage(currentPage + 1)}
+            accessibilityRole="button"
           >
             <Text style={styles.pageButtonText}>다음</Text>
           </TouchableOpacity>
@@ -368,6 +375,7 @@ export default function CommunityBoardScreen() {
                 },
               ]);
             }}
+            accessibilityRole="button"
           >
             <FontAwesome6 name="eye" size={13} color={Colors.textMuted} />
             <Text style={styles.resetHiddenText}>숨긴 게시글·작성자 다시 표시</Text>

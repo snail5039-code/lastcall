@@ -213,11 +213,11 @@ export default function HomeScreen() {
             >
               <FontAwesome6 name={THEME_ICON[themeMode]} size={19} color={Colors.textSub} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림">
+            <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림" accessibilityRole="button">
               <FontAwesome6 name="bell" size={20} color={Colors.textSub} />
               {notifications.length > 0 && <View style={styles.notificationBadge}><Text style={styles.notificationBadgeText}>{notifications.length > 9 ? "9+" : notifications.length}</Text></View>}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴">
+            <TouchableOpacity style={styles.topIconButton} onPress={() => setIsMenuOpen(!isMenuOpen)} accessibilityLabel="메뉴" accessibilityRole="button">
               <FontAwesome6 name="bars" size={21} color={Colors.textSub} />
             </TouchableOpacity>
           </View>
@@ -227,12 +227,12 @@ export default function HomeScreen() {
           <View style={styles.notificationBox}>
             <View style={styles.notificationHeader}>
               <Text style={styles.notificationTitle}>댓글 알림</Text>
-              {notifications.length > 0 && <TouchableOpacity onPress={readAllNotifications}><Text style={styles.readAllText}>모두 읽음</Text></TouchableOpacity>}
+              {notifications.length > 0 && <TouchableOpacity onPress={readAllNotifications} accessibilityRole="button"><Text style={styles.readAllText}>모두 읽음</Text></TouchableOpacity>}
             </View>
             {notifications.length === 0 ? (
               <View style={styles.emptyNotification}><FontAwesome6 name="bell-slash" size={22} color={Colors.textFaint} /><Text style={styles.emptyNotificationText}>새로운 댓글이 없습니다</Text></View>
             ) : notifications.slice(0, 8).map((notification) => (
-              <TouchableOpacity key={notification.commentId} style={styles.notificationItem} onPress={() => openNotification(notification)}>
+              <TouchableOpacity key={notification.commentId} style={styles.notificationItem} onPress={() => openNotification(notification)} accessibilityRole="button">
                 <View style={styles.notificationDot} />
                 <View style={styles.notificationTextBox}>
                   <Text style={styles.notificationPostTitle} numberOfLines={1}>{notification.postTitle}</Text>
@@ -258,6 +258,7 @@ export default function HomeScreen() {
                   },
                 });
               }}
+              accessibilityRole="button"
             >
               <FontAwesome6 name="bullhorn" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>공지사항</Text>
             </TouchableOpacity>
@@ -274,6 +275,7 @@ export default function HomeScreen() {
                   },
                 });
               }}
+              accessibilityRole="button"
             >
               <FontAwesome6 name="comments" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>자유게시판</Text>
             </TouchableOpacity>
@@ -290,6 +292,7 @@ export default function HomeScreen() {
                   },
                 });
               }}
+              accessibilityRole="button"
             >
               <FontAwesome6 name="pen-to-square" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>건의사항</Text>
             </TouchableOpacity>
@@ -306,11 +309,12 @@ export default function HomeScreen() {
                   },
                 });
               }}
+              accessibilityRole="button"
             >
               <FontAwesome6 name="circle-question" size={15} color={Colors.textSub} /><Text style={styles.menuItemText}>Q&A 게시판</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.menuItem, styles.adminMenuItem]} onPress={() => { setIsMenuOpen(false); router.push("/admin-reports"); }}>
+            <TouchableOpacity style={[styles.menuItem, styles.adminMenuItem]} onPress={() => { setIsMenuOpen(false); router.push("/admin-reports"); }} accessibilityRole="button">
               <FontAwesome6 name="user-shield" size={15} color={Colors.textMuted} /><Text style={styles.adminMenuText}>관리자 로그인</Text>
             </TouchableOpacity>
           </View>
@@ -328,7 +332,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.locationCard}>
-          <TouchableOpacity style={styles.locationMain} onPress={requestCurrentLocation} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.locationMain} onPress={requestCurrentLocation} activeOpacity={0.8} accessibilityRole="button">
           <View style={styles.locationRow}>
             <FontAwesome6 name="location-dot" size={20} color={Colors.navySoft} />
             <View style={styles.locationTextBox}>
@@ -339,7 +343,7 @@ export default function HomeScreen() {
           <FontAwesome6 name={currentLat === null ? "location-crosshairs" : "rotate"} size={19} color={Colors.textMuted} />
           </TouchableOpacity>
           {currentLat !== null && (
-            <TouchableOpacity style={styles.locationShareButton} onPress={() => void shareCurrentLocation()}>
+            <TouchableOpacity style={styles.locationShareButton} onPress={() => void shareCurrentLocation()} accessibilityRole="button">
               <FontAwesome6 name="share-nodes" size={14} color={Colors.navySoft} />
               <Text style={styles.locationShareText}>위치 공유</Text>
             </TouchableOpacity>
@@ -359,6 +363,7 @@ export default function HomeScreen() {
                   selectedSymptom === symptom.name && styles.selectedSymptom,
                 ]}
                 onPress={() => setSelectedSymptom((current) => current === symptom.name ? null : symptom.name)}
+                accessibilityRole="button"
               >
                 <FontAwesome6 name={symptom.icon} size={23} color={selectedSymptom === symptom.name ? Colors.onDark : Colors.navySoft} />
                 <Text
@@ -388,26 +393,26 @@ export default function HomeScreen() {
             accessibilityLabel="응급실 검색어"
           />
           {searchKeyword.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchKeyword("")} accessibilityLabel="검색어 지우기">
+            <TouchableOpacity onPress={() => setSearchKeyword("")} accessibilityLabel="검색어 지우기" accessibilityRole="button">
               <FontAwesome6 name="circle-xmark" size={17} color={Colors.textFaint} />
             </TouchableOpacity>
           )}
         </View>
 
-        <TouchableOpacity style={styles.searchButton} onPress={handleSearchEmergency}>
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearchEmergency} accessibilityRole="button">
           <View style={styles.buttonLabel}><FontAwesome6 name="magnifying-glass" size={17} color={Colors.onDark} /><Text style={styles.searchButtonText}>응급실 검색</Text></View>
         </TouchableOpacity>
 
         <View style={styles.secondaryRow}>
-          <TouchableOpacity style={styles.secondaryButton} onPress={openDetailedSearch}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={openDetailedSearch} accessibilityRole="button">
             <FontAwesome6 name="sliders" size={18} color={Colors.navySoft} />
             <Text style={styles.secondaryButtonText}>세부검색</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/aed" as Href)}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/aed" as Href)} accessibilityRole="button">
             <FontAwesome6 name="heart-pulse" size={18} color={Colors.navySoft} />
             <Text style={styles.secondaryButtonText}>AED 찾기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/emergency-help")}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/emergency-help")} accessibilityRole="button">
             <FontAwesome6 name="kit-medical" size={18} color={Colors.navySoft} />
             <Text style={styles.secondaryButtonText}>응급처치</Text>
           </TouchableOpacity>

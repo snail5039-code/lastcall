@@ -180,13 +180,13 @@ export default function HospitalsScreen() {
     >
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>추천 응급실</Text>
 
-          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(keyword && { keyword }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(keyword && { keyword }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })} accessibilityRole="button" accessibilityLabel="세부 검색">
             <FontAwesome6 name="sliders" size={20} color={Colors.text} />
           </TouchableOpacity>
         </View>
@@ -200,7 +200,7 @@ export default function HospitalsScreen() {
           contentContainerStyle={styles.listContent}
         >
           {loading && <View style={styles.stateBox}><ActivityIndicator size="large" color={Colors.navy} /><Text style={styles.stateText}>가까운 응급실을 찾고 있습니다</Text></View>}
-          {!loading && errorMessage ? <View style={styles.stateBox}><FontAwesome6 name="triangle-exclamation" size={28} color={Colors.urgent} /><Text style={styles.stateText}>{errorMessage}</Text><TouchableOpacity style={styles.retryButton} onPress={() => setRequestVersion((value) => value + 1)}><FontAwesome6 name="rotate-right" size={13} color={Colors.onDark} /><Text style={styles.retryButtonText}>다시 시도</Text></TouchableOpacity></View> : null}
+          {!loading && errorMessage ? <View style={styles.stateBox}><FontAwesome6 name="triangle-exclamation" size={28} color={Colors.urgent} /><Text style={styles.stateText}>{errorMessage}</Text><TouchableOpacity style={styles.retryButton} onPress={() => setRequestVersion((value) => value + 1)} accessibilityRole="button"><FontAwesome6 name="rotate-right" size={13} color={Colors.onDark} /><Text style={styles.retryButtonText}>다시 시도</Text></TouchableOpacity></View> : null}
           {!loading && !errorMessage && hospitals.length === 0 ? <View style={styles.stateBox}><FontAwesome6 name="hospital" size={28} color={Colors.textFaint} /><Text style={styles.stateText}>선택한 조건에 맞는 응급실이 없습니다</Text></View> : null}
           {hospitals.map((hospital, index) => (
             <View key={hospital.hpid} style={styles.card}>
@@ -271,6 +271,7 @@ export default function HospitalsScreen() {
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => handleCall(hospital.emergencyPhone || hospital.phone)}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.actionButtonText}>전화</Text>
                 </TouchableOpacity>
@@ -278,6 +279,7 @@ export default function HospitalsScreen() {
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => handleNavigation(hospital)}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.actionButtonText}>길찾기</Text>
                 </TouchableOpacity>
@@ -290,6 +292,7 @@ export default function HospitalsScreen() {
                       params: toHospitalDetailParams(hospital),
                     })
                   }
+                  accessibilityRole="button"
                 >
                   <Text style={styles.detailButtonText}>상세보기</Text>
                 </TouchableOpacity>
@@ -297,6 +300,7 @@ export default function HospitalsScreen() {
                 <TouchableOpacity
                   style={styles.shareButton}
                   onPress={() => handleShare(hospital)}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.shareButtonText}>공유</Text>
                 </TouchableOpacity>

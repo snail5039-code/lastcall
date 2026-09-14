@@ -89,7 +89,7 @@ export default function FavoritesScreen() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
@@ -114,6 +114,7 @@ export default function FavoritesScreen() {
                 key={hospital.hpid}
                 style={styles.hospitalCard}
                 onPress={() => moveToDetail(hospital)}
+                accessibilityRole="button"
               >
                 <Text style={styles.hospitalName}>{hospital.hospitalName}</Text>
                 <Text style={styles.address}>{hospital.address}</Text>
@@ -154,6 +155,7 @@ export default function FavoritesScreen() {
                 onPress={() => {
                   void clearRecentHospitals().then(() => setRecentList([]));
                 }}
+                accessibilityRole="button"
               >
                 <Text style={styles.clearText}>기록 삭제</Text>
               </TouchableOpacity>
@@ -166,6 +168,7 @@ export default function FavoritesScreen() {
               key={`recent-${hospital.hpid}`}
               style={styles.recentCard}
               onPress={() => router.push({ pathname: "/hospital-detail", params: hospital })}
+              accessibilityRole="button"
             >
               <View style={styles.recentIcon}><FontAwesome6 name="clock-rotate-left" size={14} color={Colors.navySoft} /></View>
               <View style={styles.recentInfo}>

@@ -54,7 +54,7 @@ export default function EmergencyHelpScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
@@ -117,6 +117,7 @@ export default function EmergencyHelpScreen() {
         <TouchableOpacity
           style={styles.callButton}
           onPress={call119}
+          accessibilityRole="button"
         >
           <Text style={styles.call119Text}>119 전화하기</Text>
         </TouchableOpacity>

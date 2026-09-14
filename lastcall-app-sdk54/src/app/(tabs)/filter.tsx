@@ -128,7 +128,7 @@ export default function FilterScreen() {
 
   const section = (key: keyof typeof openSections, title: string, options: { key: string; label: string }[], selected: string[], setter: (next: string[]) => void) => (
     <View style={styles.section}>
-      <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))}>
+      <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))} accessibilityRole="button">
         <View style={styles.titleRow}>
           <Text style={styles.sectionTitle}>{title}</Text>
           {selected.length > 0 && <Text style={styles.countBadge}>{selected.length}</Text>}
@@ -140,7 +140,7 @@ export default function FilterScreen() {
           {options.map((option) => {
             const checked = selected.includes(option.key);
             return (
-              <TouchableOpacity key={option.key} style={styles.optionRow} onPress={() => toggleValue(option.key, selected, setter)}>
+              <TouchableOpacity key={option.key} style={styles.optionRow} onPress={() => toggleValue(option.key, selected, setter)} accessibilityRole="button">
                 <Text style={styles.optionText}>{option.label}</Text>
                 <View style={[styles.checkBox, checked && styles.checkedBox]}>{checked && <FontAwesome6 name="check" size={13} color={Colors.onDark} />}</View>
               </TouchableOpacity>
@@ -155,41 +155,41 @@ export default function FilterScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity>
           <Text style={styles.headerTitle}>검색 필터</Text>
-          <TouchableOpacity onPress={reset}><Text style={styles.resetText}>초기화</Text></TouchableOpacity>
+          <TouchableOpacity onPress={reset} accessibilityRole="button"><Text style={styles.resetText}>초기화</Text></TouchableOpacity>
         </View>
         <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>지역 설정</Text>
             <View style={styles.regionBox}>
-              <TouchableOpacity style={styles.currentLocationButton} onPress={useCurrentLocation}><Text style={styles.currentLocationText}>현재 위치 사용</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.regionSelectButton} onPress={() => setIsStage1Open(!isStage1Open)}>
+              <TouchableOpacity style={styles.currentLocationButton} onPress={useCurrentLocation} accessibilityRole="button"><Text style={styles.currentLocationText}>현재 위치 사용</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.regionSelectButton} onPress={() => setIsStage1Open(!isStage1Open)} accessibilityRole="button">
                 <Text style={styles.regionSelectText}>{selectedStage1 || "시·도 선택"}</Text><FontAwesome6 name={isStage1Open ? "chevron-up" : "chevron-down"} size={14} color={Colors.textMuted} />
               </TouchableOpacity>
-              {isStage1Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled>{stage1Options.map((stage1) => <TouchableOpacity key={stage1} style={styles.regionOptionButton} onPress={() => { setSelectedStage1(stage1); setSelectedStage2(""); setIsStage1Open(false); }}><Text style={styles.regionOptionText}>{stage1}</Text></TouchableOpacity>)}</ScrollView></View>}
-              <TouchableOpacity style={[styles.regionSelectButton, !selectedStage1 && styles.disabledRegionButton]} disabled={!selectedStage1} onPress={() => setIsStage2Open(!isStage2Open)}>
+              {isStage1Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled>{stage1Options.map((stage1) => <TouchableOpacity key={stage1} style={styles.regionOptionButton} onPress={() => { setSelectedStage1(stage1); setSelectedStage2(""); setIsStage1Open(false); }} accessibilityRole="button"><Text style={styles.regionOptionText}>{stage1}</Text></TouchableOpacity>)}</ScrollView></View>}
+              <TouchableOpacity style={[styles.regionSelectButton, !selectedStage1 && styles.disabledRegionButton]} disabled={!selectedStage1} onPress={() => setIsStage2Open(!isStage2Open)} accessibilityRole="button">
                 <Text style={[styles.regionSelectText, !selectedStage1 && styles.disabledRegionText]}>{selectedStage2 || "시·군·구 전체"}</Text><FontAwesome6 name={isStage2Open ? "chevron-up" : "chevron-down"} size={14} color={selectedStage1 ? Colors.textMuted : Colors.textFaint} />
               </TouchableOpacity>
-              {isStage2Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled><TouchableOpacity style={styles.regionOptionButton} onPress={() => { setSelectedStage2(""); setIsStage2Open(false); }}><Text style={styles.regionOptionText}>시·군·구 전체</Text></TouchableOpacity>{(stage2Options[selectedStage1] ?? []).map((stage2) => <TouchableOpacity key={stage2} style={styles.regionOptionButton} onPress={() => { setSelectedStage2(stage2); setIsStage2Open(false); }}><Text style={styles.regionOptionText}>{stage2}</Text></TouchableOpacity>)}</ScrollView></View>}
+              {isStage2Open && <View style={styles.regionOptionList}><ScrollView style={styles.regionOptionScroll} nestedScrollEnabled><TouchableOpacity style={styles.regionOptionButton} onPress={() => { setSelectedStage2(""); setIsStage2Open(false); }} accessibilityRole="button"><Text style={styles.regionOptionText}>시·군·구 전체</Text></TouchableOpacity>{(stage2Options[selectedStage1] ?? []).map((stage2) => <TouchableOpacity key={stage2} style={styles.regionOptionButton} onPress={() => { setSelectedStage2(stage2); setIsStage2Open(false); }} accessibilityRole="button"><Text style={styles.regionOptionText}>{stage2}</Text></TouchableOpacity>)}</ScrollView></View>}
             </View>
           </View>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, sort: !prev.sort }))}><Text style={styles.sectionTitle}>정렬 기준</Text><FontAwesome6 name={openSections.sort ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
-            {openSections.sort && <View style={styles.sortBox}>{sortOptions.map((option) => <TouchableOpacity key={option.key} style={[styles.sortButton, selectedSort === option.key && styles.selectedSortButton]} onPress={() => setSelectedSort(option.key)}><Text style={[styles.sortText, selectedSort === option.key && styles.selectedSortText]}>{option.label}</Text></TouchableOpacity>)}</View>}
+            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, sort: !prev.sort }))} accessibilityRole="button"><Text style={styles.sectionTitle}>정렬 기준</Text><FontAwesome6 name={openSections.sort ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
+            {openSections.sort && <View style={styles.sortBox}>{sortOptions.map((option) => <TouchableOpacity key={option.key} style={[styles.sortButton, selectedSort === option.key && styles.selectedSortButton]} onPress={() => setSelectedSort(option.key)} accessibilityRole="button"><Text style={[styles.sortText, selectedSort === option.key && styles.selectedSortText]}>{option.label}</Text></TouchableOpacity>)}</View>}
           </View>
 
           <View style={styles.section}>
-            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, department: !prev.department }))}><Text style={styles.sectionTitle}>진료과</Text><FontAwesome6 name={openSections.department ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
-            {openSections.department && <View style={styles.grid}>{departments.map((department) => <TouchableOpacity key={department} style={[styles.departmentButton, selectedDepartment === department && styles.selectedDepartmentButton]} onPress={() => setSelectedDepartment(department)}><Text style={[styles.departmentText, selectedDepartment === department && styles.selectedDepartmentText]}>{department}</Text></TouchableOpacity>)}</View>}
+            <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, department: !prev.department }))} accessibilityRole="button"><Text style={styles.sectionTitle}>진료과</Text><FontAwesome6 name={openSections.department ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
+            {openSections.department && <View style={styles.grid}>{departments.map((department) => <TouchableOpacity key={department} style={[styles.departmentButton, selectedDepartment === department && styles.selectedDepartmentButton]} onPress={() => setSelectedDepartment(department)} accessibilityRole="button"><Text style={[styles.departmentText, selectedDepartment === department && styles.selectedDepartmentText]}>{department}</Text></TouchableOpacity>)}</View>}
           </View>
 
           {section("bed", "병상 종류 (1개 이상 가용)", bedOptions, selectedBeds, setSelectedBeds)}
           {section("facility", "장비·시설", facilityOptions, selectedFacilities, setSelectedFacilities)}
           {section("severe", "중증질환 수용 가능", severeOptions, selectedSevere, setSelectedSevere)}
         </ScrollView>
-        <View style={styles.bottomArea}><TouchableOpacity style={styles.applyButton} onPress={applyFilters}><Text style={styles.applyButtonText}>필터 적용하기</Text></TouchableOpacity></View>
+        <View style={styles.bottomArea}><TouchableOpacity style={styles.applyButton} onPress={applyFilters} accessibilityRole="button"><Text style={styles.applyButtonText}>필터 적용하기</Text></TouchableOpacity></View>
       </View>
     </SafeAreaView>
   );

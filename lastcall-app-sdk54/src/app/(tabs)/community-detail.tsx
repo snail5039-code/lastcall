@@ -581,7 +581,9 @@ export default function CommunityDetailScreen() {
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => router.back()}
-                    >
+                        accessibilityRole="button"
+                        accessibilityLabel="뒤로 가기"
+                      >
                         <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
                     </TouchableOpacity>
 
@@ -661,6 +663,7 @@ export default function CommunityDetailScreen() {
                                             setIsEditing(false);
                                             setEditPassword("");
                                         }}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.cancelButtonText}>
                                             취소
@@ -670,6 +673,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.saveButton}
                                         onPress={updatePost}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.saveButtonText}>
                                             저장
@@ -681,6 +685,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.editButton}
                                         onPress={startEditing}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.editButtonText}>
                                             수정
@@ -690,18 +695,19 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.deleteButton}
                                         onPress={requestPostDelete}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteButtonText}>
                                             삭제
                                         </Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => openReport("POST", Number(id))}>
+                                    <TouchableOpacity onPress={() => openReport("POST", Number(id))} accessibilityRole="button">
                                         <Text style={styles.reportText}>신고</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={hidePost}>
+                                    <TouchableOpacity onPress={hidePost} accessibilityRole="button">
                                         <Text style={styles.hideText}>게시글 숨김</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => hideAuthor(post.nickname)}>
+                                    <TouchableOpacity onPress={() => hideAuthor(post.nickname)} accessibilityRole="button">
                                         <Text style={styles.hideText}>작성자 숨김</Text>
                                     </TouchableOpacity>
                                 </>
@@ -725,6 +731,7 @@ export default function CommunityDetailScreen() {
                                             setIsDeleting(false);
                                             setDeletePassword("");
                                         }}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteCancelButtonText}>
                                             취소
@@ -734,6 +741,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.deleteConfirmButton}
                                         onPress={deletePost}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteConfirmButtonText}>
                                             삭제 확인
@@ -798,6 +806,7 @@ export default function CommunityDetailScreen() {
                                                         setEditingCommentId(null);
                                                         setEditingCommentPassword("");
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         취소
@@ -806,6 +815,7 @@ export default function CommunityDetailScreen() {
 
                                                 <TouchableOpacity
                                                     onPress={updateComment}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentSaveText}>
                                                         저장
@@ -830,6 +840,7 @@ export default function CommunityDetailScreen() {
 
                                                         setDeletingCommentId(null);
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         수정
@@ -843,16 +854,17 @@ export default function CommunityDetailScreen() {
 
                                                         setEditingCommentId(null);
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentDeleteText}>
                                                         삭제
                                                     </Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)}>
+                                                <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)} accessibilityRole="button">
                                                     <Text style={styles.reportText}>신고</Text>
                                                 </TouchableOpacity>
                                                 {!comment.isAdmin && (
-                                                    <TouchableOpacity onPress={() => hideAuthor(comment.nickname)}>
+                                                    <TouchableOpacity onPress={() => hideAuthor(comment.nickname)} accessibilityRole="button">
                                                         <Text style={styles.hideText}>작성자 숨김</Text>
                                                     </TouchableOpacity>
                                                 )}
@@ -876,6 +888,7 @@ export default function CommunityDetailScreen() {
                                                         setDeletingCommentId(null);
                                                         setDeletingCommentPassword("");
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         취소
@@ -884,6 +897,7 @@ export default function CommunityDetailScreen() {
 
                                                 <TouchableOpacity
                                                     onPress={deleteComment}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentDeleteText}>
                                                         삭제 확인
@@ -952,6 +966,7 @@ export default function CommunityDetailScreen() {
                         <TouchableOpacity
                             style={[styles.commentSubmitButton, !commentPolicyAccepted && styles.commentSubmitButtonDisabled]}
                             onPress={insertComment}
+                            accessibilityRole="button"
                         >
                             <Text style={styles.commentSubmitButtonText}>
                                 댓글 등록

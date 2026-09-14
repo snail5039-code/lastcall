@@ -291,7 +291,7 @@ export default function MyInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
 
@@ -527,13 +527,13 @@ function EditView(props: EditViewProps) {
         />
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={props.savePersonInfo}>
+      <TouchableOpacity style={styles.saveButton} onPress={props.savePersonInfo} accessibilityRole="button">
         <Text style={styles.saveButtonText}>
           {props.isNewPerson ? "추가하기" : "저장하기"}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cancelButton} onPress={props.cancelEdit}>
+      <TouchableOpacity style={styles.cancelButton} onPress={props.cancelEdit} accessibilityRole="button">
         <Text style={styles.cancelButtonText}>취소</Text>
       </TouchableOpacity>
     </>
@@ -575,7 +575,7 @@ function DetailView({
       <>
         <Text style={styles.description}>등록된 내 정보가 없습니다.</Text>
 
-        <TouchableOpacity style={styles.saveButton} onPress={onAddPerson}>
+        <TouchableOpacity style={styles.saveButton} onPress={onAddPerson} accessibilityRole="button">
           <Text style={styles.saveButtonText}>내 정보 추가하기</Text>
         </TouchableOpacity>
       </>
@@ -598,6 +598,7 @@ function DetailView({
                 selectedIndex === index && styles.personChipActive,
               ]}
               onPress={() => onSelectPerson(index)}
+              accessibilityRole="button"
             >
               <Text
                 style={[
@@ -610,7 +611,7 @@ function DetailView({
             </TouchableOpacity>
           ))}
 
-          <TouchableOpacity style={styles.addChip} onPress={onAddPerson}>
+          <TouchableOpacity style={styles.addChip} onPress={onAddPerson} accessibilityRole="button">
             <Text style={styles.addChipText}>+ 추가</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -631,11 +632,11 @@ function DetailView({
       <View style={styles.shareSection}>
         <Text style={styles.sectionTitle}>응급 시 전달</Text>
         <Text style={styles.shareDescription}>민감한 의료정보가 포함됩니다. 필요한 상대에게만 공유해주세요.</Text>
-        <TouchableOpacity style={styles.locationMedicalButton} onPress={onEmergencyShare}><Text style={styles.locationMedicalText}>의료정보 + 현재 위치 긴급 공유</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119}><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.guardianCallButton} onPress={onCallGuardian}><Text style={styles.guardianCallText}>보호자에게 전화</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian}><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.generalShareButton} onPress={onShare}><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.locationMedicalButton} onPress={onEmergencyShare} accessibilityRole="button"><Text style={styles.locationMedicalText}>의료정보 + 현재 위치 긴급 공유</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119} accessibilityRole="button"><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianCallButton} onPress={onCallGuardian} accessibilityRole="button"><Text style={styles.guardianCallText}>보호자에게 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian} accessibilityRole="button"><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.generalShareButton} onPress={onShare} accessibilityRole="button"><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -659,11 +660,11 @@ function DetailView({
         <InfoRow label="메모" value={selectedPerson.memo} />
       </View>
 
-      <TouchableOpacity style={styles.editButton} onPress={onEditPerson}>
+      <TouchableOpacity style={styles.editButton} onPress={onEditPerson} accessibilityRole="button">
         <Text style={styles.editButtonText}>수정하기</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={onDeletePerson}>
+      <TouchableOpacity style={styles.deleteButton} onPress={onDeletePerson} accessibilityRole="button">
         <Text style={styles.deleteButtonText}>삭제하기</Text>
       </TouchableOpacity>
     </>
@@ -733,6 +734,7 @@ function SelectButtonGroup({
               value === option && styles.selectButtonActive,
             ]}
             onPress={() => onSelect(option)}
+            accessibilityRole="button"
           >
             <Text
               style={[

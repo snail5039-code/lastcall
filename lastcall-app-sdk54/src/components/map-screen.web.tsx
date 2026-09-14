@@ -17,7 +17,7 @@ export default function MapWebScreen() {
         <Text style={styles.description}>
           웹에서는 응급실 검색을 이용해 가까운 병원 목록을 확인해 주세요.
         </Text>
-        <TouchableOpacity style={styles.button} onPress={() => router.replace("/")}>
+        <TouchableOpacity style={styles.button} onPress={() => router.replace("/")} accessibilityRole="button">
           <FontAwesome6 name="magnifying-glass" size={15} color={Colors.onDark} />
           <Text style={styles.buttonText}>응급실 검색으로 이동</Text>
         </TouchableOpacity>

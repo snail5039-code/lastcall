@@ -134,11 +134,11 @@ export default function AedScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* 하단은 탭 바가 차지하므로 119 는 헤더에 둔다. 주변 응급실 화면과 같은 자리다. */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기">
+        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주변 AED 찾기</Text>
-        <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityLabel="119에 전화">
+        <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityLabel="119에 전화" accessibilityRole="button">
           <FontAwesome6 name="phone" size={14} color={Colors.onDark} />
           <Text style={styles.emergencyText}>119</Text>
         </TouchableOpacity>
@@ -151,7 +151,7 @@ export default function AedScreen() {
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.guideRow} onPress={() => router.push("/emergency-help")}>
+      <TouchableOpacity style={styles.guideRow} onPress={() => router.push("/emergency-help")} accessibilityRole="button">
         <FontAwesome6 name="book-medical" size={14} color={Colors.navySoft} />
         <Text style={styles.guideRowText}>응급 대처 안내 보기</Text>
         <FontAwesome6 name="chevron-right" size={12} color={Colors.textFaint} />
@@ -159,7 +159,7 @@ export default function AedScreen() {
 
       <View style={styles.searchBox}>
         <View style={styles.regionRow}>
-          <TouchableOpacity style={styles.regionButton} onPress={() => setPicker("stage1")}>
+          <TouchableOpacity style={styles.regionButton} onPress={() => setPicker("stage1")} accessibilityRole="button">
             <Text style={[styles.regionText, !stage1 && styles.regionPlaceholder]} numberOfLines={1}>
               {stage1 || "시·도 선택"}
             </Text>
@@ -169,6 +169,7 @@ export default function AedScreen() {
             style={[styles.regionButton, !needsDistrict && styles.regionButtonDisabled]}
             onPress={() => needsDistrict && setPicker("stage2")}
             disabled={!needsDistrict}
+            accessibilityRole="button"
           >
             <Text style={[styles.regionText, !stage2 && styles.regionPlaceholder]} numberOfLines={1}>
               {stage2 || (stage1 && !needsDistrict ? "시·군·구 없음" : "시·군·구 선택")}
@@ -187,7 +188,7 @@ export default function AedScreen() {
             returnKeyType="search"
             onSubmitEditing={() => void search()}
           />
-          <TouchableOpacity style={styles.searchButton} onPress={() => void search()} disabled={loading}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => void search()} disabled={loading} accessibilityRole="button" accessibilityLabel="AED 검색">
             {loading ? (
               <ActivityIndicator color={Colors.onDark} size="small" />
             ) : (
@@ -212,7 +213,7 @@ export default function AedScreen() {
         <View style={styles.state}>
           <FontAwesome6 name="triangle-exclamation" size={32} color={Colors.textFaint} />
           <Text style={styles.errorText}>{errorMessage}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => void search()}>
+          <TouchableOpacity style={styles.retryButton} onPress={() => void search()} accessibilityRole="button">
             <Text style={styles.retryText}>다시 시도</Text>
           </TouchableOpacity>
         </View>
@@ -280,7 +281,7 @@ export default function AedScreen() {
                   </View>
                 </View>
               </View>
-              <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(aed)}>
+              <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(aed)} accessibilityRole="button">
                 <FontAwesome6 name="map-location-dot" size={14} color={Colors.navySoft} />
                 <Text style={styles.mapText}>지도 앱에서 위치 보기</Text>
               </TouchableOpacity>
@@ -300,7 +301,7 @@ export default function AedScreen() {
           <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 12 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{picker === "stage1" ? "시·도 선택" : "시·군·구 선택"}</Text>
-              <TouchableOpacity style={styles.modalClose} onPress={() => setPicker(null)} accessibilityLabel="닫기">
+              <TouchableOpacity style={styles.modalClose} onPress={() => setPicker(null)} accessibilityLabel="닫기" accessibilityRole="button">
                 <FontAwesome6 name="xmark" size={18} color={Colors.text} />
               </TouchableOpacity>
             </View>
@@ -312,6 +313,7 @@ export default function AedScreen() {
                     key={option}
                     style={[styles.optionRow, selected && styles.optionRowSelected]}
                     onPress={() => (picker === "stage1" ? selectStage1(option) : (setStage2(option), setPicker(null)))}
+                    accessibilityRole="button"
                   >
                     <Text style={[styles.optionText, selected && styles.optionTextSelected]}>{option}</Text>
                     {selected ? <FontAwesome6 name="check" size={14} color={Colors.navy} /> : null}
