@@ -37,6 +37,8 @@ public class EmergencyService {
 	private static final long REALTIME_CACHE_MILLIS = 15 * 1000L;
 	private static final long HOSPITAL_INFO_CACHE_MILLIS = 6 * 60 * 60 * 1000L;
 	private static final long SEVERE_CACHE_MILLIS = 60 * 1000L;
+	/** 공공 API 한 번에 받아올 최대 건수. 100이면 경기도처럼 응급의료기관이 많은 시·도에서 뒷부분이 잘린다. */
+	private static final int API_PAGE_SIZE = 1000;
 	private static final List<String> PROVINCES = List.of(
 			"서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시", "대전광역시", "울산광역시",
 			"세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "전북특별자치도", "전라남도",
@@ -213,7 +215,7 @@ public class EmergencyService {
 		        .queryParam("serviceKey", serviceKey)
 		        .queryParam("STAGE1", stage1)
 		        .queryParam("pageNo", 1)
-		        .queryParam("numOfRows", 100)
+		        .queryParam("numOfRows", API_PAGE_SIZE)
 		        .queryParam("_type", "json");
 
 		if(stage2 != null && !stage2.isBlank()) {
@@ -264,12 +266,12 @@ public class EmergencyService {
 		
 		EmergencyDto dto = new EmergencyDto();
 		
-		dto.setHpid(item.path("hpid").asText(""));
-	    dto.setHospitalName(item.path("dutyName").asText(""));
-	    dto.setEmergencyPhone(item.path("dutyTel3").asText(""));
-	    dto.setDataUpdatedAt(item.path("hvidate").asText(""));
-	    dto.setDutyDoctor(item.path("hvdnm").asText(""));
-	    dto.setDutyDoctorPhone(item.path("hv1").asText(""));
+		dto.setHpid(item.path("hpid").asString(""));
+	    dto.setHospitalName(item.path("dutyName").asString(""));
+	    dto.setEmergencyPhone(item.path("dutyTel3").asString(""));
+	    dto.setDataUpdatedAt(item.path("hvidate").asString(""));
+	    dto.setDutyDoctor(item.path("hvdnm").asString(""));
+	    dto.setDutyDoctorPhone(item.path("hv1").asString(""));
 	    dto.setAvailableBeds(item.path("hvec").asInt(0));
 	    dto.setOperatingRooms(item.path("hvoc").asInt(0));
 	    dto.setNeuroIcuBeds(item.path("hvcc").asInt(0));
@@ -277,13 +279,13 @@ public class EmergencyService {
 	    dto.setChestIcuBeds(item.path("hvccc").asInt(0));
 	    dto.setGeneralIcuBeds(item.path("hvicc").asInt(0));
 	    dto.setInpatientBeds(item.path("hvgc").asInt(0));
-	    dto.setCtAvailable(isAvailable(item.path("hvctayn").asText("")));
-	    dto.setMriAvailable(isAvailable(item.path("hvmriayn").asText("")));
-	    dto.setAngiographyAvailable(isAvailable(item.path("hvangioayn").asText("")));
-	    dto.setVentilatorAvailable(isAvailable(item.path("hvventiayn").asText("")));
-	    dto.setAmbulanceAvailable(isAvailable(item.path("hvamyn").asText("")));
-	    dto.setPediatricVentilatorAvailable(isAvailable(item.path("hv10").asText("")));
-	    dto.setIncubatorAvailable(isAvailable(item.path("hv11").asText("")));
+	    dto.setCtAvailable(isAvailable(item.path("hvctayn").asString("")));
+	    dto.setMriAvailable(isAvailable(item.path("hvmriayn").asString("")));
+	    dto.setAngiographyAvailable(isAvailable(item.path("hvangioayn").asString("")));
+	    dto.setVentilatorAvailable(isAvailable(item.path("hvventiayn").asString("")));
+	    dto.setAmbulanceAvailable(isAvailable(item.path("hvamyn").asString("")));
+	    dto.setPediatricVentilatorAvailable(isAvailable(item.path("hv10").asString("")));
+	    dto.setIncubatorAvailable(isAvailable(item.path("hv11").asString("")));
 
 	    return dto;
 	}
@@ -295,7 +297,7 @@ public class EmergencyService {
 		        .queryParam("serviceKey", serviceKey)
 		        .queryParam("Q0", stage1)
 		        .queryParam("pageNo", 1)
-		        .queryParam("numOfRows", 100)
+		        .queryParam("numOfRows", API_PAGE_SIZE)
 		        .queryParam("_type", "json");
 
 		if(stage2 != null && !stage2.isBlank()) {
@@ -343,10 +345,10 @@ public class EmergencyService {
 	private EmergencyDto toHospitalInfoDto(JsonNode item) {
 		EmergencyDto dto = new EmergencyDto();
 		
-	    dto.setHpid(item.path("hpid").asText(""));
-	    dto.setHospitalName(item.path("dutyName").asText(""));
-	    dto.setAddress(item.path("dutyAddr").asText(""));
-	    dto.setPhone(item.path("dutyTel1").asText(""));
+	    dto.setHpid(item.path("hpid").asString(""));
+	    dto.setHospitalName(item.path("dutyName").asString(""));
+	    dto.setAddress(item.path("dutyAddr").asString(""));
+	    dto.setPhone(item.path("dutyTel1").asString(""));
 	    dto.setLatitude(item.path("wgs84Lat").asDouble(0));
 	    dto.setLongitude(item.path("wgs84Lon").asDouble(0));
 
@@ -407,7 +409,7 @@ public class EmergencyService {
 	                .path("items")
 	                .path("item");
 
-	        return item.path("dgidIdName").asText("");
+	        return item.path("dgidIdName").asString("");
 
 	    } catch (Exception e) {
 	        System.err.println("진료과 정보 조회 실패, 병원별 정보 없이 계속 진행: " + hpid);
@@ -463,7 +465,7 @@ public class EmergencyService {
 				.queryParam("serviceKey", serviceKey)
 				.queryParam("STAGE1", stage1)
 				.queryParam("pageNo", 1)
-				.queryParam("numOfRows", 100)
+				.queryParam("numOfRows", API_PAGE_SIZE)
 				.queryParam("_type", "json");
 		if (stage2 != null && !stage2.isBlank()) {
 			builder.queryParam("STAGE2", stage2);
@@ -475,9 +477,9 @@ public class EmergencyService {
 			JsonNode itemNode = new ObjectMapper().readTree(response)
 					.path("response").path("body").path("items").path("item");
 			if (itemNode.isArray()) {
-				itemNode.forEach(item -> result.put(item.path("hpid").asText(""), parseSevereCapabilities(item)));
+				itemNode.forEach(item -> result.put(item.path("hpid").asString(""), parseSevereCapabilities(item)));
 			} else if (!itemNode.isMissingNode() && !itemNode.isNull()) {
-				result.put(itemNode.path("hpid").asText(""), parseSevereCapabilities(itemNode));
+				result.put(itemNode.path("hpid").asString(""), parseSevereCapabilities(itemNode));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -492,8 +494,8 @@ public class EmergencyService {
 		List<String> capabilities = new ArrayList<>();
 		for (int index = 0; index < keys.length; index++) {
 			String fieldNumber = String.valueOf(index + 1);
-			String value = item.path("MKioskTy" + fieldNumber).asText("");
-			if (value.isBlank()) value = item.path("mkioskTy" + fieldNumber).asText("");
+			String value = item.path("MKioskTy" + fieldNumber).asString("");
+			if (value.isBlank()) value = item.path("mkioskTy" + fieldNumber).asString("");
 			if (isAvailable(value)) capabilities.add(keys[index]);
 		}
 		return capabilities;
