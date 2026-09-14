@@ -18,7 +18,7 @@ import {
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
-import { Radius, Tap, ThemeColors, Type, useThemeColors, useThemeStyles } from "../../constants/design";
+import { Radius, Tap, ThemeColors, ThemeMode, Type, useThemeColors, useThemeMode, useThemeStyles } from "../../constants/design";
 import { getAuthoredPosts, getReadCommentIds, markCommentsRead } from "../../services/community-notifications";
 import { getCurrentLocationFast, hasLocationConsent } from "../../services/location";
 
@@ -30,6 +30,11 @@ type CommentNotification = {
   content: string;
   createdAt?: string;
 };
+/** 시스템 설정을 따르는 상태를 남겨 두기 위해 두 단계가 아니라 세 단계로 돈다. */
+const THEME_ORDER: ThemeMode[] = ["system", "light", "dark"];
+const THEME_ICON = { system: "circle-half-stroke", light: "sun", dark: "moon" } as const;
+const THEME_LABEL = { system: "시스템 설정", light: "밝게", dark: "어둡게" } as const;
+
 const symptoms = [
   { id: 1, name: "고열", icon: "temperature-high" as const },
   { id: 2, name: "가슴통증", icon: "heart-pulse" as const },
@@ -41,6 +46,9 @@ const symptoms = [
 
 export default function HomeScreen() {
   const Colors = useThemeColors();
+  const { mode: themeMode, setMode: setThemeMode } = useThemeMode();
+  const cycleThemeMode = () =>
+    setThemeMode(THEME_ORDER[(THEME_ORDER.indexOf(themeMode) + 1) % THEME_ORDER.length]);
   const styles = useThemeStyles(createStyles);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -197,6 +205,14 @@ export default function HomeScreen() {
             <Text style={styles.logoAccent}>살려</Text>줌
           </Text>
           <View style={styles.topActions}>
+            <TouchableOpacity
+              style={styles.topIconButton}
+              onPress={cycleThemeMode}
+              accessibilityRole="button"
+              accessibilityLabel={`화면 테마: ${THEME_LABEL[themeMode]}. 누르면 다음 설정으로 바뀝니다.`}
+            >
+              <FontAwesome6 name={THEME_ICON[themeMode]} size={19} color={Colors.textSub} />
+            </TouchableOpacity>
             <TouchableOpacity style={styles.topIconButton} onPress={() => { setIsNotificationOpen(!isNotificationOpen); setIsMenuOpen(false); }} accessibilityLabel="댓글 알림">
               <FontAwesome6 name="bell" size={20} color={Colors.textSub} />
               {notifications.length > 0 && <View style={styles.notificationBadge}><Text style={styles.notificationBadgeText}>{notifications.length > 9 ? "9+" : notifications.length}</Text></View>}

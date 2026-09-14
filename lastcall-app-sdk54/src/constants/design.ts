@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { StyleSheet, useColorScheme } from "react-native";
 
 /**
@@ -89,9 +89,31 @@ export type ThemeColors = Record<keyof typeof light, string>;
 /** 모듈 로드 시점에 색이 필요한 곳(정적 스타일)을 위한 기본값. 화면에서는 useThemeColors 를 쓴다. */
 export const Colors: ThemeColors = light;
 
-/** 현재 기기 설정에 맞는 색 한 벌. app.json 의 userInterfaceStyle 이 automatic 이라 시스템 설정을 따른다. */
+/** 시스템 설정을 따를지, 사용자가 고른 쪽으로 고정할지. */
+export type ThemeMode = "system" | "light" | "dark";
+
+export type ThemeState = {
+  mode: ThemeMode;
+  isDark: boolean;
+  setMode: (mode: ThemeMode) => void;
+};
+
+/** 값은 ThemeProvider 가 채운다. 여기에는 컴포넌트를 두지 않아야 design.ts 와 순환 참조가 생기지 않는다. */
+export const ThemeContext = createContext<ThemeState | null>(null);
+
+export function useThemeMode(): ThemeState {
+  // 훅은 조건 없이 항상 호출해야 하므로 시스템 값을 먼저 읽는다.
+  const systemScheme = useColorScheme();
+  const stored = useContext(ThemeContext);
+  if (stored) return stored;
+
+  // Provider 밖에서 쓰이더라도 최소한 시스템 설정은 따르게 둔다.
+  return { mode: "system", isDark: systemScheme === "dark", setMode: () => {} };
+}
+
+/** 현재 테마에 맞는 색 한 벌. */
 export function useThemeColors(): ThemeColors {
-  return useColorScheme() === "dark" ? dark : light;
+  return useThemeMode().isDark ? dark : light;
 }
 
 /**
