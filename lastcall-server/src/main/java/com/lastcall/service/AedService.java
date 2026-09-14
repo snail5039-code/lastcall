@@ -70,9 +70,20 @@ public class AedService {
 			throw new IllegalArgumentException("AED 는 설치 대수가 많아 시·군·구까지 선택해야 합니다.");
 		}
 
+		// 통합 시·도는 옛 이름 두 개로 나눠 조회한다. 한쪽이 실패해도 다른 쪽 결과는 내보낸다.
+		// 둘 다 없을 때만 오류로 올린다.
 		List<InstalledAed> pool = new ArrayList<>();
+		RuntimeException lastError = null;
 		for (String province : resolveProvinces(stage1)) {
-			pool.addAll(fetchDistrict(province, district));
+			try {
+				pool.addAll(fetchDistrict(province, district));
+			} catch (RuntimeException error) {
+				System.err.println("AED 조회 실패, 나머지 지역으로 계속 진행: " + province + "|" + district);
+				lastError = error;
+			}
+		}
+		if (pool.isEmpty() && lastError != null) {
+			throw lastError;
 		}
 
 		int size = limit <= 0 ? DEFAULT_LIMIT : Math.min(limit, MAX_LIMIT);
