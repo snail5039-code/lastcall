@@ -167,7 +167,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   header: { minHeight: 72, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface },
   title: { fontSize: 20, fontWeight: "900", color: Colors.text },
   subtitle: { marginTop: 4, fontSize: 11, color: Colors.textMuted },
-  emergencyButton: { minWidth: 68, minHeight: 44, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
+  emergencyButton: { minWidth: 68, minHeight: 44, borderRadius: Radius.control, backgroundColor: Colors.urgentFill, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
   emergencyText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
   notice: { flexDirection: "row", gap: 8, alignItems: "flex-start", margin: 14, marginBottom: 4, padding: 12, borderRadius: Radius.card, backgroundColor: Colors.cautionBg },
   noticeText: { flex: 1, color: Colors.caution, fontSize: 12, lineHeight: 18 },

@@ -3,6 +3,7 @@ import {
   useFocusEffect,
   useLocalSearchParams,
 } from "expo-router";
+import { goBack } from "../../services/navigation";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 import { useCallback, useEffect, useState } from "react";
@@ -188,7 +189,7 @@ export default function CommunityBoardScreen() {
         edges={["top"]}
       >
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
+          <TouchableOpacity style={styles.backButton} onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{getBoardTitle()}</Text>
@@ -221,7 +222,7 @@ export default function CommunityBoardScreen() {
       <View style={styles.headerRow}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           accessibilityRole="button"
           accessibilityLabel="뒤로 가기"
         >

@@ -24,10 +24,20 @@ const light = {
   urgentBg: "#FBEAEA",
   urgentText: "#7A1414",
 
+  /**
+   * 빨강·초록을 통째로 칠하는 면의 색. 글자색으로 쓰는 urgent/ok 와 나눠 둔다.
+   * 어두운 배경에서는 글자용 색을 밝게 올려야 하는데, 같은 색을 면에 칠하면
+   * 그 위의 흰 글자가 안 보인다. 한 색이 두 역할을 같이 할 수 없다.
+   */
+  urgentFill: "#A61B1B",
+  okFill: "#1B5E36",
+  /** 빨간 면 위의 보조 글자. onDark 보다 한 톤 낮춰 제목과 구분한다. */
+  onUrgent: "#FFD9D9",
+
   /** 상태 표시. 색만으로 심각도를 전달하지 않고 항상 숫자나 문구를 함께 둔다. */
   ok: "#1B5E36",
   okBg: "#E8F3EC",
-  caution: "#8A6D14",
+  caution: "#7A5F10",
   cautionBg: "#F4F0E4",
 
   screen: "#EEF1F6",
@@ -40,7 +50,7 @@ const light = {
   text: "#0B1F3A",
   textSub: "#33456B",
   textMuted: "#5B6B87",
-  textFaint: "#8A97AD",
+  textFaint: "#606C82",
 
   /** 채워진 버튼 위의 글자·아이콘. 테마와 무관하게 항상 흰색이다. */
   onDark: "#FFFFFF",
@@ -63,6 +73,10 @@ const dark: ThemeColors = {
   urgentBg: "#3A1A1A",
   urgentText: "#F7B4B0",
 
+  urgentFill: "#B5332C",
+  okFill: "#17703D",
+  onUrgent: "#FFE0DE",
+
   ok: "#4ADE80",
   okBg: "#14301F",
   caution: "#E0B341",
@@ -78,7 +92,7 @@ const dark: ThemeColors = {
   text: "#E8EDF5",
   textSub: "#B6C2D4",
   textMuted: "#8A99B0",
-  textFaint: "#6B7A91",
+  textFaint: "#8A97AD",
 
   onDark: "#FFFFFF",
 } as const;

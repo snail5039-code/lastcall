@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router } from "expo-router";
+
+import { goBack } from "../../services/navigation";
 import {
   Linking,
   ScrollView,
@@ -54,7 +55,7 @@ export default function EmergencyHelpScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
+          <TouchableOpacity style={styles.iconButton} onPress={() => goBack()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
@@ -277,7 +278,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     lineHeight: 20,
   },
   call119Button: {
-    backgroundColor: Colors.urgent,
+    backgroundColor: Colors.urgentFill,
     borderRadius: Radius.card,
     paddingVertical: 17,
     alignItems: "center",
@@ -289,7 +290,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     fontWeight: "900",
   },
   callButton: {
-    backgroundColor: Colors.urgent,
+    backgroundColor: Colors.urgentFill,
     paddingVertical: 16,
     borderRadius: Radius.card,
     alignItems: "center",

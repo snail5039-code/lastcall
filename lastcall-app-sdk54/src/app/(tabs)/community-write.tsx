@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useState } from "react";
 import {
     Alert,
@@ -124,7 +125,7 @@ export default function CommunityWriteScreen() {
             Alert.alert("완료", "게시글이 등록되었습니다.", [
                 {
                     text: "확인",
-                    onPress: () => router.back(),
+                    onPress: () => goBack(),
                 },
             ]);
         } catch (error) {
@@ -141,7 +142,7 @@ export default function CommunityWriteScreen() {
             <View style={styles.headerRow}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => router.back()}
+                    onPress={() => goBack()}
                     accessibilityRole="button"
                 >
                     <Text style={styles.backButtonText}>←</Text>

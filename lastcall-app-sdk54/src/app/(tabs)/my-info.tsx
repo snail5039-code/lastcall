@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router } from "expo-router";
+
+import { goBack } from "../../services/navigation";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -291,7 +292,7 @@ export default function MyInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
+        <TouchableOpacity onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
 
@@ -332,7 +333,7 @@ export default function MyInfoScreen() {
             savePersonInfo={savePersonInfo}
             cancelEdit={() => {
               if (personList.length === 0) {
-                router.back();
+                goBack();
                 return;
               }
 
@@ -774,12 +775,12 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   policyButtonText: { flexShrink: 1, color: Colors.navy, fontSize: 14, fontWeight: "800" },
   shareSection: { backgroundColor: Colors.cautionBg, borderRadius: Radius.card, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.cautionBg },
   shareDescription: { fontSize: 12, lineHeight: 18, color: Colors.caution, marginBottom: 12 },
-  locationMedicalButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  locationMedicalButton: { backgroundColor: Colors.urgentFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
   locationMedicalText: { color: Colors.onDark, fontWeight: "900", fontSize: 14 },
-  emergencyShareButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  emergencyShareButton: { backgroundColor: Colors.urgentFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
   emergencyShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   guardianShareButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallButton: { backgroundColor: Colors.ok, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallButton: { backgroundColor: Colors.okFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
   guardianCallText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   guardianShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   generalShareButton: { backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: Colors.borderStrong },

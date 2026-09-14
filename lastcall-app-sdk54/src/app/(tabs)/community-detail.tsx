@@ -1,4 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -117,7 +118,7 @@ export default function CommunityDetailScreen() {
             {
                 text: "숨기기",
                 onPress: () => {
-                    void hideCommunityPost(Number(id)).then(() => router.back());
+                    void hideCommunityPost(Number(id)).then(() => goBack());
                 },
             },
         ]);
@@ -134,7 +135,7 @@ export default function CommunityDetailScreen() {
                     onPress: () => {
                         void hideCommunityAuthor(nickname).then(() => {
                             setHiddenAuthors((current) => current.includes(nickname) ? current : [...current, nickname]);
-                            if (post?.nickname === nickname) router.back();
+                            if (post?.nickname === nickname) goBack();
                         });
                     },
                 },
@@ -300,7 +301,7 @@ export default function CommunityDetailScreen() {
                 [
                     {
                         text: "확인",
-                        onPress: () => router.back(),
+                        onPress: () => goBack(),
                     },
                 ]
             );
@@ -580,7 +581,7 @@ export default function CommunityDetailScreen() {
                 <View style={styles.headerRow}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.back()}
+                        onPress={() => goBack()}
                         accessibilityRole="button"
                         accessibilityLabel="뒤로 가기"
                       >
@@ -1277,7 +1278,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: Radius.control,
-        backgroundColor: Colors.urgent,
+        backgroundColor: Colors.urgentFill,
     },
 
     deleteConfirmButtonText: {

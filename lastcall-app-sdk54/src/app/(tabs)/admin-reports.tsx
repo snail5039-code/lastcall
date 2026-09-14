@@ -1,6 +1,7 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as SecureStore from "expo-secure-store";
-import { router } from "expo-router";
+
+import { goBack } from "../../services/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -121,13 +122,13 @@ export default function AdminReportsScreen() {
 
   if (!token) {
     return <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}><TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity><Text style={styles.headerTitle}>관리자 로그인</Text><View style={styles.iconButton} /></View>
+      <View style={styles.header}><TouchableOpacity style={styles.iconButton} onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity><Text style={styles.headerTitle}>관리자 로그인</Text><View style={styles.iconButton} /></View>
       <View style={styles.loginCard}><FontAwesome6 name="user-shield" size={34} color={Colors.navy} /><Text style={styles.loginTitle}>신고 관리</Text><Text style={styles.loginDescription}>관리자 계정 정보를 입력해주세요.</Text><TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="관리자 아이디" autoCapitalize="none" /><TextInput style={[styles.input, styles.passwordInput]} value={password} onChangeText={setPassword} placeholder="관리자 비밀번호" secureTextEntry returnKeyType="done" onSubmitEditing={login} /><TouchableOpacity style={styles.loginButton} onPress={login} disabled={loading} accessibilityRole="button">{loading ? <ActivityIndicator color={Colors.onDark} /> : <Text style={styles.loginButtonText}>로그인</Text>}</TouchableOpacity></View>
     </SafeAreaView>;
   }
 
   return <SafeAreaView style={styles.container} edges={["top"]}>
-    <View style={styles.header}><TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity><Text style={styles.headerTitle}>신고 관리</Text><TouchableOpacity style={styles.iconButton} onPress={logout} accessibilityRole="button" accessibilityLabel="로그아웃"><FontAwesome6 name="right-from-bracket" size={18} color={Colors.textMuted} /></TouchableOpacity></View>
+    <View style={styles.header}><TouchableOpacity style={styles.iconButton} onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity><Text style={styles.headerTitle}>신고 관리</Text><TouchableOpacity style={styles.iconButton} onPress={logout} accessibilityRole="button" accessibilityLabel="로그아웃"><FontAwesome6 name="right-from-bracket" size={18} color={Colors.textMuted} /></TouchableOpacity></View>
     <View style={styles.tabs}>{["PENDING", "RESOLVED", "ALL"].map((item) => <TouchableOpacity key={item} style={[styles.tab, status === item && styles.activeTab]} onPress={() => setStatus(item)} accessibilityRole="button"><Text style={[styles.tabText, status === item && styles.activeTabText]}>{item === "PENDING" ? "처리 대기" : item === "RESOLVED" ? "처리 완료" : "전체"}</Text></TouchableOpacity>)}</View>
     {loading ? <ActivityIndicator style={styles.loader} size="large" color={Colors.navy} /> : <FlatList data={reports} keyExtractor={(item) => String(item.id)} contentContainerStyle={styles.list} ListEmptyComponent={<View style={styles.empty}><FontAwesome6 name="circle-check" size={30} color={Colors.textFaint} /><Text style={styles.emptyText}>해당 신고가 없습니다</Text></View>} renderItem={({ item }) => <View style={styles.card}><View style={styles.cardHeader}><Text style={styles.typeBadge}>{item.targetType === "POST" ? "게시글" : "댓글"}</Text><Text style={styles.date}>{item.createdAt?.replace("T", " ").slice(0, 16)}</Text></View><Text style={styles.reason}>신고 사유: {item.reason}</Text><Text style={styles.title}>{item.targetTitle || "삭제된 내용"}</Text><Text style={styles.author}>{item.targetNickname || "작성자 정보 없음"}</Text><Text style={styles.content} numberOfLines={4}>{item.targetContent || "원문이 이미 삭제되었습니다."}</Text>{item.status === "PENDING" && <View style={styles.actions}><TouchableOpacity style={styles.resolveButton} onPress={() => resolveReport(item)} accessibilityRole="button"><Text style={styles.resolveText}>처리 완료</Text></TouchableOpacity><TouchableOpacity style={styles.deleteButton} onPress={() => deleteContent(item)} accessibilityRole="button"><Text style={styles.deleteText}>원문 삭제</Text></TouchableOpacity></View>}</View>} />}
   </SafeAreaView>;
@@ -165,6 +166,6 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   actions: { flexDirection: "row", gap: 8, marginTop: 14 },
   resolveButton: { flex: 1, backgroundColor: Colors.border, borderRadius: Radius.control, paddingVertical: 11, alignItems: "center" },
   resolveText: { color: Colors.textSub, fontSize: 13, fontWeight: "900" },
-  deleteButton: { flex: 1, backgroundColor: Colors.urgent, borderRadius: Radius.control, paddingVertical: 11, alignItems: "center" },
+  deleteButton: { flex: 1, backgroundColor: Colors.urgentFill, borderRadius: Radius.control, paddingVertical: 11, alignItems: "center" },
   deleteText: { color: Colors.onDark, fontSize: 13, fontWeight: "900" },
 });

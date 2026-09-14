@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -134,7 +135,7 @@ export default function AedScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* 하단은 탭 바가 차지하므로 119 는 헤더에 둔다. 주변 응급실 화면과 같은 자리다. */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
+        <TouchableOpacity style={styles.headerButton} onPress={() => goBack()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
           <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주변 AED 찾기</Text>
@@ -372,7 +373,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   mapButton: { minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: Colors.surfaceSunken },
   mapText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
   source: { paddingHorizontal: 18, paddingBottom: 8, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
-  emergencyButton: { minWidth: 62, minHeight: Tap.min, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  emergencyButton: { minWidth: 62, minHeight: Tap.min, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgentFill, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
   emergencyText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
   guideRow: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 14, marginTop: 8, paddingHorizontal: 12, minHeight: 44, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
   guideRowText: { flex: 1, color: Colors.navy, fontSize: 13, fontWeight: "800" },

@@ -134,9 +134,13 @@ export default function HomeScreen() {
       Alert.alert("위치 확인 필요", "먼저 현재 위치를 설정해주세요.");
       return;
     }
-    await Share.share({
-      message: `[살려줌 현재 위치]\n${addressText}\nhttps://maps.google.com/?q=${currentLat},${currentLon}`,
-    });
+    try {
+      await Share.share({
+        message: `[살려줌 현재 위치]\n${addressText}\nhttps://maps.google.com/?q=${currentLat},${currentLon}`,
+      });
+    } catch {
+      Alert.alert("공유 실패", "이 기기에서는 공유를 사용할 수 없습니다. 주소를 직접 전달해주세요.");
+    }
   };
   const handleSearchEmergency = () => {
     if ((currentLat === null || currentLon === null) && !searchKeyword.trim()) {
@@ -438,11 +442,11 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   logo: { fontSize: 19, fontWeight: "900", color: Colors.text },
   logoAccent: { color: Colors.urgent },
 
-  emergencyHero: { backgroundColor: Colors.urgent, borderRadius: Radius.control, padding: 14, marginBottom: 12 },
+  emergencyHero: { backgroundColor: Colors.urgentFill, borderRadius: Radius.control, padding: 14, marginBottom: 12 },
   emergencyCopy: { flex: 1 },
   emergencyTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
   emergencyTitle: { flex: 1, color: Colors.onDark, fontSize: Type.title, fontWeight: "800" },
-  emergencyDescription: { color: "#FFD9D9", fontSize: Type.caption, lineHeight: 17 },
+  emergencyDescription: { color: Colors.onUrgent, fontSize: Type.caption, lineHeight: 17 },
   call119Button: { minWidth: 84, minHeight: Tap.min, paddingHorizontal: 14, borderRadius: Radius.control, backgroundColor: Colors.onDark, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
   call119ButtonText: { color: Colors.urgent, fontSize: Type.body, fontWeight: "900" },
 
@@ -477,7 +481,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   dataSourceText: { marginTop: 14, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
 
-  notificationBadge: { position: "absolute", top: 4, right: 2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: Radius.control, backgroundColor: Colors.urgent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: Colors.screen },
+  notificationBadge: { position: "absolute", top: 4, right: 2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: Radius.control, backgroundColor: Colors.urgentFill, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: Colors.screen },
   notificationBadgeText: { color: Colors.onDark, fontSize: 9, fontWeight: "900" },
   notificationBox: { position: "absolute", top: 50, right: 18, width: 300, maxHeight: 420, backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, padding: 12, zIndex: 120, elevation: 10, shadowColor: "#000", shadowOpacity: 0.14, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } },
   notificationHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, paddingBottom: 9 },

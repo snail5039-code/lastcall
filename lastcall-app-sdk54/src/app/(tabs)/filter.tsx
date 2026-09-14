@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -155,7 +156,7 @@ export default function FilterScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => goBack()} accessibilityLabel="뒤로 가기" accessibilityRole="button"><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity>
           <Text style={styles.headerTitle}>검색 필터</Text>
           <TouchableOpacity onPress={reset} accessibilityRole="button"><Text style={styles.resetText}>초기화</Text></TouchableOpacity>
         </View>

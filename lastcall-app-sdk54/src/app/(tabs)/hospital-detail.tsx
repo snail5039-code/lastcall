@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -381,9 +382,11 @@ export default function HospitalDetailScreen() {
       `길찾기: ${kakaoMapUrl}\n\n` +
       `살려줌 추천 응급실`;
 
-    await Share.share({
-      message,
-    });
+    try {
+      await Share.share({ message });
+    } catch {
+      Alert.alert("공유 실패", "이 기기에서는 공유를 사용할 수 없습니다.");
+    }
   };
 
   return (
@@ -393,7 +396,7 @@ export default function HospitalDetailScreen() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => goBack()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
@@ -730,7 +733,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   phoneText: { fontSize: Type.body, fontWeight: "800", color: Colors.navySoft },
 
   actionRow: { flexDirection: "row", gap: 6, marginBottom: 20 },
-  callButton: { flex: 1, backgroundColor: Colors.urgent, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
+  callButton: { flex: 1, backgroundColor: Colors.urgentFill, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
   callButtonText: { color: Colors.onDark, fontSize: Type.body, fontWeight: "900" },
   mapButton: { flex: 1, backgroundColor: Colors.navy, borderRadius: Radius.control, minHeight: 50, alignItems: "center", justifyContent: "center" },
   mapButtonText: { color: Colors.onDark, fontSize: Type.body, fontWeight: "900" },

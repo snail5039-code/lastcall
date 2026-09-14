@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -168,9 +169,11 @@ export default function HospitalsScreen() {
       `길찾기: ${kakaoMapUrl}\n\n` +
       `살려줌 추천 응급실`;
 
-    await Share.share({
-      message,
-    });
+    try {
+      await Share.share({ message });
+    } catch {
+      Alert.alert("공유 실패", "이 기기에서는 공유를 사용할 수 없습니다.");
+    }
   }
 
   return (
@@ -180,7 +183,7 @@ export default function HospitalsScreen() {
     >
       <View style={styles.screen}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerIconButton} onPress={() => router.back()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
+          <TouchableOpacity style={styles.headerIconButton} onPress={() => goBack()} accessibilityLabel="뒤로 가기" accessibilityRole="button">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 

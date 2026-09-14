@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useFocusEffect } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -89,7 +90,7 @@ export default function FavoritesScreen() {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
+          <TouchableOpacity onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
             <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
           </TouchableOpacity>
 
