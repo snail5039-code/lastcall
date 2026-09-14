@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.lastcall.dao.EmergencyDao;
 import com.lastcall.dto.EmergencyDto;
+import com.lastcall.util.Distances;
 
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.JsonNode;
@@ -371,26 +372,10 @@ public class EmergencyService {
 
 	    return dto;
 	}
-	// 여기 공식은 검색하면 나옴 그냥 빼면 ㅈ됨
 	private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-	    
-		// 지구 반지름 키로미터 단위로 받은것임!
-	    double earthRadius = 6371.0;
-	    
-	    double dLat = Math.toRadians(lat2 - lat1);
-	    double dLon = Math.toRadians(lon2 - lon1);
-	    
-	    // 하버사인 공식 이거는 인터넷 참고하기
-	    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-	            + Math.cos(Math.toRadians(lat1))
-	            * Math.cos(Math.toRadians(lat2))
-	            * Math.sin(dLon / 2)
-	            * Math.sin(dLon / 2);
-	    // 중심각 계산 이것도 마찬가지임!
-	    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-	    
-	    return Math.round((earthRadius * c) * 10) / 10.0;
+		return Distances.haversineKm(lat1, lon1, lat2, lon2);
 	}
+
 	// 진료과목 받아오기 테스트 api
 	public String getHospitalBasicInfoTest(String hpid) {
 
