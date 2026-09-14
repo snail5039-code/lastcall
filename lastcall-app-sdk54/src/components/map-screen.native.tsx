@@ -8,8 +8,11 @@ import { apiUrl } from "../config/api";
 import { fetchWithRetry } from "../services/http";
 import { getCurrentLocationFast } from "../services/location";
 import { Hospital, toHospitalDetailParams } from "../types/hospital";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../constants/design";
 
 export default function MapScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,14 +74,14 @@ export default function MapScreen() {
           <Text style={styles.title}>주변 응급실</Text>
           <Text style={styles.subtitle}>거리순 목록 · 선택하면 지도 앱으로 연결됩니다</Text>
         </View>
-        <TouchableOpacity style={styles.emergencyButton} onPress={call119}>
-          <FontAwesome6 name="phone" size={14} color="#FFFFFF" />
+        <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityRole="button">
+          <FontAwesome6 name="phone" size={14} color={Colors.onDark} />
           <Text style={styles.emergencyText}>119</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.notice}>
-        <FontAwesome6 name="triangle-exclamation" size={14} color="#B45309" />
+        <FontAwesome6 name="triangle-exclamation" size={14} color={Colors.caution} />
         <Text style={styles.noticeText}>병상 정보는 변동될 수 있으니 출발 전 응급실에 전화로 확인하세요.</Text>
       </View>
 
@@ -119,12 +122,12 @@ export default function MapScreen() {
       ) : null}
 
       {loading ? (
-        <View style={styles.state}><ActivityIndicator size="large" color="#EF4444" /><Text style={styles.stateText}>가까운 응급실을 찾고 있습니다</Text></View>
+        <View style={styles.state}><ActivityIndicator size="large" color={Colors.navy} /><Text style={styles.stateText}>가까운 응급실을 찾고 있습니다</Text></View>
       ) : error ? (
         <View style={styles.state}>
-          <FontAwesome6 name="location-crosshairs" size={34} color="#94A3B8" />
+          <FontAwesome6 name="location-crosshairs" size={34} color={Colors.textFaint} />
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => void load()}><Text style={styles.retryText}>다시 시도</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.retryButton} onPress={() => void load()} accessibilityRole="button"><Text style={styles.retryText}>다시 시도</Text></TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -134,21 +137,21 @@ export default function MapScreen() {
           ListEmptyComponent={<Text style={styles.emptyText}>표시할 응급실이 없습니다.</Text>}
           renderItem={({ item: hospital, index }) => (
             <View style={styles.card}>
-              <TouchableOpacity style={styles.cardMain} onPress={() => router.push({ pathname: "/hospital-detail", params: toHospitalDetailParams(hospital) })}>
+              <TouchableOpacity style={styles.cardMain} onPress={() => router.push({ pathname: "/hospital-detail", params: toHospitalDetailParams(hospital) })} accessibilityRole="button">
                 <View style={styles.rank}><Text style={styles.rankText}>{index + 1}</Text></View>
                 <View style={styles.hospitalInfo}>
                   <Text style={styles.hospitalName} numberOfLines={1}>{hospital.hospitalName}</Text>
                   <Text style={styles.hospitalMeta} numberOfLines={1}>{hospital.distance}km · 응급병상 {hospital.availableBeds > 0 ? `${hospital.availableBeds}개` : "확인 필요"}</Text>
                   <Text style={styles.address} numberOfLines={1}>{hospital.address}</Text>
                 </View>
-                <FontAwesome6 name="chevron-right" size={13} color="#94A3B8" />
+                <FontAwesome6 name="chevron-right" size={13} color={Colors.textFaint} />
               </TouchableOpacity>
               <View style={styles.actions}>
-                <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(hospital)}>
-                  <FontAwesome6 name="map-location-dot" size={14} color="#1D4ED8" /><Text style={styles.mapText}>지도 앱에서 보기</Text>
+                <TouchableOpacity style={styles.mapButton} onPress={() => void openMap(hospital)} accessibilityRole="button">
+                  <FontAwesome6 name="map-location-dot" size={14} color={Colors.navySoft} /><Text style={styles.mapText}>지도 앱에서 보기</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.callButton} onPress={() => void Linking.openURL(`tel:${hospital.emergencyPhone || hospital.phone}`)}>
-                  <FontAwesome6 name="phone" size={13} color="#15803D" /><Text style={styles.callText}>응급실 전화</Text>
+                <TouchableOpacity style={styles.callButton} onPress={() => void Linking.openURL(`tel:${hospital.emergencyPhone || hospital.phone}`)} accessibilityRole="button">
+                  <FontAwesome6 name="phone" size={13} color={Colors.ok} /><Text style={styles.callText}>응급실 전화</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -159,35 +162,35 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F6FB" },
-  header: { minHeight: 72, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFFFFF" },
-  title: { fontSize: 20, fontWeight: "900", color: "#111827" },
-  subtitle: { marginTop: 4, fontSize: 11, color: "#64748B" },
-  emergencyButton: { minWidth: 68, height: 40, borderRadius: 12, backgroundColor: "#DC2626", flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
-  emergencyText: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
-  notice: { flexDirection: "row", gap: 8, alignItems: "flex-start", margin: 14, marginBottom: 4, padding: 12, borderRadius: 12, backgroundColor: "#FFFBEB" },
-  noticeText: { flex: 1, color: "#92400E", fontSize: 12, lineHeight: 18 },
-  mapContainer: { height: 270, marginHorizontal: 14, marginTop: 10, borderRadius: 18, overflow: "hidden", backgroundColor: "#E2E8F0" },
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.screen },
+  header: { minHeight: 72, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface },
+  title: { fontSize: 20, fontWeight: "900", color: Colors.text },
+  subtitle: { marginTop: 4, fontSize: 11, color: Colors.textMuted },
+  emergencyButton: { minWidth: 68, minHeight: 44, borderRadius: Radius.control, backgroundColor: Colors.urgentFill, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
+  emergencyText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
+  notice: { flexDirection: "row", gap: 8, alignItems: "flex-start", margin: 14, marginBottom: 4, padding: 12, borderRadius: Radius.card, backgroundColor: Colors.cautionBg },
+  noticeText: { flex: 1, color: Colors.caution, fontSize: 12, lineHeight: 18 },
+  mapContainer: { height: 270, marginHorizontal: 14, marginTop: 10, borderRadius: Radius.card, overflow: "hidden", backgroundColor: Colors.border },
   map: { flex: 1 },
   state: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
-  stateText: { marginTop: 12, color: "#64748B", fontSize: 14 },
-  errorText: { marginTop: 12, color: "#DC2626", fontSize: 15, fontWeight: "800" },
-  retryButton: { marginTop: 16, backgroundColor: "#061A44", paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 },
-  retryText: { color: "#FFFFFF", fontWeight: "900" },
+  stateText: { marginTop: 12, color: Colors.textMuted, fontSize: 14 },
+  errorText: { marginTop: 12, color: Colors.urgent, fontSize: 15, fontWeight: "800" },
+  retryButton: { marginTop: 16, backgroundColor: Colors.navy, paddingHorizontal: 20, paddingVertical: 12, borderRadius: Radius.card },
+  retryText: { color: Colors.onDark, fontWeight: "900" },
   list: { padding: 14, paddingBottom: 28 },
-  card: { marginBottom: 11, borderRadius: 16, backgroundColor: "#FFFFFF", overflow: "hidden", borderWidth: 1, borderColor: "#E2E8F0" },
+  card: { marginBottom: 11, borderRadius: Radius.card, backgroundColor: Colors.surface, overflow: "hidden", borderWidth: 1, borderColor: Colors.border },
   cardMain: { minHeight: 84, padding: 14, flexDirection: "row", alignItems: "center", gap: 11 },
-  rank: { width: 30, height: 30, borderRadius: 10, backgroundColor: "#FFF1F1", alignItems: "center", justifyContent: "center" },
-  rankText: { color: "#DC2626", fontWeight: "900" },
+  rank: { width: 30, height: 30, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, alignItems: "center", justifyContent: "center" },
+  rankText: { color: Colors.navySoft, fontWeight: "900" },
   hospitalInfo: { flex: 1 },
-  hospitalName: { color: "#1F2937", fontSize: 15, fontWeight: "900" },
-  hospitalMeta: { marginTop: 5, color: "#334155", fontSize: 12, fontWeight: "700" },
-  address: { marginTop: 4, color: "#94A3B8", fontSize: 11 },
-  actions: { flexDirection: "row", borderTopWidth: 1, borderTopColor: "#F1F5F9" },
-  mapButton: { flex: 1, minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", borderRightWidth: 1, borderRightColor: "#F1F5F9" },
-  mapText: { color: "#1D4ED8", fontSize: 12, fontWeight: "800" },
+  hospitalName: { color: Colors.text, fontSize: 15, fontWeight: "900" },
+  hospitalMeta: { marginTop: 5, color: Colors.textSub, fontSize: 12, fontWeight: "700" },
+  address: { marginTop: 4, color: Colors.textFaint, fontSize: 11 },
+  actions: { flexDirection: "row", borderTopWidth: 1, borderTopColor: Colors.surfaceSunken },
+  mapButton: { flex: 1, minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center", borderRightWidth: 1, borderRightColor: Colors.surfaceSunken },
+  mapText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
   callButton: { flex: 1, minHeight: 44, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
-  callText: { color: "#15803D", fontSize: 12, fontWeight: "800" },
-  emptyText: { textAlign: "center", color: "#64748B", paddingVertical: 40 },
+  callText: { color: Colors.ok, fontSize: 12, fontWeight: "800" },
+  emptyText: { textAlign: "center", color: Colors.textMuted, paddingVertical: 40 },
 });

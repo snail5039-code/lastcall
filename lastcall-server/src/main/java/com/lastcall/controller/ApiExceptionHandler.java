@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -20,6 +22,21 @@ public class ApiExceptionHandler {
 			IllegalArgumentException.class })
 	public ResponseEntity<ApiError> handleBadRequest(Exception error, HttpServletRequest request) {
 		return response(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "요청 값을 확인해주세요.", request);
+	}
+
+	/**
+	 * 없는 경로와 맞지 않는 메서드는 아래 Exception 처리기에 걸려 500 으로 나갔다.
+	 * 클라이언트 잘못을 서버 장애로 알리면 원인을 찾기 어려워 따로 구분한다.
+	 */
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiError> handleNotFound(NoResourceFoundException error, HttpServletRequest request) {
+		return response(HttpStatus.NOT_FOUND, "NOT_FOUND", "요청한 경로를 찾을 수 없습니다.", request);
+	}
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<ApiError> handleMethodNotAllowed(HttpRequestMethodNotSupportedException error,
+			HttpServletRequest request) {
+		return response(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", "허용되지 않는 요청 방식입니다.", request);
 	}
 
 	@ExceptionHandler(RestClientException.class)

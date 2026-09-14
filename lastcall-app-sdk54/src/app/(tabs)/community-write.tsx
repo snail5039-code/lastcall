@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import { useState } from "react";
 import {
     Alert,
@@ -14,12 +15,15 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { LEGAL_PAGE_URL } from "../config/legal";
-import { saveAuthoredPost } from "../services/community-notifications";
-import { fetchWithRetry } from "../services/http";
+import { apiUrl } from "../../config/api";
+import { LEGAL_PAGE_URL } from "../../config/legal";
+import { saveAuthoredPost } from "../../services/community-notifications";
+import { fetchWithRetry } from "../../services/http";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 export default function CommunityWriteScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
     const params = useLocalSearchParams();
 
     const boardType =
@@ -121,7 +125,7 @@ export default function CommunityWriteScreen() {
             Alert.alert("완료", "게시글이 등록되었습니다.", [
                 {
                     text: "확인",
-                    onPress: () => router.back(),
+                    onPress: () => goBack(),
                 },
             ]);
         } catch (error) {
@@ -133,12 +137,13 @@ export default function CommunityWriteScreen() {
     return (
         <SafeAreaView
             style={styles.container}
-            edges={["top", "bottom"]}
+            edges={["top"]}
         >
             <View style={styles.headerRow}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => router.back()}
+                    onPress={() => goBack()}
+                    accessibilityRole="button"
                 >
                     <Text style={styles.backButtonText}>←</Text>
                 </TouchableOpacity>
@@ -211,7 +216,7 @@ export default function CommunityWriteScreen() {
                             <FontAwesome6
                                 name={policyAccepted ? "square-check" : "square"}
                                 size={20}
-                                color={policyAccepted ? "#15803D" : "#64748B"}
+                                color={policyAccepted ? Colors.ok : Colors.textMuted}
                             />
                             <Text style={styles.policyConsentText}>
                                 개인정보 노출, 욕설·혐오, 불법·허위 의료정보를 게시하지 않으며 커뮤니티 운영정책에 동의합니다.
@@ -223,12 +228,13 @@ export default function CommunityWriteScreen() {
                             accessibilityRole="link"
                         >
                             <Text style={styles.policyLinkText}>커뮤니티 운영정책 전문 보기</Text>
-                            <FontAwesome6 name="arrow-up-right-from-square" size={12} color="#1D4ED8" />
+                            <FontAwesome6 name="arrow-up-right-from-square" size={12} color={Colors.navySoft} />
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             style={[styles.submitButton, !policyAccepted && styles.submitButtonDisabled]}
                             onPress={handleSubmit}
+                            accessibilityRole="button"
                         >
                             <Text style={styles.submitButtonText}>
                                 작성하기
@@ -241,37 +247,37 @@ export default function CommunityWriteScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F7FA",
+        backgroundColor: Colors.surfaceSunken,
         paddingHorizontal: 20,
         paddingTop: 20,
     },
 
     formContainer: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 16,
+        backgroundColor: Colors.surface,
+        borderRadius: Radius.card,
         padding: 18,
     },
 
     label: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#374151",
+        color: Colors.textSub,
         marginBottom: 8,
     },
 
     input: {
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 10,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         paddingVertical: 12,
         fontSize: 15,
-        color: "#111827",
+        color: Colors.text,
         marginBottom: 18,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: Colors.surface,
     },
 
     contentInput: {
@@ -285,15 +291,15 @@ const styles = StyleSheet.create({
     },
 
     backButton: {
-        width: 40,
-        height: 40,
+        width: Tap.min,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
     },
 
     backButtonText: {
         fontSize: 28,
-        color: "#111827",
+        color: Colors.text,
     },
 
     headerTitle: {
@@ -301,7 +307,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 24,
         fontWeight: "700",
-        color: "#1F2937",
+        color: Colors.text,
     },
 
     headerSpacer: {
@@ -309,38 +315,38 @@ const styles = StyleSheet.create({
     },
 
     submitButton: {
-        backgroundColor: "#061A44",
-        borderRadius: 12,
+        backgroundColor: Colors.navy,
+        borderRadius: Radius.card,
         paddingVertical: 15,
         alignItems: "center",
         marginTop: 4,
     },
     submitButtonDisabled: {
-        backgroundColor: "#94A3B8",
+        backgroundColor: Colors.textFaint,
     },
     policyConsent: {
         flexDirection: "row",
         alignItems: "flex-start",
         gap: 10,
         borderWidth: 1,
-        borderColor: "#CBD5E1",
-        borderRadius: 12,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.card,
         padding: 13,
-        backgroundColor: "#F8FAFC",
+        backgroundColor: Colors.surfaceSunken,
     },
     policyConsentAccepted: {
-        borderColor: "#86EFAC",
-        backgroundColor: "#F0FDF4",
+        borderColor: Colors.ok,
+        backgroundColor: Colors.okBg,
     },
     policyConsentText: {
         flex: 1,
-        color: "#334155",
+        color: Colors.textSub,
         fontSize: 13,
         lineHeight: 19,
         fontWeight: "600",
     },
     policyLink: {
-        minHeight: 38,
+        minHeight: Tap.min,
         flexDirection: "row",
         alignItems: "center",
         gap: 7,
@@ -348,14 +354,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 4,
     },
     policyLinkText: {
-        color: "#1D4ED8",
+        color: Colors.navySoft,
         fontSize: 13,
         fontWeight: "800",
         textDecorationLine: "underline",
     },
 
     submitButtonText: {
-        color: "#FFFFFF",
+        color: Colors.onDark,
         fontSize: 16,
         fontWeight: "800",
     },

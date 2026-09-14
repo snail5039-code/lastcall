@@ -38,3 +38,6 @@ lastcall-server/src/main/resources/application-local.yml
 lastcall-server/src/main/resources/KakaoTalk_20260723_164026692.mp4
 # Local test tools
 .tools/
+
+# 로컬 미리보기 실행 설정
+.claude/launch.json

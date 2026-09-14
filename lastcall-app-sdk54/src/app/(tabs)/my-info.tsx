@@ -1,5 +1,6 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { router } from "expo-router";
+
+import { goBack } from "../../services/navigation";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -16,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentLocationFast } from "../../services/location";
 import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
 import { LEGAL_PAGE_URL } from "../../config/legal";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type PersonInfo = {
   relation: string;
@@ -46,6 +48,8 @@ const emptyPerson: PersonInfo = {
 };
 
 export default function MyInfoScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [personList, setPersonList] = useState<PersonInfo[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -288,8 +292,8 @@ export default function MyInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+        <TouchableOpacity onPress={() => goBack()} accessibilityRole="button" accessibilityLabel="뒤로 가기">
+          <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>내 정보</Text>
@@ -329,7 +333,7 @@ export default function MyInfoScreen() {
             savePersonInfo={savePersonInfo}
             cancelEdit={() => {
               if (personList.length === 0) {
-                router.back();
+                goBack();
                 return;
               }
 
@@ -372,9 +376,9 @@ export default function MyInfoScreen() {
               accessibilityRole="link"
               accessibilityLabel="개인정보처리방침과 서비스 정책 열기"
             >
-              <FontAwesome6 name="shield-halved" size={16} color="#061A44" />
+              <FontAwesome6 name="shield-halved" size={16} color={Colors.navy} />
               <Text style={styles.policyButtonText}>개인정보처리방침 및 서비스 정책</Text>
-              <FontAwesome6 name="arrow-up-right-from-square" size={13} color="#64748B" />
+              <FontAwesome6 name="arrow-up-right-from-square" size={13} color={Colors.textMuted} />
             </TouchableOpacity>
           </View>
         )}
@@ -414,6 +418,7 @@ type EditViewProps = {
 };
 
 function EditView(props: EditViewProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <>
       <Text style={styles.description}>
@@ -523,13 +528,13 @@ function EditView(props: EditViewProps) {
         />
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={props.savePersonInfo}>
+      <TouchableOpacity style={styles.saveButton} onPress={props.savePersonInfo} accessibilityRole="button">
         <Text style={styles.saveButtonText}>
           {props.isNewPerson ? "추가하기" : "저장하기"}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cancelButton} onPress={props.cancelEdit}>
+      <TouchableOpacity style={styles.cancelButton} onPress={props.cancelEdit} accessibilityRole="button">
         <Text style={styles.cancelButtonText}>취소</Text>
       </TouchableOpacity>
     </>
@@ -565,12 +570,13 @@ function DetailView({
   onCallGuardian,
   onCall119,
 }: DetailViewProps) {
+  const styles = useThemeStyles(createStyles);
   if (!selectedPerson) {
     return (
       <>
         <Text style={styles.description}>등록된 내 정보가 없습니다.</Text>
 
-        <TouchableOpacity style={styles.saveButton} onPress={onAddPerson}>
+        <TouchableOpacity style={styles.saveButton} onPress={onAddPerson} accessibilityRole="button">
           <Text style={styles.saveButtonText}>내 정보 추가하기</Text>
         </TouchableOpacity>
       </>
@@ -593,6 +599,7 @@ function DetailView({
                 selectedIndex === index && styles.personChipActive,
               ]}
               onPress={() => onSelectPerson(index)}
+              accessibilityRole="button"
             >
               <Text
                 style={[
@@ -605,7 +612,7 @@ function DetailView({
             </TouchableOpacity>
           ))}
 
-          <TouchableOpacity style={styles.addChip} onPress={onAddPerson}>
+          <TouchableOpacity style={styles.addChip} onPress={onAddPerson} accessibilityRole="button">
             <Text style={styles.addChipText}>+ 추가</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -626,11 +633,11 @@ function DetailView({
       <View style={styles.shareSection}>
         <Text style={styles.sectionTitle}>응급 시 전달</Text>
         <Text style={styles.shareDescription}>민감한 의료정보가 포함됩니다. 필요한 상대에게만 공유해주세요.</Text>
-        <TouchableOpacity style={styles.locationMedicalButton} onPress={onEmergencyShare}><Text style={styles.locationMedicalText}>의료정보 + 현재 위치 긴급 공유</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119}><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.guardianCallButton} onPress={onCallGuardian}><Text style={styles.guardianCallText}>보호자에게 전화</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian}><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.generalShareButton} onPress={onShare}><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.locationMedicalButton} onPress={onEmergencyShare} accessibilityRole="button"><Text style={styles.locationMedicalText}>의료정보 + 현재 위치 긴급 공유</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.emergencyShareButton} onPress={onCall119} accessibilityRole="button"><Text style={styles.emergencyShareText}>119 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianCallButton} onPress={onCallGuardian} accessibilityRole="button"><Text style={styles.guardianCallText}>보호자에게 전화</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.guardianShareButton} onPress={onMessageGuardian} accessibilityRole="button"><Text style={styles.guardianShareText}>보호자에게 문자</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.generalShareButton} onPress={onShare} accessibilityRole="button"><Text style={styles.generalShareText}>의료정보 공유</Text></TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -654,11 +661,11 @@ function DetailView({
         <InfoRow label="메모" value={selectedPerson.memo} />
       </View>
 
-      <TouchableOpacity style={styles.editButton} onPress={onEditPerson}>
+      <TouchableOpacity style={styles.editButton} onPress={onEditPerson} accessibilityRole="button">
         <Text style={styles.editButtonText}>수정하기</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={onDeletePerson}>
+      <TouchableOpacity style={styles.deleteButton} onPress={onDeletePerson} accessibilityRole="button">
         <Text style={styles.deleteButtonText}>삭제하기</Text>
       </TouchableOpacity>
     </>
@@ -682,6 +689,8 @@ function Input({
   multiline = false,
   keyboardType = "default",
 }: InputProps) {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.inputBox}>
       <Text style={styles.label}>{label}</Text>
@@ -691,7 +700,7 @@ function Input({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#999"
+        placeholderTextColor={Colors.textFaint}
         multiline={multiline}
         keyboardType={keyboardType}
       />
@@ -712,6 +721,7 @@ function SelectButtonGroup({
   options,
   onSelect,
 }: SelectButtonGroupProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.inputBox}>
       <Text style={styles.label}>{label}</Text>
@@ -725,6 +735,7 @@ function SelectButtonGroup({
               value === option && styles.selectButtonActive,
             ]}
             onPress={() => onSelect(option)}
+            accessibilityRole="button"
           >
             <Text
               style={[
@@ -747,6 +758,7 @@ type InfoRowProps = {
 };
 
 function InfoRow({ label, value }: InfoRowProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -755,24 +767,24 @@ function InfoRow({ label, value }: InfoRowProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  policySection: { backgroundColor: "#FFFFFF", borderRadius: 16, padding: 16, marginTop: 8, borderWidth: 1, borderColor: "#E2E8F0" },
-  policyTitle: { color: "#172033", fontSize: 16, fontWeight: "800", marginBottom: 5 },
-  policyDescription: { color: "#64748B", fontSize: 12, lineHeight: 18, marginBottom: 12 },
-  policyButton: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 12, backgroundColor: "#F1F5F9", paddingHorizontal: 12 },
-  policyButtonText: { flexShrink: 1, color: "#061A44", fontSize: 14, fontWeight: "800" },
-  shareSection: { backgroundColor: "#FFF7ED", borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#FED7AA" },
-  shareDescription: { fontSize: 12, lineHeight: 18, color: "#9A3412", marginBottom: 12 },
-  locationMedicalButton: { backgroundColor: "#B91C1C", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  locationMedicalText: { color: "#FFFFFF", fontWeight: "900", fontSize: 14 },
-  emergencyShareButton: { backgroundColor: "#DC2626", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  emergencyShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  guardianShareButton: { backgroundColor: "#061A44", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallButton: { backgroundColor: "#15803D", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  guardianShareText: { color: "#FFFFFF", fontWeight: "900", fontSize: 15 },
-  generalShareButton: { backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: "#CBD5E1" },
-  generalShareText: { color: "#334155", fontWeight: "900", fontSize: 15 },
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
+  policySection: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 16, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
+  policyTitle: { color: Colors.text, fontSize: 16, fontWeight: "800", marginBottom: 5 },
+  policyDescription: { color: Colors.textMuted, fontSize: 12, lineHeight: 18, marginBottom: 12 },
+  policyButton: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: Radius.card, backgroundColor: Colors.surfaceSunken, paddingHorizontal: 12 },
+  policyButtonText: { flexShrink: 1, color: Colors.navy, fontSize: 14, fontWeight: "800" },
+  shareSection: { backgroundColor: Colors.cautionBg, borderRadius: Radius.card, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.cautionBg },
+  shareDescription: { fontSize: 12, lineHeight: 18, color: Colors.caution, marginBottom: 12 },
+  locationMedicalButton: { backgroundColor: Colors.urgentFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  locationMedicalText: { color: Colors.onDark, fontWeight: "900", fontSize: 14 },
+  emergencyShareButton: { backgroundColor: Colors.urgentFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  emergencyShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
+  guardianShareButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallButton: { backgroundColor: Colors.okFill, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
+  guardianCallText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
+  guardianShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
+  generalShareButton: { backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: Colors.borderStrong },
+  generalShareText: { color: Colors.textSub, fontWeight: "900", fontSize: 15 },
   header: {
     height: 56,
     paddingHorizontal: 20,
@@ -783,18 +795,18 @@ const styles = StyleSheet.create({
 
   backText: {
     fontSize: 34,
-    color: "#222",
+    color: Colors.text,
   },
 
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#222",
+    color: Colors.text,
   },
 
   description: {
     fontSize: 14,
-    color: "#666",
+    color: Colors.textMuted,
     lineHeight: 20,
     marginBottom: 20,
   },
@@ -804,33 +816,33 @@ const styles = StyleSheet.create({
   },
 
   personChip: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 999,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.control,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: Colors.border,
   },
 
   personChipActive: {
-    backgroundColor: "#E53935",
-    borderColor: "#E53935",
+    backgroundColor: Colors.navy,
+    borderColor: Colors.navy,
   },
 
   personChipText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#555",
+    color: Colors.textMuted,
   },
 
   personChipTextActive: {
-    color: "#FFFFFF",
+    color: Colors.onDark,
   },
 
   addChip: {
-    backgroundColor: "#222",
-    borderRadius: 999,
+    backgroundColor: Colors.text,
+    borderRadius: Radius.control,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginRight: 8,
@@ -839,12 +851,12 @@ const styles = StyleSheet.create({
   addChipText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: Colors.onDark,
   },
 
   section: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     padding: 16,
     marginBottom: 16,
   },
@@ -852,7 +864,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#222",
+    color: Colors.text,
     marginBottom: 14,
   },
 
@@ -863,17 +875,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: Colors.textSub,
     marginBottom: 8,
   },
 
   input: {
-    backgroundColor: "#F2F3F5",
-    borderRadius: 10,
+    backgroundColor: Colors.surfaceSunken,
+    borderRadius: Radius.control,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: "#222",
+    color: Colors.text,
   },
 
   textArea: {
@@ -888,115 +900,115 @@ const styles = StyleSheet.create({
   },
 
   selectButton: {
-    backgroundColor: "#F2F3F5",
-    borderRadius: 10,
+    backgroundColor: Colors.surfaceSunken,
+    borderRadius: Radius.control,
     paddingVertical: 11,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: "#F2F3F5",
+    borderColor: Colors.surfaceSunken,
   },
 
   selectButtonActive: {
-    backgroundColor: "#FFECEC",
-    borderColor: "#E53935",
+    backgroundColor: Colors.surfaceSunken,
+    borderColor: Colors.navy,
   },
 
   selectButtonText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#555",
+    color: Colors.textMuted,
   },
 
   selectButtonTextActive: {
-    color: "#E53935",
+    color: Colors.navy,
   },
 
   infoRow: {
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: "#EEEEEE",
+    borderBottomColor: Colors.border,
   },
 
   infoLabel: {
     fontSize: 13,
-    color: "#777",
+    color: Colors.textFaint,
     marginBottom: 4,
   },
 
   infoValue: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#222",
+    color: Colors.text,
     lineHeight: 21,
   },
 
   saveButton: {
-    backgroundColor: "#E53935",
-    borderRadius: 14,
+    backgroundColor: Colors.navy,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 8,
   },
 
   saveButtonText: {
-    color: "#FFFFFF",
+    color: Colors.onDark,
     fontSize: 17,
     fontWeight: "700",
   },
 
   editButton: {
-    backgroundColor: "#222",
-    borderRadius: 14,
+    backgroundColor: Colors.text,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 8,
   },
 
   editButtonText: {
-    color: "#FFFFFF",
+    color: Colors.onDark,
     fontSize: 17,
     fontWeight: "700",
   },
 
   cancelButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#DDDDDD",
+    borderColor: Colors.borderStrong,
   },
 
   cancelButtonText: {
-    color: "#555",
+    color: Colors.textMuted,
     fontSize: 16,
     fontWeight: "700",
   },
 
   deleteButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.card,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#E53935",
+    borderColor: Colors.urgent,
   },
 
   deleteButtonText: {
-    color: "#E53935",
+    color: Colors.urgent,
     fontSize: 16,
     fontWeight: "700",
   },
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F8FA",
+    backgroundColor: Colors.surfaceSunken,
   },
 
   container: {
     flex: 1,
-    backgroundColor: "#F7F8FA",
+    backgroundColor: Colors.surfaceSunken,
   },
 
   scrollContent: {

@@ -1,4 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { goBack } from "../../services/navigation";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -15,10 +16,11 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiUrl } from "../config/api";
-import { LEGAL_PAGE_URL } from "../config/legal";
-import { clearAdminToken, getAdminToken } from "../services/admin-auth";
-import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../services/community-moderation";
+import { apiUrl } from "../../config/api";
+import { LEGAL_PAGE_URL } from "../../config/legal";
+import { clearAdminToken, getAdminToken } from "../../services/admin-auth";
+import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../../services/community-moderation";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type CommunityPost = {
     id: number;
@@ -41,6 +43,8 @@ type CommunityComment = {
 };
 
 export default function CommunityDetailScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
     const params = useLocalSearchParams();
 
     const id =
@@ -114,7 +118,7 @@ export default function CommunityDetailScreen() {
             {
                 text: "숨기기",
                 onPress: () => {
-                    void hideCommunityPost(Number(id)).then(() => router.back());
+                    void hideCommunityPost(Number(id)).then(() => goBack());
                 },
             },
         ]);
@@ -131,7 +135,7 @@ export default function CommunityDetailScreen() {
                     onPress: () => {
                         void hideCommunityAuthor(nickname).then(() => {
                             setHiddenAuthors((current) => current.includes(nickname) ? current : [...current, nickname]);
-                            if (post?.nickname === nickname) router.back();
+                            if (post?.nickname === nickname) goBack();
                         });
                     },
                 },
@@ -297,7 +301,7 @@ export default function CommunityDetailScreen() {
                 [
                     {
                         text: "확인",
-                        onPress: () => router.back(),
+                        onPress: () => goBack(),
                     },
                 ]
             );
@@ -569,7 +573,7 @@ export default function CommunityDetailScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={["top"]}>
             <KeyboardAvoidingView
                 style={styles.keyboardContainer}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -577,9 +581,11 @@ export default function CommunityDetailScreen() {
                 <View style={styles.headerRow}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.back()}
-                    >
-                        <FontAwesome6 name="chevron-left" size={20} color="#111827" />
+                        onPress={() => goBack()}
+                        accessibilityRole="button"
+                        accessibilityLabel="뒤로 가기"
+                      >
+                        <FontAwesome6 name="chevron-left" size={20} color={Colors.text} />
                     </TouchableOpacity>
 
                     <Text style={styles.headerTitle}>
@@ -658,6 +664,7 @@ export default function CommunityDetailScreen() {
                                             setIsEditing(false);
                                             setEditPassword("");
                                         }}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.cancelButtonText}>
                                             취소
@@ -667,6 +674,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.saveButton}
                                         onPress={updatePost}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.saveButtonText}>
                                             저장
@@ -678,6 +686,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.editButton}
                                         onPress={startEditing}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.editButtonText}>
                                             수정
@@ -687,18 +696,19 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.deleteButton}
                                         onPress={requestPostDelete}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteButtonText}>
                                             삭제
                                         </Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => openReport("POST", Number(id))}>
+                                    <TouchableOpacity onPress={() => openReport("POST", Number(id))} accessibilityRole="button">
                                         <Text style={styles.reportText}>신고</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={hidePost}>
+                                    <TouchableOpacity onPress={hidePost} accessibilityRole="button">
                                         <Text style={styles.hideText}>게시글 숨김</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => hideAuthor(post.nickname)}>
+                                    <TouchableOpacity onPress={() => hideAuthor(post.nickname)} accessibilityRole="button">
                                         <Text style={styles.hideText}>작성자 숨김</Text>
                                     </TouchableOpacity>
                                 </>
@@ -722,6 +732,7 @@ export default function CommunityDetailScreen() {
                                             setIsDeleting(false);
                                             setDeletePassword("");
                                         }}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteCancelButtonText}>
                                             취소
@@ -731,6 +742,7 @@ export default function CommunityDetailScreen() {
                                     <TouchableOpacity
                                         style={styles.deleteConfirmButton}
                                         onPress={deletePost}
+                                        accessibilityRole="button"
                                     >
                                         <Text style={styles.deleteConfirmButtonText}>
                                             삭제 확인
@@ -795,6 +807,7 @@ export default function CommunityDetailScreen() {
                                                         setEditingCommentId(null);
                                                         setEditingCommentPassword("");
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         취소
@@ -803,6 +816,7 @@ export default function CommunityDetailScreen() {
 
                                                 <TouchableOpacity
                                                     onPress={updateComment}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentSaveText}>
                                                         저장
@@ -827,6 +841,7 @@ export default function CommunityDetailScreen() {
 
                                                         setDeletingCommentId(null);
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         수정
@@ -840,16 +855,17 @@ export default function CommunityDetailScreen() {
 
                                                         setEditingCommentId(null);
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentDeleteText}>
                                                         삭제
                                                     </Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)}>
+                                                <TouchableOpacity onPress={() => openReport("COMMENT", comment.id)} accessibilityRole="button">
                                                     <Text style={styles.reportText}>신고</Text>
                                                 </TouchableOpacity>
                                                 {!comment.isAdmin && (
-                                                    <TouchableOpacity onPress={() => hideAuthor(comment.nickname)}>
+                                                    <TouchableOpacity onPress={() => hideAuthor(comment.nickname)} accessibilityRole="button">
                                                         <Text style={styles.hideText}>작성자 숨김</Text>
                                                     </TouchableOpacity>
                                                 )}
@@ -873,6 +889,7 @@ export default function CommunityDetailScreen() {
                                                         setDeletingCommentId(null);
                                                         setDeletingCommentPassword("");
                                                     }}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentEditText}>
                                                         취소
@@ -881,6 +898,7 @@ export default function CommunityDetailScreen() {
 
                                                 <TouchableOpacity
                                                     onPress={deleteComment}
+                                                    accessibilityRole="button"
                                                 >
                                                     <Text style={styles.commentDeleteText}>
                                                         삭제 확인
@@ -934,7 +952,7 @@ export default function CommunityDetailScreen() {
                             <FontAwesome6
                                 name={commentPolicyAccepted ? "square-check" : "square"}
                                 size={18}
-                                color={commentPolicyAccepted ? "#15803D" : "#64748B"}
+                                color={commentPolicyAccepted ? Colors.ok : Colors.textMuted}
                             />
                             <Text style={styles.commentPolicyText}>커뮤니티 운영정책을 지키며 개인정보·욕설·허위 의료정보를 게시하지 않습니다.</Text>
                         </TouchableOpacity>
@@ -949,6 +967,7 @@ export default function CommunityDetailScreen() {
                         <TouchableOpacity
                             style={[styles.commentSubmitButton, !commentPolicyAccepted && styles.commentSubmitButtonDisabled]}
                             onPress={insertComment}
+                            accessibilityRole="button"
                         >
                             <Text style={styles.commentSubmitButtonText}>
                                 댓글 등록
@@ -960,18 +979,18 @@ export default function CommunityDetailScreen() {
         </SafeAreaView>
     );
 }
-const styles = StyleSheet.create({
-    reportText: { color: "#DC2626", fontSize: 13, fontWeight: "700" },
-    hideText: { color: "#475569", fontSize: 13, fontWeight: "700" },
-    commentPolicy: { flexDirection: "row", alignItems: "flex-start", gap: 9, padding: 12, borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 10, backgroundColor: "#F8FAFC", marginTop: 12 },
-    commentPolicyAccepted: { borderColor: "#86EFAC", backgroundColor: "#F0FDF4" },
-    commentPolicyText: { flex: 1, color: "#334155", fontSize: 12, lineHeight: 18, fontWeight: "600" },
-    policyLink: { minHeight: 36, justifyContent: "center" },
-    policyLinkText: { color: "#1D4ED8", fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
-    commentSubmitButtonDisabled: { backgroundColor: "#94A3B8" },
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
+    reportText: { color: Colors.textMuted, fontSize: 13, fontWeight: "700" },
+    hideText: { color: Colors.textSub, fontSize: 13, fontWeight: "700" },
+    commentPolicy: { flexDirection: "row", alignItems: "flex-start", gap: 9, padding: 12, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, marginTop: 12 },
+    commentPolicyAccepted: { borderColor: Colors.ok, backgroundColor: Colors.okBg },
+    commentPolicyText: { flex: 1, color: Colors.textSub, fontSize: 12, lineHeight: 18, fontWeight: "600" },
+    policyLink: { minHeight: Tap.min, justifyContent: "center" },
+    policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
+    commentSubmitButtonDisabled: { backgroundColor: Colors.textFaint },
     container: {
         flex: 1,
-        backgroundColor: "#F5F7FA",
+        backgroundColor: Colors.surfaceSunken,
         paddingTop: 20,
     },
 
@@ -979,7 +998,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#F5F7FA",
+        backgroundColor: Colors.surfaceSunken,
     },
 
     headerRow: {
@@ -991,14 +1010,14 @@ const styles = StyleSheet.create({
 
     backButton: {
         width: 54,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "flex-start",
     },
 
     backButtonText: {
         fontSize: 28,
-        color: "#111827",
+        color: Colors.text,
     },
 
     headerTitle: {
@@ -1006,7 +1025,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 22,
         fontWeight: "700",
-        color: "#1F2937",
+        color: Colors.text,
     },
 
     rightSpacer: {
@@ -1016,15 +1035,15 @@ const styles = StyleSheet.create({
 
     postContainer: {
         marginHorizontal: 16,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: Colors.surface,
         padding: 20,
-        borderRadius: 12,
+        borderRadius: Radius.card,
     },
 
     title: {
         fontSize: 22,
         fontWeight: "700",
-        color: "#111827",
+        color: Colors.text,
     },
 
     metaRow: {
@@ -1035,36 +1054,36 @@ const styles = StyleSheet.create({
 
     metaText: {
         fontSize: 13,
-        color: "#6B7280",
+        color: Colors.textMuted,
     },
 
     createdAt: {
         marginTop: 6,
         fontSize: 12,
-        color: "#9CA3AF",
+        color: Colors.textFaint,
     },
 
     divider: {
         height: 1,
-        backgroundColor: "#E5E7EB",
+        backgroundColor: Colors.border,
         marginVertical: 18,
     },
 
     content: {
         fontSize: 16,
         lineHeight: 25,
-        color: "#374151",
+        color: Colors.textSub,
     },
 
     loadingText: {
         marginTop: 12,
         fontSize: 14,
-        color: "#6B7280",
+        color: Colors.textMuted,
     },
 
     errorText: {
         fontSize: 15,
-        color: "#DC2626",
+        color: Colors.urgent,
     },
 
     infoRow: {
@@ -1077,26 +1096,26 @@ const styles = StyleSheet.create({
         width: 70,
         fontSize: 14,
         fontWeight: "700",
-        color: "#374151",
+        color: Colors.textSub,
     },
 
     titleValue: {
         flex: 1,
         fontSize: 18,
         fontWeight: "700",
-        color: "#111827",
+        color: Colors.text,
     },
 
     infoValue: {
         flex: 1,
         fontSize: 14,
-        color: "#4B5563",
+        color: Colors.textSub,
     },
 
     contentLabel: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#374151",
+        color: Colors.textSub,
         marginBottom: 12,
     },
 
@@ -1109,97 +1128,97 @@ const styles = StyleSheet.create({
 
     editButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
+        borderRadius: Radius.control,
         borderWidth: 1,
-        borderColor: "#061A44",
+        borderColor: Colors.navy,
     },
 
     editButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#061A44",
+        color: Colors.navy,
     },
 
     deleteButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
+        borderRadius: Radius.control,
         borderWidth: 1,
-        borderColor: "#DC2626",
+        borderColor: Colors.urgent,
     },
 
     deleteButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#DC2626",
+        color: Colors.urgent,
     },
     titleInput: {
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         paddingVertical: 10,
         fontSize: 18,
         fontWeight: "700",
-        color: "#111827",
+        color: Colors.text,
     },
 
     contentInput: {
         minHeight: 180,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         padding: 12,
         fontSize: 16,
         lineHeight: 25,
-        color: "#374151",
+        color: Colors.textSub,
     },
 
     passwordInput: {
         height: 44,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         marginTop: 12,
         fontSize: 14,
-        color: "#111827",
+        color: Colors.text,
     },
 
     cancelButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
+        borderRadius: Radius.control,
         borderWidth: 1,
-        borderColor: "#9CA3AF",
+        borderColor: Colors.textFaint,
     },
 
     cancelButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#6B7280",
+        color: Colors.textMuted,
     },
 
     saveButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
-        backgroundColor: "#061A44",
+        borderRadius: Radius.control,
+        backgroundColor: Colors.navy,
     },
 
     saveButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#FFFFFF",
+        color: Colors.onDark,
     },
 
     keyboardContainer: {
@@ -1214,20 +1233,20 @@ const styles = StyleSheet.create({
         marginTop: 16,
         padding: 14,
         borderWidth: 1,
-        borderColor: "#E5E7EB",
-        borderRadius: 8,
-        backgroundColor: "#F9FAFB",
+        borderColor: Colors.border,
+        borderRadius: Radius.control,
+        backgroundColor: Colors.surfaceSunken,
     },
 
     deletePasswordInput: {
         height: 44,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         fontSize: 14,
-        color: "#111827",
-        backgroundColor: "#FFFFFF",
+        color: Colors.text,
+        backgroundColor: Colors.surface,
     },
 
     deleteConfirmRow: {
@@ -1239,47 +1258,47 @@ const styles = StyleSheet.create({
 
     deleteCancelButton: {
         width: 72,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
+        borderRadius: Radius.control,
         borderWidth: 1,
-        borderColor: "#9CA3AF",
+        borderColor: Colors.textFaint,
     },
 
     deleteCancelButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#6B7280",
+        color: Colors.textMuted,
     },
 
     deleteConfirmButton: {
         width: 92,
-        height: 40,
+        height: Tap.min,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
-        backgroundColor: "#DC2626",
+        borderRadius: Radius.control,
+        backgroundColor: Colors.urgentFill,
     },
 
     deleteConfirmButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#FFFFFF",
+        color: Colors.onDark,
     },
 
     commentWriteContainer: {
         marginHorizontal: 16,
         marginTop: 16,
         padding: 16,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
+        backgroundColor: Colors.surface,
+        borderRadius: Radius.card,
     },
 
     commentSectionTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#111827",
+        color: Colors.text,
         marginBottom: 12,
     },
 
@@ -1292,73 +1311,73 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 44,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         fontSize: 14,
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentPasswordInput: {
         flex: 1,
         height: 44,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 12,
         fontSize: 14,
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentContentInput: {
         minHeight: 90,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         padding: 12,
         fontSize: 14,
         lineHeight: 21,
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentSubmitButton: {
         alignSelf: "flex-end",
         minWidth: 90,
-        height: 40,
+        height: Tap.min,
         marginTop: 12,
         paddingHorizontal: 14,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#061A44",
-        borderRadius: 8,
+        backgroundColor: Colors.navy,
+        borderRadius: Radius.control,
     },
 
     commentSubmitButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#FFFFFF",
+        color: Colors.onDark,
     },
 
     commentListContainer: {
         marginHorizontal: 16,
         marginTop: 16,
         padding: 16,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
+        backgroundColor: Colors.surface,
+        borderRadius: Radius.card,
     },
 
     emptyCommentText: {
         paddingVertical: 20,
         textAlign: "center",
         fontSize: 14,
-        color: "#9CA3AF",
+        color: Colors.textFaint,
     },
 
     commentItem: {
         paddingVertical: 14,
         borderBottomWidth: 1,
-        borderBottomColor: "#E5E7EB",
+        borderBottomColor: Colors.border,
     },
 
     commentHeader: {
@@ -1370,19 +1389,19 @@ const styles = StyleSheet.create({
     commentNickname: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentDate: {
         fontSize: 12,
-        color: "#9CA3AF",
+        color: Colors.textFaint,
     },
 
     commentContent: {
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#374151",
+        color: Colors.textSub,
     },
 
     commentActionRow: {
@@ -1394,46 +1413,46 @@ const styles = StyleSheet.create({
 
     commentEditText: {
         fontSize: 12,
-        color: "#4B5563",
+        color: Colors.textSub,
     },
 
     commentDeleteText: {
         fontSize: 12,
-        color: "#DC2626",
+        color: Colors.urgent,
     },
 
     commentEditInput: {
         minHeight: 80,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         padding: 10,
         fontSize: 14,
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentEditPasswordInput: {
         height: 42,
         marginTop: 10,
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 8,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.control,
         paddingHorizontal: 10,
         fontSize: 14,
-        color: "#111827",
+        color: Colors.text,
     },
 
     commentSaveText: {
         fontSize: 12,
         fontWeight: "700",
-        color: "#061A44",
+        color: Colors.navy,
     },
 
     commentDeleteBox: {
         marginTop: 10,
         padding: 10,
-        backgroundColor: "#F9FAFB",
-        borderRadius: 8,
+        backgroundColor: Colors.surfaceSunken,
+        borderRadius: Radius.control,
     },
 });

@@ -12,16 +12,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ],
-  "exclude": [
-    "components",
-    "hooks",
-    "constants",
-    "src/components/animated-icon.tsx",
-    "src/components/animated-icon.web.tsx",
-    "src/components/app-tabs.tsx",
-    "src/components/app-tabs.web.tsx",
-    "src/components/ui/collapsible.tsx",
-    "src/hooks/use-theme.ts"
   ]
 }

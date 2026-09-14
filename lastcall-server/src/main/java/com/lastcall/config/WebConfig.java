@@ -35,7 +35,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(emergencyRateLimitInterceptor).addPathPatterns("/emergency/**");
+		registry.addInterceptor(emergencyRateLimitInterceptor).addPathPatterns("/emergency/**", "/aed/**");
 		registry.addInterceptor(communityRateLimitInterceptor).addPathPatterns("/community/**");
 	}
 }
