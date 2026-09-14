@@ -18,9 +18,11 @@ import { apiUrl } from "../../config/api";
 import { LEGAL_PAGE_URL } from "../../config/legal";
 import { saveAuthoredPost } from "../../services/community-notifications";
 import { fetchWithRetry } from "../../services/http";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 export default function CommunityWriteScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
     const params = useLocalSearchParams();
 
     const boardType =
@@ -242,7 +244,7 @@ export default function CommunityWriteScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.surfaceSunken,
@@ -356,7 +358,7 @@ const styles = StyleSheet.create({
     },
 
     submitButtonText: {
-        color: Colors.surface,
+        color: Colors.onDark,
         fontSize: 16,
         fontWeight: "800",
     },

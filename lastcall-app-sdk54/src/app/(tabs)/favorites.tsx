@@ -15,7 +15,7 @@ import { apiUrl } from "../../config/api";
 import { getCurrentLocationFast } from "../../services/location";
 import { clearRecentHospitals, getRecentHospitals, RecentHospital } from "../../services/recent-hospitals";
 import { Hospital, toHospitalDetailParams } from "../../types/hospital";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type FavoriteHospital = Partial<Hospital> & {
   hpid: string;
@@ -30,6 +30,8 @@ type FavoriteHospital = Partial<Hospital> & {
 };
 
 export default function FavoritesScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [favoriteList, setFavoriteList] = useState<FavoriteHospital[]>([]);
   const [recentList, setRecentList] = useState<RecentHospital[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -179,7 +181,7 @@ export default function FavoritesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.screen,

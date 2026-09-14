@@ -18,7 +18,7 @@ import {
 import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
-import { Colors, Radius, Tap, Type } from "../../constants/design";
+import { Radius, Tap, ThemeColors, Type, useThemeColors, useThemeStyles } from "../../constants/design";
 import { getAuthoredPosts, getReadCommentIds, markCommentsRead } from "../../services/community-notifications";
 import { getCurrentLocationFast, hasLocationConsent } from "../../services/location";
 
@@ -40,6 +40,8 @@ const symptoms = [
 ];
 
 export default function HomeScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState<CommentNotification[]>([]);
@@ -403,7 +405,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   screen: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 26 },
   keyboardArea: { flex: 1 },

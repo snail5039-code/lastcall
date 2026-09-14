@@ -20,7 +20,7 @@ import { apiUrl } from "../../config/api";
 import { stage2Options } from "../../data/regions";
 import { fetchWithRetry } from "../../services/http";
 import { getCurrentLocationFast } from "../../services/location";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type Aed = {
   serialSeq: string;
@@ -42,6 +42,8 @@ const stage1Options = Object.keys(stage2Options);
 const FALLBACK_COORDS = { latitude: 37.5665, longitude: 126.978 };
 
 export default function AedScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [stage1, setStage1] = useState("");
   const [stage2, setStage2] = useState("");
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -137,7 +139,7 @@ export default function AedScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주변 AED 찾기</Text>
         <TouchableOpacity style={styles.emergencyButton} onPress={call119} accessibilityLabel="119에 전화">
-          <FontAwesome6 name="phone" size={14} color={Colors.surface} />
+          <FontAwesome6 name="phone" size={14} color={Colors.onDark} />
           <Text style={styles.emergencyText}>119</Text>
         </TouchableOpacity>
       </View>
@@ -187,9 +189,9 @@ export default function AedScreen() {
           />
           <TouchableOpacity style={styles.searchButton} onPress={() => void search()} disabled={loading}>
             {loading ? (
-              <ActivityIndicator color={Colors.surface} size="small" />
+              <ActivityIndicator color={Colors.onDark} size="small" />
             ) : (
-              <FontAwesome6 name="magnifying-glass" size={15} color={Colors.surface} />
+              <FontAwesome6 name="magnifying-glass" size={15} color={Colors.onDark} />
             )}
           </TouchableOpacity>
         </View>
@@ -324,7 +326,7 @@ export default function AedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   header: { height: 58, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface },
   headerButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
   stateText: { marginTop: 12, color: Colors.textMuted, fontSize: 13, textAlign: "center" },
   errorText: { marginTop: 12, color: Colors.urgent, fontSize: 14, fontWeight: "800", textAlign: "center" },
   retryButton: { marginTop: 15, backgroundColor: Colors.navy, paddingHorizontal: 20, paddingVertical: 11, borderRadius: Radius.card },
-  retryText: { color: Colors.surface, fontWeight: "900" },
+  retryText: { color: Colors.onDark, fontWeight: "900" },
   list: { padding: 14, paddingBottom: 20 },
   resultCount: { marginBottom: 10, color: Colors.textSub, fontSize: 12, fontWeight: "800" },
   card: { marginBottom: 11, borderRadius: Radius.card, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, overflow: "hidden" },
@@ -369,7 +371,7 @@ const styles = StyleSheet.create({
   mapText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
   source: { paddingHorizontal: 18, paddingBottom: 8, color: Colors.textFaint, fontSize: 10, lineHeight: 16, textAlign: "center" },
   emergencyButton: { minWidth: 62, minHeight: 40, paddingHorizontal: 10, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
-  emergencyText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
+  emergencyText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
   guideRow: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 14, marginTop: 8, paddingHorizontal: 12, minHeight: 44, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
   guideRowText: { flex: 1, color: Colors.navy, fontSize: 13, fontWeight: "800" },
   modalBackdrop: { flex: 1, backgroundColor: "rgba(15,23,42,0.45)", justifyContent: "flex-end" },

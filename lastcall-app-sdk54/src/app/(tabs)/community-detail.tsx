@@ -19,7 +19,7 @@ import { apiUrl } from "../../config/api";
 import { LEGAL_PAGE_URL } from "../../config/legal";
 import { clearAdminToken, getAdminToken } from "../../services/admin-auth";
 import { getHiddenAuthors, hideCommunityAuthor, hideCommunityPost } from "../../services/community-moderation";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type CommunityPost = {
     id: number;
@@ -42,6 +42,8 @@ type CommunityComment = {
 };
 
 export default function CommunityDetailScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
     const params = useLocalSearchParams();
 
     const id =
@@ -961,7 +963,7 @@ export default function CommunityDetailScreen() {
         </SafeAreaView>
     );
 }
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     reportText: { color: Colors.textMuted, fontSize: 13, fontWeight: "700" },
     hideText: { color: Colors.textSub, fontSize: 13, fontWeight: "700" },
     commentPolicy: { flexDirection: "row", alignItems: "flex-start", gap: 9, padding: 12, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, marginTop: 12 },
@@ -1200,7 +1202,7 @@ const styles = StyleSheet.create({
     saveButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: Colors.surface,
+        color: Colors.onDark,
     },
 
     keyboardContainer: {
@@ -1266,7 +1268,7 @@ const styles = StyleSheet.create({
     deleteConfirmButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: Colors.surface,
+        color: Colors.onDark,
     },
 
     commentWriteContainer: {
@@ -1338,7 +1340,7 @@ const styles = StyleSheet.create({
     commentSubmitButtonText: {
         fontSize: 14,
         fontWeight: "700",
-        color: Colors.surface,
+        color: Colors.onDark,
     },
 
     commentListContainer: {

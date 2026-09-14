@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
-import { Colors, Radius, Type } from "../../constants/design";
+import { Radius, ThemeColors, Type, useThemeColors, useThemeStyles } from "../../constants/design";
 import {
   findOpenHospitalImage,
   HospitalImage,
@@ -51,7 +51,8 @@ type HospitalFallbackTheme = {
   iconColor: string;
 };
 
-const getHospitalFallbackTheme = (name: string): HospitalFallbackTheme => {
+/** 대체 이미지 색은 테마에 따라 달라지므로 모듈 상수가 아니라 인자로 받는다. */
+const getHospitalFallbackTheme = (name: string, Colors: ThemeColors): HospitalFallbackTheme => {
   if (/소아|어린이/.test(name)) {
     return {
       label: "어린이·소아 전문 의료기관",
@@ -123,6 +124,8 @@ type FavoriteHospital = {
   longitude: string;
 };
 export default function HospitalDetailScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const params = useLocalSearchParams<Record<string, string>>();
   const {
     hpid,
@@ -143,7 +146,7 @@ export default function HospitalDetailScreen() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [hospitalImage, setHospitalImage] = useState<HospitalImage | null>(null);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
-  const fallbackTheme = getHospitalFallbackTheme(String(hospitalName || ""));
+  const fallbackTheme = getHospitalFallbackTheme(String(hospitalName || ""), Colors);
   const regionLabel = getRegionLabel(String(address || ""));
   const currentHospital: FavoriteHospital = {
     hpid: String(hpid || ""),
@@ -419,7 +422,7 @@ export default function HospitalDetailScreen() {
                 <Text style={styles.imageAttributionText} numberOfLines={1}>
                   {hospitalImage.author} · {hospitalImage.license} · Wikimedia Commons
                 </Text>
-                <FontAwesome6 name="arrow-up-right-from-square" size={10} color={Colors.surface} />
+                <FontAwesome6 name="arrow-up-right-from-square" size={10} color={Colors.onDark} />
               </TouchableOpacity>
             </>
           ) : (
@@ -680,7 +683,7 @@ export default function HospitalDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   header: { minHeight: 56, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border },
   headerIconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },

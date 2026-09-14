@@ -2,9 +2,11 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Radius } from "../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../constants/design";
 
 export default function MapWebScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.content}>
@@ -16,7 +18,7 @@ export default function MapWebScreen() {
           웹에서는 응급실 검색을 이용해 가까운 병원 목록을 확인해 주세요.
         </Text>
         <TouchableOpacity style={styles.button} onPress={() => router.replace("/")}>
-          <FontAwesome6 name="magnifying-glass" size={15} color={Colors.surface} />
+          <FontAwesome6 name="magnifying-glass" size={15} color={Colors.onDark} />
           <Text style={styles.buttonText}>응급실 검색으로 이동</Text>
         </TouchableOpacity>
       </View>
@@ -24,7 +26,7 @@ export default function MapWebScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   content: {
     flex: 1,
@@ -65,5 +67,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 15,
   },
-  buttonText: { color: Colors.surface, fontSize: 15, fontWeight: "900" },
+  buttonText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
 });

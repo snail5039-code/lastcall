@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { ADMIN_TOKEN_KEY } from "../../services/admin-auth";
 import { fetchWithRetry } from "../../services/http";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type AdminReport = {
   id: number;
@@ -22,6 +22,8 @@ type AdminReport = {
 };
 
 export default function AdminReportsScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -120,7 +122,7 @@ export default function AdminReportsScreen() {
   if (!token) {
     return <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}><TouchableOpacity style={styles.iconButton} onPress={() => router.back()}><FontAwesome6 name="chevron-left" size={20} color={Colors.text} /></TouchableOpacity><Text style={styles.headerTitle}>관리자 로그인</Text><View style={styles.iconButton} /></View>
-      <View style={styles.loginCard}><FontAwesome6 name="user-shield" size={34} color={Colors.navy} /><Text style={styles.loginTitle}>신고 관리</Text><Text style={styles.loginDescription}>관리자 계정 정보를 입력해주세요.</Text><TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="관리자 아이디" autoCapitalize="none" /><TextInput style={[styles.input, styles.passwordInput]} value={password} onChangeText={setPassword} placeholder="관리자 비밀번호" secureTextEntry returnKeyType="done" onSubmitEditing={login} /><TouchableOpacity style={styles.loginButton} onPress={login} disabled={loading}>{loading ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.loginButtonText}>로그인</Text>}</TouchableOpacity></View>
+      <View style={styles.loginCard}><FontAwesome6 name="user-shield" size={34} color={Colors.navy} /><Text style={styles.loginTitle}>신고 관리</Text><Text style={styles.loginDescription}>관리자 계정 정보를 입력해주세요.</Text><TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="관리자 아이디" autoCapitalize="none" /><TextInput style={[styles.input, styles.passwordInput]} value={password} onChangeText={setPassword} placeholder="관리자 비밀번호" secureTextEntry returnKeyType="done" onSubmitEditing={login} /><TouchableOpacity style={styles.loginButton} onPress={login} disabled={loading}>{loading ? <ActivityIndicator color={Colors.onDark} /> : <Text style={styles.loginButtonText}>로그인</Text>}</TouchableOpacity></View>
     </SafeAreaView>;
   }
 
@@ -131,7 +133,7 @@ export default function AdminReportsScreen() {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen, paddingHorizontal: 18 },
   header: { height: 58, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
@@ -142,12 +144,12 @@ const styles = StyleSheet.create({
   input: { width: "100%", minHeight: 50, borderWidth: 1, borderColor: Colors.borderStrong, borderRadius: Radius.card, paddingHorizontal: 14, fontSize: 15 },
   passwordInput: { marginTop: 10 },
   loginButton: { width: "100%", minHeight: 50, backgroundColor: Colors.navy, borderRadius: Radius.card, alignItems: "center", justifyContent: "center", marginTop: 12 },
-  loginButtonText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  loginButtonText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   tabs: { flexDirection: "row", gap: 8, marginVertical: 12 },
   tab: { flex: 1, paddingVertical: 11, borderRadius: Radius.card, backgroundColor: Colors.surface, alignItems: "center" },
   activeTab: { backgroundColor: Colors.navy },
   tabText: { color: Colors.textMuted, fontSize: 13, fontWeight: "800" },
-  activeTabText: { color: Colors.surface },
+  activeTabText: { color: Colors.onDark },
   loader: { marginTop: 80 },
   list: { paddingBottom: 32 },
   empty: { alignItems: "center", gap: 10, paddingTop: 80 },
@@ -164,5 +166,5 @@ const styles = StyleSheet.create({
   resolveButton: { flex: 1, backgroundColor: Colors.border, borderRadius: Radius.control, paddingVertical: 11, alignItems: "center" },
   resolveText: { color: Colors.textSub, fontSize: 13, fontWeight: "900" },
   deleteButton: { flex: 1, backgroundColor: Colors.urgent, borderRadius: Radius.control, paddingVertical: 11, alignItems: "center" },
-  deleteText: { color: Colors.surface, fontSize: 13, fontWeight: "900" },
+  deleteText: { color: Colors.onDark, fontSize: 13, fontWeight: "900" },
 });

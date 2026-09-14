@@ -1,7 +1,7 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../constants/design";
+import { useThemeColors } from "../../constants/design";
 
 /**
  * 아이콘(24) + 라벨(14) + 사이 여백이 들어갈 실제 내용 높이.
@@ -28,6 +28,7 @@ const HIDDEN_ROUTES = [
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const Colors = useThemeColors();
 
   return (
     <Tabs
@@ -42,6 +43,7 @@ export default function TabLayout() {
           height: TAB_CONTENT_HEIGHT + TAB_PADDING * 2 + insets.bottom,
           paddingTop: TAB_PADDING,
           paddingBottom: TAB_PADDING + insets.bottom,
+          backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
         },
         tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontWeight: "800" },

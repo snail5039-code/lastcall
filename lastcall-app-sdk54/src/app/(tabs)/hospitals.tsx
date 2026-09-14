@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
-import { Colors, Radius, Type } from "../../constants/design";
+import { Radius, ThemeColors, Type, useThemeColors, useThemeStyles } from "../../constants/design";
 import { getCurrentLocationFast } from "../../services/location";
 import { Hospital, toHospitalDetailParams } from "../../types/hospital";
 
@@ -35,6 +35,8 @@ const isUpdatedAtStale = (value?: string) => {
 
 
 export default function HospitalsScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -307,7 +309,7 @@ export default function HospitalsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   screen: { flex: 1 },
   header: { minHeight: 56, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border },

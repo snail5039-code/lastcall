@@ -8,9 +8,11 @@ import { apiUrl } from "../config/api";
 import { fetchWithRetry } from "../services/http";
 import { getCurrentLocationFast } from "../services/location";
 import { Hospital, toHospitalDetailParams } from "../types/hospital";
-import { Colors, Radius } from "../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../constants/design";
 
 export default function MapScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -73,7 +75,7 @@ export default function MapScreen() {
           <Text style={styles.subtitle}>거리순 목록 · 선택하면 지도 앱으로 연결됩니다</Text>
         </View>
         <TouchableOpacity style={styles.emergencyButton} onPress={call119}>
-          <FontAwesome6 name="phone" size={14} color={Colors.surface} />
+          <FontAwesome6 name="phone" size={14} color={Colors.onDark} />
           <Text style={styles.emergencyText}>119</Text>
         </TouchableOpacity>
       </View>
@@ -160,13 +162,13 @@ export default function MapScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   header: { minHeight: 72, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.surface },
   title: { fontSize: 20, fontWeight: "900", color: Colors.text },
   subtitle: { marginTop: 4, fontSize: 11, color: Colors.textMuted },
   emergencyButton: { minWidth: 68, minHeight: 44, borderRadius: Radius.control, backgroundColor: Colors.urgent, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
-  emergencyText: { color: Colors.surface, fontSize: 15, fontWeight: "900" },
+  emergencyText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
   notice: { flexDirection: "row", gap: 8, alignItems: "flex-start", margin: 14, marginBottom: 4, padding: 12, borderRadius: Radius.card, backgroundColor: Colors.cautionBg },
   noticeText: { flex: 1, color: Colors.caution, fontSize: 12, lineHeight: 18 },
   mapContainer: { height: 270, marginHorizontal: 14, marginTop: 10, borderRadius: Radius.card, overflow: "hidden", backgroundColor: Colors.border },
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
   stateText: { marginTop: 12, color: Colors.textMuted, fontSize: 14 },
   errorText: { marginTop: 12, color: Colors.urgent, fontSize: 15, fontWeight: "800" },
   retryButton: { marginTop: 16, backgroundColor: Colors.navy, paddingHorizontal: 20, paddingVertical: 12, borderRadius: Radius.card },
-  retryText: { color: Colors.surface, fontWeight: "900" },
+  retryText: { color: Colors.onDark, fontWeight: "900" },
   list: { padding: 14, paddingBottom: 28 },
   card: { marginBottom: 11, borderRadius: Radius.card, backgroundColor: Colors.surface, overflow: "hidden", borderWidth: 1, borderColor: Colors.border },
   cardMain: { minHeight: 84, padding: 14, flexDirection: "row", alignItems: "center", gap: 11 },

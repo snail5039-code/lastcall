@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 const dangerSigns = [
   "의식이 없거나 반응이 없는 경우",
   "호흡이 어렵거나 멈춘 경우",
@@ -45,6 +45,8 @@ const guides = [
 ];
 
 export default function EmergencyHelpScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const call119 = () => {
     Linking.openURL("tel:119");
   };
@@ -123,7 +125,7 @@ export default function EmergencyHelpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.screen,
@@ -217,7 +219,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: Radius.control,
     backgroundColor: Colors.navy,
-    color: Colors.surface,
+    color: Colors.onDark,
     textAlign: "center",
     lineHeight: 24,
     fontSize: 14,
@@ -281,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   call119Text: {
-    color: Colors.surface,
+    color: Colors.onDark,
     fontSize: 17,
     fontWeight: "900",
   },

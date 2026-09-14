@@ -5,7 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { SafeAreaView } from "react-native-safe-area-context";
 import { stage2Options } from "../../data/regions";
 import { getCurrentLocationFast } from "../../services/location";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 const stage1Options = Object.keys(stage2Options);
 
@@ -57,6 +57,8 @@ function splitParam(value?: string) {
 }
 
 export default function FilterScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const params = useLocalSearchParams<Record<string, string>>();
   const [selectedStage1, setSelectedStage1] = useState(params.stage1 ?? "");
   const [selectedStage2, setSelectedStage2] = useState(params.stage2 ?? "");
@@ -140,7 +142,7 @@ export default function FilterScreen() {
             return (
               <TouchableOpacity key={option.key} style={styles.optionRow} onPress={() => toggleValue(option.key, selected, setter)}>
                 <Text style={styles.optionText}>{option.label}</Text>
-                <View style={[styles.checkBox, checked && styles.checkedBox]}>{checked && <FontAwesome6 name="check" size={13} color={Colors.surface} />}</View>
+                <View style={[styles.checkBox, checked && styles.checkedBox]}>{checked && <FontAwesome6 name="check" size={13} color={Colors.onDark} />}</View>
               </TouchableOpacity>
             );
           })}
@@ -193,7 +195,7 @@ export default function FilterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.screen },
   screen: { flex: 1, paddingHorizontal: 18, paddingTop: 8 },
   header: { height: 54, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
@@ -206,10 +208,10 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   titleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   sectionTitle: { fontSize: 18, fontWeight: "900", color: Colors.text },
-  countBadge: { minWidth: 22, textAlign: "center", color: Colors.surface, backgroundColor: Colors.navy, borderRadius: Radius.control, paddingHorizontal: 6, paddingVertical: 2, fontSize: 12, fontWeight: "800" },
+  countBadge: { minWidth: 22, textAlign: "center", color: Colors.onDark, backgroundColor: Colors.navy, borderRadius: Radius.control, paddingHorizontal: 6, paddingVertical: 2, fontSize: 12, fontWeight: "800" },
   regionBox: { marginTop: 14, backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 14, gap: 10, elevation: 2 },
   currentLocationButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center" },
-  currentLocationText: { color: Colors.surface, fontSize: 15, fontWeight: "900" },
+  currentLocationText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
   regionSelectButton: { minHeight: 52, paddingHorizontal: 16, backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   regionSelectText: { fontSize: 15, fontWeight: "800", color: Colors.textSub },
   regionOptionList: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, overflow: "hidden" },
@@ -222,7 +224,7 @@ const styles = StyleSheet.create({
   sortButton: { backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center" },
   selectedSortButton: { backgroundColor: Colors.navy },
   sortText: { color: Colors.textSub, fontSize: 15, fontWeight: "800" },
-  selectedSortText: { color: Colors.surface },
+  selectedSortText: { color: Colors.onDark },
   grid: { marginTop: 14, flexDirection: "row", flexWrap: "wrap", gap: 10 },
   departmentButton: { width: "31%", backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 15, alignItems: "center", borderWidth: 1, borderColor: Colors.border },
   selectedDepartmentButton: { backgroundColor: Colors.surfaceSunken, borderColor: Colors.navy },
@@ -235,5 +237,5 @@ const styles = StyleSheet.create({
   checkedBox: { backgroundColor: Colors.navy, borderColor: Colors.navy },
   bottomArea: { paddingTop: 10, paddingBottom: 24 },
   applyButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 17, alignItems: "center" },
-  applyButtonText: { color: Colors.surface, fontSize: 16, fontWeight: "900" },
+  applyButtonText: { color: Colors.onDark, fontSize: 16, fontWeight: "900" },
 });

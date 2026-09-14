@@ -19,7 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { apiUrl } from "../../config/api";
 import { clearCommunityHiddenState, getCommunityHiddenState } from "../../services/community-moderation";
 import { fetchWithRetry } from "../../services/http";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type CommunityPost = {
   id: number;
@@ -88,6 +88,8 @@ const APP_NOTICES: CommunityPost[] = [
 ];
 
 export default function CommunityBoardScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const params = useLocalSearchParams();
 
   const boardType =
@@ -202,7 +204,7 @@ export default function CommunityBoardScreen() {
           <Text style={styles.errorText}>{errorMessage}</Text>
           <Text style={styles.errorDescription}>인터넷 연결을 확인한 후 다시 시도해주세요.</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchPosts}>
-            <FontAwesome6 name="rotate-right" size={14} color={Colors.surface} />
+            <FontAwesome6 name="rotate-right" size={14} color={Colors.onDark} />
             <Text style={styles.retryButtonText}>다시 불러오기</Text>
           </TouchableOpacity>
         </View>
@@ -375,7 +377,7 @@ export default function CommunityBoardScreen() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   resetHiddenButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   resetHiddenText: { color: Colors.textMuted, fontSize: 12, fontWeight: "700" },
   container: {
@@ -444,7 +446,7 @@ const styles = StyleSheet.create({
   errorContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
   errorDescription: { marginTop: 7, color: Colors.textMuted, fontSize: 13, textAlign: "center" },
   retryButton: { marginTop: 18, minHeight: 46, paddingHorizontal: 20, borderRadius: Radius.card, backgroundColor: Colors.navy, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  retryButtonText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
+  retryButtonText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
 
   emptyListContainer: {
     flexGrow: 1,
@@ -515,7 +517,7 @@ const styles = StyleSheet.create({
   },
 
   writeButtonText: {
-    color: Colors.surface,
+    color: Colors.onDark,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -628,7 +630,7 @@ const styles = StyleSheet.create({
   pageButtonText: {
     fontSize: 14,
     fontWeight: "700",
-    color: Colors.surface,
+    color: Colors.onDark,
   },
 
   pageInfo: {

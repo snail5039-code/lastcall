@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentLocationFast } from "../../services/location";
 import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
 import { LEGAL_PAGE_URL } from "../../config/legal";
-import { Colors, Radius } from "../../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
 type PersonInfo = {
   relation: string;
@@ -47,6 +47,8 @@ const emptyPerson: PersonInfo = {
 };
 
 export default function MyInfoScreen() {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [personList, setPersonList] = useState<PersonInfo[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -415,6 +417,7 @@ type EditViewProps = {
 };
 
 function EditView(props: EditViewProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <>
       <Text style={styles.description}>
@@ -566,6 +569,7 @@ function DetailView({
   onCallGuardian,
   onCall119,
 }: DetailViewProps) {
+  const styles = useThemeStyles(createStyles);
   if (!selectedPerson) {
     return (
       <>
@@ -683,6 +687,8 @@ function Input({
   multiline = false,
   keyboardType = "default",
 }: InputProps) {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.inputBox}>
       <Text style={styles.label}>{label}</Text>
@@ -713,6 +719,7 @@ function SelectButtonGroup({
   options,
   onSelect,
 }: SelectButtonGroupProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.inputBox}>
       <Text style={styles.label}>{label}</Text>
@@ -748,6 +755,7 @@ type InfoRowProps = {
 };
 
 function InfoRow({ label, value }: InfoRowProps) {
+  const styles = useThemeStyles(createStyles);
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -756,7 +764,7 @@ function InfoRow({ label, value }: InfoRowProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   policySection: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 16, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
   policyTitle: { color: Colors.text, fontSize: 16, fontWeight: "800", marginBottom: 5 },
   policyDescription: { color: Colors.textMuted, fontSize: 12, lineHeight: 18, marginBottom: 12 },
@@ -765,13 +773,13 @@ const styles = StyleSheet.create({
   shareSection: { backgroundColor: Colors.cautionBg, borderRadius: Radius.card, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.cautionBg },
   shareDescription: { fontSize: 12, lineHeight: 18, color: Colors.caution, marginBottom: 12 },
   locationMedicalButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  locationMedicalText: { color: Colors.surface, fontWeight: "900", fontSize: 14 },
+  locationMedicalText: { color: Colors.onDark, fontWeight: "900", fontSize: 14 },
   emergencyShareButton: { backgroundColor: Colors.urgent, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  emergencyShareText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  emergencyShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   guardianShareButton: { backgroundColor: Colors.navy, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
   guardianCallButton: { backgroundColor: Colors.ok, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", marginBottom: 8 },
-  guardianCallText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
-  guardianShareText: { color: Colors.surface, fontWeight: "900", fontSize: 15 },
+  guardianCallText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
+  guardianShareText: { color: Colors.onDark, fontWeight: "900", fontSize: 15 },
   generalShareButton: { backgroundColor: Colors.surface, borderRadius: Radius.card, paddingVertical: 14, alignItems: "center", borderWidth: 1, borderColor: Colors.borderStrong },
   generalShareText: { color: Colors.textSub, fontWeight: "900", fontSize: 15 },
   header: {
@@ -826,7 +834,7 @@ const styles = StyleSheet.create({
   },
 
   personChipTextActive: {
-    color: Colors.surface,
+    color: Colors.onDark,
   },
 
   addChip: {
@@ -840,7 +848,7 @@ const styles = StyleSheet.create({
   addChipText: {
     fontSize: 14,
     fontWeight: "700",
-    color: Colors.surface,
+    color: Colors.onDark,
   },
 
   section: {
@@ -940,7 +948,7 @@ const styles = StyleSheet.create({
   },
 
   saveButtonText: {
-    color: Colors.surface,
+    color: Colors.onDark,
     fontSize: 17,
     fontWeight: "700",
   },
@@ -954,7 +962,7 @@ const styles = StyleSheet.create({
   },
 
   editButtonText: {
-    color: Colors.surface,
+    color: Colors.onDark,
     fontSize: 17,
     fontWeight: "700",
   },

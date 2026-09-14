@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LEGAL_PAGE_URL, LOCATION_POLICY } from "../config/legal";
 import { setLocationConsent } from "../services/location";
-import { Colors, Radius } from "../constants/design";
+import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../constants/design";
 
 const CONSENT_STORAGE_KEY = `lastcall.initialConsent.${LOCATION_POLICY.version}`;
 
@@ -23,6 +23,8 @@ type InitialConsentProps = {
 };
 
 export function InitialConsent({ children }: InitialConsentProps) {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   const [status, setStatus] = useState<"loading" | "required" | "accepted">("loading");
   const [checks, setChecks] = useState([false, false, false]);
   const [saving, setSaving] = useState(false);
@@ -127,7 +129,7 @@ export function InitialConsent({ children }: InitialConsentProps) {
           disabled={!requiredChecked || saving}
           accessibilityRole="button"
         >
-          {saving ? <ActivityIndicator color={Colors.surface} /> : <Text style={styles.acceptButtonText}>{checks[2] ? "동의하고 시작" : "위치 없이 시작"}</Text>}
+          {saving ? <ActivityIndicator color={Colors.onDark} /> : <Text style={styles.acceptButtonText}>{checks[2] ? "동의하고 시작" : "위치 없이 시작"}</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -143,13 +145,15 @@ type ConsentItemProps = {
 };
 
 function ConsentItem({ checked, icon, title, children, onPress }: ConsentItemProps) {
+  const Colors = useThemeColors();
+  const styles = useThemeStyles(createStyles);
   return (
     <TouchableOpacity style={[styles.card, checked && styles.cardChecked]} onPress={onPress} activeOpacity={0.8} accessibilityRole="checkbox" accessibilityState={{ checked }}>
       <View style={styles.cardHeader}>
         <View style={styles.cardIcon}><FontAwesome6 name={icon} size={18} color={Colors.navySoft} /></View>
         <Text style={styles.cardTitle}>{title}</Text>
         <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
-          {checked ? <FontAwesome6 name="check" size={12} color={Colors.surface} /> : null}
+          {checked ? <FontAwesome6 name="check" size={12} color={Colors.onDark} /> : null}
         </View>
       </View>
       <Text style={styles.cardText}>{children}</Text>
@@ -157,7 +161,7 @@ function ConsentItem({ checked, icon, title, children, onPress }: ConsentItemPro
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surfaceSunken },
   loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: Colors.surfaceSunken, gap: 14 },
   loadingText: { color: Colors.textSub, fontSize: 14, fontWeight: "700" },
@@ -181,5 +185,5 @@ const styles = StyleSheet.create({
   actions: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface },
   acceptButton: { minHeight: 52, borderRadius: Radius.control, alignItems: "center", justifyContent: "center", backgroundColor: Colors.navy },
   acceptButtonDisabled: { backgroundColor: Colors.borderStrong },
-  acceptButtonText: { color: Colors.surface, fontSize: 14, fontWeight: "900" },
+  acceptButtonText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
 });
