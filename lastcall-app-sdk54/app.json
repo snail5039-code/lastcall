@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.snail5039.lastcall",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/app-icon-v2.png"
