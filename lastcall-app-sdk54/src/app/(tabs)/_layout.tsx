@@ -20,6 +20,7 @@ const HIDDEN_ROUTES = [
   "aed",
   "filter",
   "emergency-help",
+  "emergency-mode",
   "community-board",
   "community-detail",
   "community-write",

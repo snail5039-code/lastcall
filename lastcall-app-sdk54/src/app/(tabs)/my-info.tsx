@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentLocationFast } from "../../services/location";
 import { loadMedicalInfo, saveMedicalInfo } from "../../services/medical-info-storage";
+import { buildMedicalSummary } from "../../services/medical-summary";
 import { LEGAL_PAGE_URL } from "../../config/legal";
 import { Radius, ThemeColors, useThemeColors, useThemeStyles } from "../../constants/design";
 
@@ -258,17 +259,7 @@ export default function MyInfoScreen() {
   };
 
   const selectedPerson = personList[selectedIndex];
-  const medicalSummary = selectedPerson ? [
-    `[살려줌 응급 의료정보]`,
-    `이름: ${selectedPerson.name} (${selectedPerson.relation})`,
-    `생년월일: ${selectedPerson.birth || "미입력"}`,
-    `성별/혈액형: ${selectedPerson.gender || "미입력"} / ${selectedPerson.bloodType || "미입력"}`,
-    `기저질환: ${selectedPerson.disease || "없음/미입력"}`,
-    `복용약: ${selectedPerson.medicine || "없음/미입력"}`,
-    `알레르기: ${selectedPerson.allergy || "없음/미입력"}`,
-    `응급 메모: ${selectedPerson.memo || "없음"}`,
-    `보호자: ${selectedPerson.guardianName || "미입력"} ${selectedPerson.guardianPhone || ""}`,
-  ].join("\n") : "";
+  const medicalSummary = selectedPerson ? buildMedicalSummary(selectedPerson) : "";
 
   const shareMedicalInfo = () => Share.share({ message: medicalSummary });
   const shareEmergencyInfo = async () => {

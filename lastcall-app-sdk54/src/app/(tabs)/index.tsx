@@ -333,6 +333,11 @@ export default function HomeScreen() {
               <Text style={styles.call119ButtonText}>119</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.emergencyModeButton} onPress={() => router.push("/emergency-mode" as Href)} accessibilityRole="button" accessibilityLabel="응급 모드 열기">
+            <FontAwesome6 name="bolt" size={15} color={Colors.onDark} />
+            <Text style={styles.emergencyModeText}>응급 모드 (응급실·AED·내 정보)</Text>
+            <FontAwesome6 name="chevron-right" size={12} color={Colors.onDark} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.locationCard}>
@@ -448,6 +453,8 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   emergencyTitle: { flex: 1, color: Colors.onDark, fontSize: Type.title, fontWeight: "800" },
   emergencyDescription: { color: Colors.onUrgent, fontSize: Type.caption, lineHeight: 17 },
   call119Button: { minWidth: 84, minHeight: Tap.min, paddingHorizontal: 14, borderRadius: Radius.control, backgroundColor: Colors.onDark, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
+  emergencyModeButton: { marginTop: 12, minHeight: Tap.min, paddingHorizontal: 12, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.onDark, flexDirection: "row", gap: 8, alignItems: "center" },
+  emergencyModeText: { flex: 1, color: Colors.onDark, fontSize: 13, fontWeight: "800" },
   call119ButtonText: { color: Colors.urgent, fontSize: Type.body, fontWeight: "900" },
 
   locationCard: { backgroundColor: Colors.surface, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border, marginBottom: 10, overflow: "hidden" },
