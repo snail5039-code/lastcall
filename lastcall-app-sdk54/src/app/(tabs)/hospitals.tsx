@@ -98,8 +98,10 @@ export default function HospitalsScreen() {
 
         const response = await fetch(url);
         if (!response.ok) throw new Error(`서버 응답 오류: ${response.status}`);
-        const data = await response.json();
-        setHospitals(data);
+        const data: unknown = await response.json();
+        // 서버가 200 으로 목록이 아닌 값을 주면 화면이 죽으므로 오류 화면으로 보낸다.
+        if (!Array.isArray(data)) throw new Error("응급실 응답 형식 오류");
+        setHospitals(data as Hospital[]);
       } catch (error) {
         console.error("응급실 목록 불러오기 실패:", error);
         setErrorMessage("응급실 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");

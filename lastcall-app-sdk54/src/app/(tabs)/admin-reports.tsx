@@ -52,7 +52,9 @@ export default function AdminReportsScreen() {
         return;
       }
       if (!response.ok) throw new Error(`신고 목록 오류: ${response.status}`);
-      setReports(await response.json());
+      const data: unknown = await response.json();
+      if (!Array.isArray(data)) throw new Error("신고 목록 응답 형식 오류");
+      setReports(data as typeof reports);
     } catch (error) {
       console.error("관리자 신고 목록 실패:", error);
       Alert.alert("조회 실패", "서버 연결을 확인한 후 다시 시도해주세요.");

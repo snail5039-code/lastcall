@@ -113,7 +113,10 @@ export default function AedScreen() {
       );
       const response = await fetchWithRetry(url);
       if (!response.ok) throw new Error(`서버 응답 오류: ${response.status}`);
-      setAeds(await response.json());
+      const data: unknown = await response.json();
+      // 서버가 200 으로 목록이 아닌 값을 주면 화면이 죽으므로 오류 화면으로 보낸다.
+      if (!Array.isArray(data)) throw new Error("AED 응답 형식 오류");
+      setAeds(data as Aed[]);
     } catch (error) {
       console.error("AED 조회 실패", error);
       setAeds([]);
