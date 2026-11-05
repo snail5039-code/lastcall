@@ -1,7 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
-import { goBack } from "../../services/navigation";
+import { callPhone, goBack, openDirections } from "../../services/navigation";
+import { formatUpdatedAt, isUpdatedAtStale } from "../../services/data-freshness";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -98,20 +99,6 @@ const getRegionLabel = (value: string) => {
 const iconForDepartment = (department: string): IconName =>
   departmentIconRules.find(({ keyword }) => department.includes(keyword))?.icon ?? "user-doctor";
 
-const formatUpdatedAt = (value?: string) => {
-  if (!value) return "확인 필요";
-  const digits = value.replace(/\D/g, "");
-  if (digits.length >= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
-  return value.replace("T", " ").slice(0, 16);
-};
-
-const isUpdatedAtStale = (value?: string) => {
-  if (!value) return true;
-  const digits = value.replace(/\D/g, "");
-  if (digits.length < 12) return false;
-  const updatedAt = new Date(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)) - 1, Number(digits.slice(6, 8)), Number(digits.slice(8, 10)), Number(digits.slice(10, 12)));
-  return Date.now() - updatedAt.getTime() > 15 * 60 * 1000;
-};
 
 type FavoriteHospital = {
   hpid: string;
@@ -340,48 +327,10 @@ export default function HospitalDetailScreen() {
   ];
   const severeSet = new Set((severeCapabilities ?? "").split(",").filter(Boolean));
 
-  const handleCall = (phoneNumber?: string) => {
-    if (!phoneNumber) {
-      Alert.alert("전화번호 없음", "등록된 전화번호가 없습니다.");
-      return;
-    }
+  const handleCall = (phoneNumber?: string) => callPhone(phoneNumber);
 
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
-
-  const handleNavigation = () => {
-    if (!latitude || !longitude) {
-      Alert.alert("위치 정보 없음", "병원 위치 정보가 없습니다.");
-      return;
-    }
-
-    Alert.alert("길찾기", "사용할 지도 앱을 선택하세요.", [
-      {
-        text: "카카오맵",
-        onPress: () => {
-          const name = encodeURIComponent(String(hospitalName));
-
-          Linking.openURL(
-            `https://map.kakao.com/link/to/${name},${latitude},${longitude}`
-          );
-        },
-      },
-      {
-        text: "티맵",
-        onPress: () => {
-          const name = encodeURIComponent(String(hospitalName));
-
-          Linking.openURL(
-            `tmap://route?goalname=${name}&goalx=${longitude}&goaly=${latitude}`
-          );
-        },
-      },
-      {
-        text: "취소",
-        style: "cancel",
-      },
-    ]);
-  };
+  const handleNavigation = () =>
+    openDirections({ name: String(hospitalName), latitude: String(latitude), longitude: String(longitude) });
 
   const handleShare = async () => {
     const name = encodeURIComponent(String(hospitalName));

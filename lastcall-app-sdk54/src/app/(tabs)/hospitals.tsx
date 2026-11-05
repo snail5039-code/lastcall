@@ -1,11 +1,11 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useLocalSearchParams } from "expo-router";
-import { goBack } from "../../services/navigation";
+import { callPhone, goBack, openDirections } from "../../services/navigation";
+import { formatUpdatedAt, isUpdatedAtStale } from "../../services/data-freshness";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   ScrollView,
   Share,
   StyleSheet,
@@ -19,21 +19,6 @@ import { Radius, ThemeColors, Type, useThemeColors, useThemeStyles } from "../..
 import { getCurrentLocationFast } from "../../services/location";
 import { Hospital, toHospitalDetailParams } from "../../types/hospital";
 
-const formatUpdatedAt = (value?: string) => {
-  if (!value) return "갱신 시각 확인 필요";
-  const digits = value.replace(/\D/g, "");
-  if (digits.length >= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
-  return value.replace("T", " ").slice(0, 16);
-};
-
-const isUpdatedAtStale = (value?: string) => {
-  if (!value) return true;
-  const digits = value.replace(/\D/g, "");
-  if (digits.length < 12) return false;
-  const updatedAt = new Date(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)) - 1, Number(digits.slice(6, 8)), Number(digits.slice(8, 10)), Number(digits.slice(10, 12)));
-  return Date.now() - updatedAt.getTime() > 15 * 60 * 1000;
-};
-
 
 export default function HospitalsScreen() {
   const Colors = useThemeColors();
@@ -43,7 +28,7 @@ export default function HospitalsScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [requestVersion, setRequestVersion] = useState(0);
 
-  const { stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes } = useLocalSearchParams<{
+  const { stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, freshOnly } = useLocalSearchParams<{
     stage1: string;
     stage2?: string;
     lat?: string;
@@ -55,6 +40,7 @@ export default function HospitalsScreen() {
     bedTypes?: string;
     facilities?: string;
     severeTypes?: string;
+    freshOnly?: string;
   }>();
 
   useEffect(() => {
@@ -93,6 +79,7 @@ export default function HospitalsScreen() {
         if (bedTypes) url += `&bedTypes=${encodeURIComponent(bedTypes)}`;
         if (facilities) url += `&facilities=${encodeURIComponent(facilities)}`;
         if (severeTypes) url += `&severeTypes=${encodeURIComponent(severeTypes)}`;
+        if (freshOnly === "true") url += "&freshOnly=true";
 
         const response = await fetch(url);
         if (!response.ok) throw new Error(`서버 응답 오류: ${response.status}`);
@@ -107,54 +94,12 @@ export default function HospitalsScreen() {
     };
 
     fetchHospital();
-  }, [stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, requestVersion]);
+  }, [stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, freshOnly, requestVersion]);
 
-  const handleCall = (phone?: string) => {
-    if (!phone) {
-      Alert.alert("전화번호 없음", "등록된 전화번호가 없습니다.");
-      return;
-    }
+  const handleCall = (phone?: string) => callPhone(phone);
 
-    Linking.openURL(`tel:${phone}`);
-  };
-
-  const handleNavigation = (hospital: Hospital) => {
-    if (!hospital.latitude || !hospital.longitude) {
-      Alert.alert("위치 정보 없음", "병원 위치 정보가 없습니다.");
-      return;
-    }
-
-    Alert.alert(
-      "길찾기",
-      "사용할 지도 앱을 선택하세요.",
-      [
-        {
-          text: "카카오맵",
-          onPress: () => {
-            const name = encodeURIComponent(hospital.hospitalName);
-
-            Linking.openURL(
-              `https://map.kakao.com/link/to/${name},${hospital.latitude},${hospital.longitude}`
-            );
-          },
-        },
-        {
-          text: "티맵",
-          onPress: () => {
-            const name = encodeURIComponent(hospital.hospitalName);
-
-            Linking.openURL(
-              `tmap://route?goalname=${name}&goalx=${hospital.longitude}&goaly=${hospital.latitude}`
-            );
-          },
-        },
-        {
-          text: "취소",
-          style: "cancel",
-        },
-      ]
-    );
-  };
+  const handleNavigation = (hospital: Hospital) =>
+    openDirections({ name: hospital.hospitalName, latitude: hospital.latitude, longitude: hospital.longitude });
 
   const handleShare = async (hospital: Hospital) => {
     const name = encodeURIComponent(hospital.hospitalName);
@@ -189,7 +134,7 @@ export default function HospitalsScreen() {
 
           <Text style={styles.headerTitle}>추천 응급실</Text>
 
-          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(keyword && { keyword }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }) } })} accessibilityRole="button" accessibilityLabel="세부 검색">
+          <TouchableOpacity onPress={() => router.push({ pathname: "/filter", params: { stage1, ...(stage2 && { stage2 }), ...(lat && { lat }), ...(lon && { lon }), ...(symptom && { symptom }), ...(keyword && { keyword }), ...(sort && { sort }), ...(department && { department }), ...(bedTypes && { bedTypes }), ...(facilities && { facilities }), ...(severeTypes && { severeTypes }), ...(freshOnly && { freshOnly }) } })} accessibilityRole="button" accessibilityLabel="세부 검색">
             <FontAwesome6 name="sliders" size={20} color={Colors.text} />
           </TouchableOpacity>
         </View>
@@ -243,7 +188,7 @@ export default function HospitalsScreen() {
               <View style={styles.infoArea}>
                 <View style={styles.updateRow}>
                   <FontAwesome6 name="clock-rotate-left" size={12} color={isUpdatedAtStale(hospital.dataUpdatedAt) ? Colors.urgent : Colors.textMuted} />
-                  <Text style={[styles.updateText, isUpdatedAtStale(hospital.dataUpdatedAt) && styles.staleUpdateText]}>병상정보 {formatUpdatedAt(hospital.dataUpdatedAt)}{isUpdatedAtStale(hospital.dataUpdatedAt) ? " · 오래된 정보" : ""}</Text>
+                  <Text style={[styles.updateText, isUpdatedAtStale(hospital.dataUpdatedAt) && styles.staleUpdateText]}>병상정보 {formatUpdatedAt(hospital.dataUpdatedAt, "갱신 시각 확인 필요")}{isUpdatedAtStale(hospital.dataUpdatedAt) ? " · 오래된 정보" : ""}</Text>
                 </View>
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>응급실 가용 병상</Text>

@@ -15,6 +15,7 @@ const sortOptions = [
   { key: "emergencyBeds", label: "응급실 병상 많은순" },
   { key: "icuBeds", label: "중환자실 병상 많은순" },
   { key: "operatingRooms", label: "수술실 많은순" },
+  { key: "updated", label: "병상정보 최근 갱신순" },
 ] as const;
 
 const departments = ["전체", "소아청소년과", "내과", "외과", "정형외과", "신경과", "신경외과", "응급의학과"];
@@ -68,6 +69,7 @@ export default function FilterScreen() {
   const [selectedBeds, setSelectedBeds] = useState<string[]>(splitParam(params.bedTypes));
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>(splitParam(params.facilities));
   const [selectedSevere, setSelectedSevere] = useState<string[]>(splitParam(params.severeTypes));
+  const [freshOnly, setFreshOnly] = useState(params.freshOnly === "true");
   const [latitude, setLatitude] = useState(params.lat ?? "");
   const [longitude, setLongitude] = useState(params.lon ?? "");
   const [isStage1Open, setIsStage1Open] = useState(false);
@@ -123,6 +125,7 @@ export default function FilterScreen() {
         ...(selectedBeds.length && { bedTypes: selectedBeds.join(",") }),
         ...(selectedFacilities.length && { facilities: selectedFacilities.join(",") }),
         ...(selectedSevere.length && { severeTypes: selectedSevere.join(",") }),
+        ...(freshOnly && { freshOnly: "true" }),
       },
     });
   };
@@ -184,6 +187,22 @@ export default function FilterScreen() {
           <View style={styles.section}>
             <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpenSections((prev) => ({ ...prev, department: !prev.department }))} accessibilityRole="button"><Text style={styles.sectionTitle}>진료과</Text><FontAwesome6 name={openSections.department ? "chevron-up" : "chevron-down"} size={15} color={Colors.textMuted} /></TouchableOpacity>
             {openSections.department && <View style={styles.grid}>{departments.map((department) => <TouchableOpacity key={department} style={[styles.departmentButton, selectedDepartment === department && styles.selectedDepartmentButton]} onPress={() => setSelectedDepartment(department)} accessibilityRole="button"><Text style={[styles.departmentText, selectedDepartment === department && styles.selectedDepartmentText]}>{department}</Text></TouchableOpacity>)}</View>}
+          </View>
+
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={[styles.sortButton, freshOnly && styles.selectedSortButton]}
+              onPress={() => setFreshOnly((value) => !value)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: freshOnly }}
+            >
+              <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                {freshOnly ? <FontAwesome6 name="check" size={14} color={Colors.onDark} /> : null}
+                <Text style={[styles.sortText, freshOnly && styles.selectedSortText]}>
+                  최신 정보만 보기 (15분 이내 갱신)
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
           {section("bed", "병상 종류 (1개 이상 가용)", bedOptions, selectedBeds, setSelectedBeds)}

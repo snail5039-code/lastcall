@@ -125,7 +125,8 @@ public class EmergencyService {
 	}
 	// gps 기준 가까운 병원 거리 출력
 	public List<EmergencyDto> getNearbyEmergencyList(String stage1, String stage2, double lat, double lon, String symptom, String keyword,
-			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails){
+			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails,
+			boolean freshOnly){
 		boolean needsDepartments = (symptom != null && !symptom.isBlank())
 				|| (department != null && !department.isBlank() && !"전체".equals(department));
 		List<EmergencyDto> list = getEmergencyApiList(stage1, stage2, needsDepartments);
@@ -165,7 +166,8 @@ public class EmergencyService {
 				|| !matchesDepartment(dto, department)
 				|| !requestedBeds.stream().allMatch(type -> hasAvailableBed(dto, type))
 				|| !requestedFacilities.stream().allMatch(type -> hasFacility(dto, type))
-				|| !dto.getSevereCapabilities().containsAll(requestedSevereTypes));
+				|| !dto.getSevereCapabilities().containsAll(requestedSevereTypes)
+				|| (freshOnly && isStale(dto.getDataUpdatedAt(), java.time.LocalDateTime.now(KST))));
 
 		sortEmergencyList(list, symptom, sort);
 
@@ -174,7 +176,8 @@ public class EmergencyService {
 
 	/** 병원명/주소 직접 검색은 현재 위치의 시·도와 무관하게 전국을 대상으로 한다. */
 	public List<EmergencyDto> searchEmergencyList(double lat, double lon, String symptom, String keyword,
-			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails) {
+			String sort, String department, String bedTypes, String facilities, String severeTypes, boolean includeDetails,
+			boolean freshOnly) {
 		if (keyword == null || keyword.isBlank()) return List.of();
 
 		Set<String> matchedProvinces = PROVINCES.parallelStream()
@@ -192,7 +195,7 @@ public class EmergencyService {
 				.flatMap(province -> {
 					try {
 						return getNearbyEmergencyList(province, null, lat, lon, symptom, keyword, sort,
-								department, bedTypes, facilities, severeTypes, includeDetails).stream();
+								department, bedTypes, facilities, severeTypes, includeDetails, freshOnly).stream();
 					} catch (RuntimeException error) {
 						System.err.println("전국 병원 실시간 정보 조회 실패: " + province);
 						return java.util.stream.Stream.empty();
@@ -208,6 +211,30 @@ public class EmergencyService {
 		return uniqueResults;
 	}
 
+	/** 병상 정보가 이 시간보다 오래되면 오래된 정보로 본다. 앱의 표시 기준(15분)과 같아야 한다. */
+	static final long STALE_MINUTES = 15;
+	private static final java.time.ZoneId KST = java.time.ZoneId.of("Asia/Seoul");
+
+	/** "20261105091233", "2026-11-05 09:12:33" 같은 갱신 시각에서 숫자만 남겨 앞 14자리로 맞춘다. 해석 불가면 빈 문자열. */
+	static String updatedAtDigits(String value) {
+		String digits = value == null ? "" : value.replaceAll("\\D", "");
+		if (digits.length() < 12) return "";
+		return (digits + "00").substring(0, 14);
+	}
+
+	/** 갱신 시각이 없거나 해석할 수 없거나 {@link #STALE_MINUTES}분보다 오래됐으면 true. */
+	static boolean isStale(String dataUpdatedAt, java.time.LocalDateTime now) {
+		String digits = updatedAtDigits(dataUpdatedAt);
+		if (digits.isEmpty()) return true;
+		try {
+			java.time.LocalDateTime updated = java.time.LocalDateTime.parse(digits,
+					java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+			return java.time.Duration.between(updated, now).toSeconds() > STALE_MINUTES * 60;
+		} catch (java.time.format.DateTimeParseException error) {
+			return true;
+		}
+	}
+
 	private void sortEmergencyList(List<EmergencyDto> list, String symptom, String sort) {
 		Comparator<EmergencyDto> comparator = switch (sort == null ? "distance" : sort) {
 			case "emergencyBeds" -> Comparator.comparingInt(EmergencyDto::getAvailableBeds).reversed()
@@ -215,6 +242,10 @@ public class EmergencyService {
 			case "icuBeds" -> Comparator.comparingInt(this::totalIcuBeds).reversed()
 					.thenComparingDouble(EmergencyDto::getDistance);
 			case "operatingRooms" -> Comparator.comparingInt(EmergencyDto::getOperatingRooms).reversed()
+					.thenComparingDouble(EmergencyDto::getDistance);
+			// 갱신 시각이 최신인 순. 시각이 없거나 해석할 수 없으면 맨 뒤로 보낸다.
+			case "updated" -> Comparator.comparing(
+							(EmergencyDto dto) -> updatedAtDigits(dto.getDataUpdatedAt()), Comparator.reverseOrder())
 					.thenComparingDouble(EmergencyDto::getDistance);
 			default -> Comparator.comparingDouble(EmergencyDto::getDistance);
 		};

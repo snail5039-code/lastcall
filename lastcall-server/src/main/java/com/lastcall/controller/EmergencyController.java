@@ -44,8 +44,9 @@ public class EmergencyController {
 			@RequestParam(required = false) String bedTypes,
 			@RequestParam(required = false) String facilities,
 			@RequestParam(required = false) String severeTypes,
-			@RequestParam(defaultValue = "true") boolean includeDetails){
-		return emergencyService.getNearbyEmergencyList(stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, includeDetails);
+			@RequestParam(defaultValue = "true") boolean includeDetails,
+			@RequestParam(defaultValue = "false") boolean freshOnly){
+		return emergencyService.getNearbyEmergencyList(stage1, stage2, lat, lon, symptom, keyword, sort, department, bedTypes, facilities, severeTypes, includeDetails, freshOnly);
 	}
 
 	@GetMapping("/search")
@@ -59,9 +60,10 @@ public class EmergencyController {
 			@RequestParam(required = false) String bedTypes,
 			@RequestParam(required = false) String facilities,
 			@RequestParam(required = false) String severeTypes,
-			@RequestParam(defaultValue = "true") boolean includeDetails) {
+			@RequestParam(defaultValue = "true") boolean includeDetails,
+			@RequestParam(defaultValue = "false") boolean freshOnly) {
 		return emergencyService.searchEmergencyList(lat, lon, symptom, keyword, sort, department, bedTypes,
-				facilities, severeTypes, includeDetails);
+				facilities, severeTypes, includeDetails, freshOnly);
 	}
 
 	@PostMapping("/warmup")
