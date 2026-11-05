@@ -147,7 +147,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   iconButton: { width: Tap.min, height: Tap.min, alignItems: "center", justifyContent: "center" },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
   },
   emptyBox: {
@@ -172,7 +172,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   },
   alertTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.urgent,
     textAlign: "center",
     marginBottom: 8,
@@ -190,11 +190,11 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   },
   offlineBox: { flexDirection: "row", gap: 11, alignItems: "flex-start", backgroundColor: Colors.surfaceSunken, borderRadius: Radius.card, padding: 15, marginBottom: 24 },
   offlineTextBox: { flex: 1 },
-  offlineTitle: { color: Colors.navy, fontSize: 14, fontWeight: "900" },
+  offlineTitle: { color: Colors.navy, fontSize: 14, fontWeight: "700" },
   offlineText: { marginTop: 5, color: Colors.textSub, fontSize: 12, lineHeight: 18 },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
     marginBottom: 14,
   },
@@ -225,13 +225,13 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     textAlign: "center",
     lineHeight: 24,
     fontSize: 14,
-    fontWeight: "900",
+    fontWeight: "700",
     marginRight: 10,
   },
   signText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "700",
     color: Colors.textSub,
     lineHeight: 21,
   },
@@ -267,7 +267,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   },
   guideTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
     marginBottom: 6,
   },
@@ -287,7 +287,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   call119Text: {
     color: Colors.onDark,
     fontSize: 17,
-    fontWeight: "900",
+    fontWeight: "700",
   },
   callButton: {
     backgroundColor: Colors.urgentFill,

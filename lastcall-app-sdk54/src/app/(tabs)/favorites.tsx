@@ -206,7 +206,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   headerTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
   },
 
@@ -221,7 +221,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
     marginBottom: 8,
   },
@@ -257,7 +257,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   hospitalName: {
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
     marginBottom: 8,
   },
@@ -284,19 +284,19 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   cardInfoValue: {
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
   },
   recentSection: { marginHorizontal: 18, marginTop: 10, marginBottom: 36 },
   recentHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  recentTitle: { color: Colors.text, fontSize: 18, fontWeight: "900" },
+  recentTitle: { color: Colors.text, fontSize: 18, fontWeight: "700" },
   recentSubtitle: { marginTop: 4, color: Colors.textMuted, fontSize: 11 },
-  clearText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
+  clearText: { color: Colors.navySoft, fontSize: 12, fontWeight: "700" },
   recentEmpty: { backgroundColor: Colors.surface, borderRadius: Radius.card, padding: 20, alignItems: "center" },
   recentEmptyText: { color: Colors.textFaint, fontSize: 13 },
   recentCard: { minHeight: 70, paddingHorizontal: 14, flexDirection: "row", gap: 11, alignItems: "center", backgroundColor: Colors.surface, borderRadius: Radius.card, marginBottom: 9, borderWidth: 1, borderColor: Colors.border },
   recentIcon: { width: 32, height: 32, borderRadius: Radius.control, backgroundColor: Colors.surfaceSunken, alignItems: "center", justifyContent: "center" },
   recentInfo: { flex: 1 },
-  recentName: { color: Colors.text, fontSize: 14, fontWeight: "900" },
+  recentName: { color: Colors.text, fontSize: 14, fontWeight: "700" },
   recentMeta: { marginTop: 5, color: Colors.textMuted, fontSize: 11 },
 });

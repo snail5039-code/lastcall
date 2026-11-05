@@ -45,7 +45,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   },
   title: {
     fontSize: 21,
-    fontWeight: "900",
+    fontWeight: "700",
     color: Colors.text,
     textAlign: "center",
   },
@@ -67,5 +67,5 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 15,
   },
-  buttonText: { color: Colors.onDark, fontSize: 15, fontWeight: "900" },
+  buttonText: { color: Colors.onDark, fontSize: 15, fontWeight: "700" },
 });

@@ -356,14 +356,14 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     policyLinkText: {
         color: Colors.navySoft,
         fontSize: 13,
-        fontWeight: "800",
+        fontWeight: "700",
         textDecorationLine: "underline",
     },
 
     submitButtonText: {
         color: Colors.onDark,
         fontSize: 16,
-        fontWeight: "800",
+        fontWeight: "700",
     },
 
     keyboardContainer: {

@@ -986,7 +986,7 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
     commentPolicyAccepted: { borderColor: Colors.ok, backgroundColor: Colors.okBg },
     commentPolicyText: { flex: 1, color: Colors.textSub, fontSize: 12, lineHeight: 18, fontWeight: "600" },
     policyLink: { minHeight: Tap.min, justifyContent: "center" },
-    policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800", textDecorationLine: "underline" },
+    policyLinkText: { color: Colors.navySoft, fontSize: 12, fontWeight: "700", textDecorationLine: "underline" },
     commentSubmitButtonDisabled: { backgroundColor: Colors.textFaint },
     container: {
         flex: 1,

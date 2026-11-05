@@ -448,14 +448,14 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
 
   errorText: {
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
     color: Colors.urgent,
     marginTop: 14,
   },
   errorContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
   errorDescription: { marginTop: 7, color: Colors.textMuted, fontSize: 13, textAlign: "center" },
   retryButton: { marginTop: 18, minHeight: 46, paddingHorizontal: 20, borderRadius: Radius.card, backgroundColor: Colors.navy, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  retryButtonText: { color: Colors.onDark, fontSize: 14, fontWeight: "900" },
+  retryButtonText: { color: Colors.onDark, fontSize: 14, fontWeight: "700" },
 
   emptyListContainer: {
     flexGrow: 1,

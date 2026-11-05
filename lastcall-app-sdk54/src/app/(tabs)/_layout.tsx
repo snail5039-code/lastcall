@@ -47,7 +47,7 @@ export default function TabLayout() {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
         },
-        tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontWeight: "800" },
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontWeight: "700" },
       }}
     >
       <Tabs.Screen
