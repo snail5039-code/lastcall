@@ -62,6 +62,14 @@ public class AedService {
 
 	public List<AedDto> getNearbyAedList(String stage1, String stage2, double lat, double lon,
 			String keyword, int limit) {
+		return getNearbyAedList(stage1, stage2, lat, lon, keyword, limit, 0);
+	}
+
+	/**
+	 * @param radiusKm 0 이하면 반경 제한 없이 가까운 순으로 자른다. 양수면 그 거리 안의 AED 만 돌려준다.
+	 */
+	public List<AedDto> getNearbyAedList(String stage1, String stage2, double lat, double lon,
+			String keyword, int limit, double radiusKm) {
 		if (stage1 == null || stage1.isBlank()) {
 			throw new IllegalArgumentException("시·도를 선택해주세요.");
 		}
@@ -92,6 +100,7 @@ public class AedService {
 		return pool.stream()
 				.filter(aed -> matchesKeyword(aed, keyword))
 				.map(aed -> new Nearby(aed, Distances.haversineKm(lat, lon, aed.latitude(), aed.longitude())))
+				.filter(nearby -> radiusKm <= 0 || nearby.distance() <= radiusKm)
 				.sorted(Comparator.comparingDouble(Nearby::distance))
 				.limit(size)
 				.map(nearby -> toDto(nearby, now))

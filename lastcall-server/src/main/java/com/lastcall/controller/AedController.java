@@ -31,7 +31,8 @@ public class AedController {
 			@RequestParam double lat,
 			@RequestParam double lon,
 			@RequestParam(required = false) String keyword,
-			@RequestParam(defaultValue = "50") int limit) {
-		return aedService.getNearbyAedList(stage1, stage2, lat, lon, keyword, limit);
+			@RequestParam(defaultValue = "50") int limit,
+			@RequestParam(defaultValue = "0") double radiusKm) {
+		return aedService.getNearbyAedList(stage1, stage2, lat, lon, keyword, limit, radiusKm);
 	}
 }

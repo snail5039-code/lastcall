@@ -21,6 +21,7 @@ import { apiUrl } from "../../config/api";
 import { stage2Options } from "../../data/regions";
 import { fetchWithRetry } from "../../services/http";
 import { getCurrentLocationFast } from "../../services/location";
+import AedMap from "../../components/aed-map";
 import { Radius, ThemeColors, useThemeColors, useThemeStyles, Tap } from "../../constants/design";
 
 type Aed = {
@@ -42,6 +43,9 @@ const stage1Options = Object.keys(stage2Options);
 /** 위치를 확인하지 못했을 때 거리 계산의 기준점. 서울시청 좌표다. */
 const FALLBACK_COORDS = { latitude: 37.5665, longitude: 126.978 };
 
+/** 내 주변만 볼 때의 반경(km). 걸어서 몇 분 안에 가져올 수 있는 거리를 기준으로 한다. */
+const NEARBY_RADIUS_KM = 3;
+
 export default function AedScreen() {
   const Colors = useThemeColors();
   const styles = useThemeStyles(createStyles);
@@ -54,6 +58,11 @@ export default function AedScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [picker, setPicker] = useState<"stage1" | "stage2" | null>(null);
   const [searched, setSearched] = useState(false);
+  const [view, setView] = useState<"list" | "map">("list");
+  const [selectedAed, setSelectedAed] = useState<Aed | null>(null);
+  // 위치로 지역이 자동 채워졌을 때만 켜지는 반경 제한. 사용자가 지역을 직접 바꾸면 꺼진다.
+  const [nearbyOnly, setNearbyOnly] = useState(false);
+  const [autoSearchPending, setAutoSearchPending] = useState(false);
 
   // Modal 은 SafeAreaView 바깥에 렌더되므로 안전영역이 적용되지 않는다.
   // 제스처 내비게이션 바에 시트 하단 항목이 가려 눌리지 않는 것을 막는다.
@@ -72,6 +81,9 @@ export default function AedScreen() {
           setStage1(location.stage1);
           if (location.stage2 && stage2Options[location.stage1].includes(location.stage2)) {
             setStage2(location.stage2);
+            // 시·도와 시·군·구가 모두 채워졌을 때만 바로 주변 검색을 시작한다.
+            setNearbyOnly(true);
+            setAutoSearchPending(true);
           }
         }
       })
@@ -89,12 +101,14 @@ export default function AedScreen() {
     setLoading(true);
     setErrorMessage("");
     setSearched(true);
+    setSelectedAed(null);
     try {
       const base = coords ?? FALLBACK_COORDS;
       const url = apiUrl(
         `/aed/nearby?stage1=${encodeURIComponent(stage1)}` +
           (stage2 ? `&stage2=${encodeURIComponent(stage2)}` : "") +
           `&lat=${base.latitude}&lon=${base.longitude}&limit=100` +
+          (nearbyOnly && coords ? `&radiusKm=${NEARBY_RADIUS_KM}` : "") +
           (keyword.trim() ? `&keyword=${encodeURIComponent(keyword.trim())}` : ""),
       );
       const response = await fetchWithRetry(url);
@@ -107,7 +121,14 @@ export default function AedScreen() {
     } finally {
       setLoading(false);
     }
-  }, [stage1, stage2, coords, keyword, needsDistrict]);
+  }, [stage1, stage2, coords, keyword, needsDistrict, nearbyOnly]);
+
+  // 위치로 지역이 채워진 직후 한 번만 자동 검색한다. 상태가 반영된 뒤의 search 를 쓰기 위해 effect 로 실행한다.
+  useEffect(() => {
+    if (!autoSearchPending || !coords || !stage1 || !stage2) return;
+    setAutoSearchPending(false);
+    void search();
+  }, [autoSearchPending, coords, stage1, stage2, search]);
 
   const openMap = async (aed: Aed) => {
     const label = encodeURIComponent(aed.org || "AED");
@@ -128,6 +149,13 @@ export default function AedScreen() {
   const selectStage1 = (value: string) => {
     setStage1(value);
     setStage2("");
+    setNearbyOnly(false);
+    setPicker(null);
+  };
+
+  const selectStage2 = (value: string) => {
+    setStage2(value);
+    setNearbyOnly(false);
     setPicker(null);
   };
 
@@ -202,7 +230,35 @@ export default function AedScreen() {
           <Text style={styles.locationHint}>
             위치를 확인하지 못해 서울시청 기준으로 거리를 계산합니다. 지역을 직접 선택해 검색할 수 있습니다.
           </Text>
-        ) : null}
+        ) : (
+          <TouchableOpacity
+            style={[styles.chip, nearbyOnly && styles.chipActive]}
+            onPress={() => {
+              setNearbyOnly((value) => !value);
+              setAutoSearchPending(true);
+            }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: nearbyOnly }}
+          >
+            <FontAwesome6 name="location-crosshairs" size={12} color={nearbyOnly ? Colors.onDark : Colors.navySoft} />
+            <Text style={[styles.chipText, nearbyOnly && styles.chipTextActive]}>내 주변 {NEARBY_RADIUS_KM}km만 보기</Text>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.viewToggle}>
+          {(["list", "map"] as const).map((mode) => (
+            <TouchableOpacity
+              key={mode}
+              style={[styles.viewToggleButton, view === mode && styles.viewToggleActive]}
+              onPress={() => setView(mode)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: view === mode }}
+            >
+              <FontAwesome6 name={mode === "list" ? "list" : "map"} size={12} color={view === mode ? Colors.onDark : Colors.navySoft} />
+              <Text style={[styles.viewToggleText, view === mode && styles.viewToggleTextActive]}>{mode === "list" ? "목록" : "지도"}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {loading ? (
@@ -217,6 +273,31 @@ export default function AedScreen() {
           <TouchableOpacity style={styles.retryButton} onPress={() => void search()} accessibilityRole="button">
             <Text style={styles.retryText}>다시 시도</Text>
           </TouchableOpacity>
+        </View>
+      ) : view === "map" && aeds.length > 0 ? (
+        <View style={styles.mapArea}>
+          <AedMap
+            aeds={aeds}
+            center={coords ?? { latitude: aeds[0].latitude, longitude: aeds[0].longitude }}
+            hasLocation={coords !== null}
+            onSelect={(picked) => setSelectedAed(aeds.find((aed) => aed.serialSeq === picked.serialSeq && aed.latitude === picked.latitude) ?? null)}
+          />
+          {selectedAed ? (
+            <View style={styles.selectedCard}>
+              <Text style={styles.org} numberOfLines={2}>{selectedAed.org || "설치기관 정보 없음"}</Text>
+              {selectedAed.place ? <Text style={styles.place} numberOfLines={2}>{selectedAed.place}</Text> : null}
+              <Text style={styles.address} numberOfLines={2}>{selectedAed.address}</Text>
+              <Text style={styles.selectedMeta}>
+                {selectedAed.distance}km · {selectedAed.openNow === false ? "지금 닫힘" : selectedAed.openNow === true ? "지금 이용 가능" : "운영시간 확인 필요"} · {selectedAed.hoursText}
+              </Text>
+              <TouchableOpacity style={styles.selectedButton} onPress={() => void openMap(selectedAed)} accessibilityRole="button">
+                <FontAwesome6 name="map-location-dot" size={14} color={Colors.onDark} />
+                <Text style={styles.selectedButtonText}>지도 앱으로 길찾기</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={styles.mapHint}>마커를 누르면 AED 정보가 표시됩니다. 초록은 이용 가능, 회색은 닫힘입니다.</Text>
+          )}
         </View>
       ) : (
         <FlatList
@@ -313,7 +394,7 @@ export default function AedScreen() {
                   <TouchableOpacity
                     key={option}
                     style={[styles.optionRow, selected && styles.optionRowSelected]}
-                    onPress={() => (picker === "stage1" ? selectStage1(option) : (setStage2(option), setPicker(null)))}
+                    onPress={() => (picker === "stage1" ? selectStage1(option) : selectStage2(option))}
                     accessibilityRole="button"
                   >
                     <Text style={[styles.optionText, selected && styles.optionTextSelected]}>{option}</Text>
@@ -345,6 +426,21 @@ const createStyles = (Colors: ThemeColors) => StyleSheet.create({
   keywordRow: { flexDirection: "row", gap: 8, marginTop: 9 },
   keywordInput: { flex: 1, minHeight: 46, paddingHorizontal: 13, borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.borderStrong, color: Colors.text, fontSize: 13 },
   searchButton: { width: 52, minHeight: 46, borderRadius: Radius.control, backgroundColor: Colors.navy, alignItems: "center", justifyContent: "center" },
+  chip: { alignSelf: "flex-start", marginTop: 9, minHeight: 36, paddingHorizontal: 12, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.borderStrong, flexDirection: "row", gap: 6, alignItems: "center" },
+  chipActive: { backgroundColor: Colors.navy, borderColor: Colors.navy },
+  chipText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
+  chipTextActive: { color: Colors.onDark },
+  viewToggle: { flexDirection: "row", gap: 8, marginTop: 9 },
+  viewToggleButton: { flex: 1, minHeight: 38, borderRadius: Radius.control, borderWidth: 1, borderColor: Colors.borderStrong, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  viewToggleActive: { backgroundColor: Colors.navy, borderColor: Colors.navy },
+  viewToggleText: { color: Colors.navySoft, fontSize: 12, fontWeight: "800" },
+  viewToggleTextActive: { color: Colors.onDark },
+  mapArea: { flex: 1 },
+  mapHint: { margin: 14, color: Colors.textMuted, fontSize: 12, lineHeight: 18, textAlign: "center" },
+  selectedCard: { margin: 14, padding: 14, borderRadius: Radius.card, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border },
+  selectedMeta: { marginTop: 8, color: Colors.textSub, fontSize: 12, fontWeight: "800" },
+  selectedButton: { marginTop: 11, minHeight: 44, borderRadius: Radius.control, backgroundColor: Colors.navy, flexDirection: "row", gap: 7, alignItems: "center", justifyContent: "center" },
+  selectedButtonText: { color: Colors.onDark, fontSize: 13, fontWeight: "900" },
   locationHint: { marginTop: 9, color: Colors.textMuted, fontSize: 11, lineHeight: 17 },
   state: { alignItems: "center", justifyContent: "center", paddingVertical: 48, paddingHorizontal: 24 },
   stateText: { marginTop: 12, color: Colors.textMuted, fontSize: 13, textAlign: "center" },
